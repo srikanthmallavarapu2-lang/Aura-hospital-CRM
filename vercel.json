@@ -1,0 +1,8 @@
+{
+  "outputDirectory": "hospital",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/hospital", "destination": "/index.html" },
+    { "source": "/hospital/:path*", "destination": "/:path*" }
+  ]
+}
