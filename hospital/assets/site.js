@@ -1,2878 +1,964 @@
-/* --- app.js --- */
-/* =====================================================================
-   AURELIA CARE — CORE APP JS (app.js)
-   Shared Header, Live Clock, Nav, Modals, Aria Chat, Portal, Toast & Global Helpers
-   ===================================================================== */
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const icon = id => `<svg><use href="#i-${id}"/></svg>`;
+function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng(seed) { return () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 3200); }
 
-(function () {
-  "use strict";
+/* ---------------- DATA ---------------- */
+const DEPTS = [
+  { id: "card", name: "Cardiology", icon: "heart", short: "Heart & vascular", desc: "Interventional cardiology, heart failure clinic and cardiac surgery with a 24×7 cath lab." },
+  { id: "neuro", name: "Neurosciences", icon: "brain", short: "Brain & spine", desc: "Stroke unit, epilepsy monitoring, movement disorders and minimally invasive spine surgery." },
+  { id: "ortho", name: "Orthopaedics", icon: "bone", short: "Bones & joints", desc: "Robotic knee and hip replacement, sports injuries, arthroscopy and trauma." },
+  { id: "onco", name: "Oncology", icon: "ribbon", short: "Cancer care", desc: "Medical, surgical and radiation oncology, with tumour boards for every case." },
+  { id: "paed", name: "Paediatrics", icon: "baby", short: "Child health", desc: "Level-III NICU, paediatric surgery, vaccinations and child development clinic." },
+  { id: "neph", name: "Nephrology", icon: "kidney", short: "Kidney care", desc: "Dialysis centre with 40 stations, kidney transplant and CKD clinic." },
+  { id: "gastro", name: "Gastroenterology", icon: "stomach", short: "Digestive & liver", desc: "Advanced endoscopy, liver clinic, IBD care and liver transplant." },
+  { id: "obgyn", name: "Women’s Health", icon: "female", short: "Obstetrics & gynaecology", desc: "High-risk pregnancy, fertility, painless delivery and laparoscopic gynaecology." },
+  { id: "endo", name: "Endocrinology", icon: "pill", short: "Diabetes & thyroid", desc: "Diabetes reversal programme, thyroid, PCOS and hormone disorders." },
+  { id: "pulmo", name: "Pulmonology", icon: "lungs", short: "Lungs & sleep", desc: "Asthma and COPD care, interventional bronchoscopy and sleep lab." },
+  { id: "derm", name: "Dermatology", icon: "skin", short: "Skin & hair", desc: "Clinical dermatology, lasers, hair restoration and cosmetology." },
+  { id: "gen", name: "General Medicine", icon: "hosp", short: "Internal medicine", desc: "Fevers, infections, chronic illness and your first stop for any concern." },
+  { id: "diet", name: "Clinical Nutrition", icon: "skin", short: "Dietitians", desc: "Therapeutic diet plans for diabetes, kidney, heart, liver and weight management." }
+];
+const D = id => DEPTS.find(d => d.id === id);
+const COLORS = ["#0f7a72,#0a2533", "#2b9c96,#1d6b6f", "#3d5a80,#1b263b", "#8e5572,#3b1f2b", "#2a9d8f,#164e48", "#c06c52,#5e2a1c", "#577590,#22333b", "#6d597a,#2d2238"];
+const DOCS = [
+  { id: "d1", name: "Dr. Elena Marquez", dept: "card", title: "Senior Consultant, Interventional Cardiology", exp: 22, deg: "MD, FACC (Cardiology)", langs: "English, Spanish", fee: 1200, rating: 4.9, days: [1, 2, 3, 4, 5, 6], sess: [[9, 13], [16, 18]], tags: "heart attack chest pain angioplasty bp" },
+  { id: "d2", name: "Dr. Omar Haddad", dept: "card", title: "Director, Cardiac Surgery", exp: 28, deg: "MD, FRCS (Cardiothoracic)", langs: "English, Arabic, French", fee: 1500, rating: 4.8, days: [1, 3, 5], sess: [[10, 14]], tags: "bypass valve surgery heart" },
+  { id: "d3", name: "Dr. Meera Iyer", dept: "neuro", title: "Head, Neurology & Stroke", exp: 19, deg: "MD, DM (Neurology)", langs: "English, Tamil", fee: 1300, rating: 4.9, days: [1, 2, 4, 5, 6], sess: [[9, 13], [15, 17]], tags: "stroke migraine epilepsy headache seizure" },
+  { id: "d4", name: "Dr. Arjun Shetty", dept: "neuro", title: "Consultant Spine Surgeon", exp: 14, deg: "MS, MCh (Neurosurgery)", langs: "English, Kannada, Tulu", fee: 1200, rating: 4.7, days: [2, 4, 6], sess: [[11, 15]], tags: "back pain spine disc slip sciatica" },
+  { id: "d5", name: "Dr. Rahul Kapoor", dept: "ortho", title: "Chief, Joint Replacement", exp: 24, deg: "MS (Ortho), Fellowship (Arthroplasty)", langs: "English, Hindi, Punjabi", fee: 1200, rating: 4.9, days: [1, 2, 3, 4, 5], sess: [[9, 12], [16, 19]], tags: "knee hip replacement arthritis joint" },
+  { id: "d6", name: "Dr. Sofia Rossi", dept: "ortho", title: "Consultant, Sports Medicine", exp: 11, deg: "MD, Fellowship (Sports Medicine)", langs: "English, Italian", fee: 1000, rating: 4.8, days: [1, 3, 5, 6], sess: [[10, 13], [17, 19]], tags: "ligament acl sports injury shoulder knee" },
+  { id: "d7", name: "Dr. Daniel Tan", dept: "onco", title: "Senior Consultant, Medical Oncology", exp: 20, deg: "MBBS, FRCP (Medical Oncology)", langs: "English, Mandarin, Malay", fee: 1500, rating: 4.9, days: [1, 2, 3, 4, 5], sess: [[9, 14]], tags: "cancer chemotherapy tumour breast lung" },
+  { id: "d8", name: "Dr. Amara Okafor", dept: "paed", title: "Consultant Paediatrician & Neonatologist", exp: 16, deg: "MD, FAAP (Neonatology)", langs: "English, Igbo, French", fee: 900, rating: 4.9, days: [1, 2, 3, 4, 5, 6], sess: [[9, 13], [17, 20]], tags: "child baby fever vaccination newborn" },
+  { id: "d9", name: "Dr. Farhan Qureshi", dept: "neph", title: "Head, Nephrology & Transplant", exp: 21, deg: "MD, DM (Nephrology)", langs: "English, Urdu, Hindi", fee: 1300, rating: 4.8, days: [1, 2, 4, 5], sess: [[10, 14]], tags: "kidney ckd dialysis creatinine transplant" },
+  { id: "d10", name: "Dr. Grace Mensah", dept: "gastro", title: "Consultant Gastroenterologist", exp: 13, deg: "MD, FACG (Gastroenterology)", langs: "English, Twi", fee: 1100, rating: 4.7, days: [1, 2, 3, 5, 6], sess: [[9, 12], [15, 18]], tags: "acidity liver fatty liver endoscopy ibs stomach" },
+  { id: "d11", name: "Dr. Margaret Hughes", dept: "obgyn", title: "Senior Consultant, Obstetrics", exp: 25, deg: "MBBS, FRCOG", langs: "English, Welsh", fee: 1200, rating: 4.9, days: [1, 2, 3, 4, 5, 6], sess: [[9, 13], [16, 18]], tags: "pregnancy delivery pcos fertility women" },
+  { id: "d12", name: "Dr. Kwame Asante", dept: "endo", title: "Consultant Endocrinologist", exp: 15, deg: "MD, FACE (Endocrinology)", langs: "English, Twi, French", fee: 1100, rating: 4.8, days: [1, 2, 3, 4, 5, 6], sess: [[9, 13], [16, 19]], tags: "diabetes sugar thyroid pcos obesity hormone" },
+  { id: "d13", name: "Dr. Lukas Weber", dept: "pulmo", title: "Consultant Pulmonologist", exp: 12, deg: "Dr. med., FCCP (Pulmonology)", langs: "English, German", fee: 1000, rating: 4.7, days: [2, 3, 4, 6], sess: [[10, 13], [16, 18]], tags: "asthma cough copd breathing sleep apnea" },
+  { id: "d14", name: "Dr. Nia Williams", dept: "derm", title: "Consultant Dermatologist", exp: 10, deg: "MD, FAAD (Dermatology)", langs: "English", fee: 900, rating: 4.8, days: [1, 2, 3, 4, 5, 6], sess: [[11, 14], [17, 20]], tags: "skin acne hair fall eczema" },
+  { id: "d15", name: "Dr. Richard Collins", dept: "gen", title: "Senior Physician, Internal Medicine", exp: 27, deg: "MD, FACP (Internal Medicine)", langs: "English", fee: 800, rating: 4.8, days: [0, 1, 2, 3, 4, 5, 6], sess: [[8, 13], [16, 20]], tags: "fever infection bp diabetes general checkup" },
+  { id: "d16", name: "Ms. Sarah Mitchell", dept: "diet", title: "Chief Clinical Dietitian", exp: 12, deg: "MSc (Clinical Nutrition), RD", langs: "English", fee: 700, rating: 4.9, days: [1, 2, 3, 4, 5, 6], sess: [[10, 13], [15, 18]], tags: "diet nutrition weight loss diabetes diet kidney diet" }
+].map((d, i) => ({ ...d, color: COLORS[i % COLORS.length] }));
+const initials = n => n.replace(/^(Dr\.|Ms\.)\s*/, "").split(" ").map(w => w[0]).join("").slice(0, 2);
+DOCS.forEach(d => d.photo = `assets/img/doc-${d.id}.jpg`);
+const docAv = d => `background:url(${d.photo}) center 22%/cover,linear-gradient(145deg,${d.color});color:transparent`;
 
-  // Global namespace
-  window.AUR = window.AUR || {};
-
-  // Safe DOM selector helpers
-  const $ = (selector, context = document) => context.querySelector(selector);
-  const $$ = (selector, context = document) => Array.from(context.querySelectorAll(selector));
-
-  window.AUR.$ = $;
-  window.AUR.$$ = $$;
-
-  /* -------------------------------------------------------------------
-     1. TOAST NOTIFICATION SYSTEM
-     ------------------------------------------------------------------- */
-  function showToast(message, type = "info") {
-    let container = $("#toastContainer");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "toastContainer";
-      container.className = "toast-container";
-      document.body.appendChild(container);
-    }
-
-    const toast = document.createElement("div");
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `
-      <div style="flex:1;">${message}</div>
-      <button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;" aria-label="Close">&times;</button>
-    `;
-
-    toast.querySelector("button").addEventListener("click", () => {
-      toast.remove();
-    });
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-      if (toast.parentNode) {
-        toast.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-        toast.style.opacity = "0";
-        toast.style.transform = "translateX(-20px)";
-        setTimeout(() => toast.remove(), 300);
-      }
-    }, 4500);
+const QS = new URLSearchParams(location.search);
+/* ---------------- SEGMENTED CONTROLS ---------------- */
+const segHandlers = {};
+function placeThumbs() { $$(".seg").forEach(seg => { const on = $("button.on", seg), th = $(".thumb", seg); if (on && th && on.offsetWidth) { th.style.left = on.offsetLeft + "px"; th.style.width = on.offsetWidth + "px"; } }); }
+$$(".seg").forEach(seg => seg.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; $$("button", seg).forEach(x => x.classList.toggle("on", x === b)); placeThumbs(); segHandlers[seg.dataset.seg]?.(b.dataset.v); }));
+addEventListener("resize", placeThumbs);
+/* ---------------- TWEEN ---------------- */
+function tween(el, to, fmt = v => Math.round(v).toLocaleString("en-IN"), dur = 900) {
+  const from = el._v ?? 0; el._v = to; const t0 = performance.now();
+  cancelAnimationFrame(el._raf);
+  const step = t => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 4); el.textContent = fmt(from + (to - from) * e); if (p < 1) el._raf = requestAnimationFrame(step); };
+  el._raf = requestAnimationFrame(step);
+}
+/* ---------------- SHARED BOOKING HELPERS ---------------- */
+const B = { step: 0, dept: null, doc: null, date: null, time: null, mode: "In-person", pay: "Pay at hospital", pat: {} };
+const dkey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function slotsFor(doc, date) {
+  const r = rng(hash(doc.id + dkey(date)));
+  const now = new Date(), isToday = dkey(date) === dkey(now);
+  const out = [];
+  doc.sess.forEach(([a, b]) => { for (let m = a * 60; m < b * 60; m += 15) {
+    const h = Math.floor(m / 60), mi = m % 60;
+    const past = isToday && (h * 60 + mi) < (now.getHours() * 60 + now.getMinutes() + 30);
+    const lbl = `${((h + 11) % 12) + 1}:${String(mi).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+    out.push({ m, h, label: lbl, booked: r() < 0.38, past });
+  } });
+  return out;
+}
+const fmtDate = d => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+function qrSvg(seed) {
+  const n = 25, r = rng(hash(seed)); let cells = "";
+  const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#0a2533"/><rect x="${x + 1}" y="${y + 1}" width="5" height="5" fill="#fff"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3" fill="#0a2533"/>`;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const inF = (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9); if (!inF && r() > .52) cells += `M${x} ${y}h1v1h-1z`; }
+  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><path d="${cells}" fill="#0a2533"/>${finder(0, 0)}${finder(n - 7, 0)}${finder(0, n - 7)}</svg>`;
+}
+if ($("#centreGrid")) {
+/* ---------------- CENTRES + MARQUEE ---------------- */
+const CIMG = { card: "heart-model", neuro: "brain-model", ortho: "xray", onco: "lab", paed: "baby", neph: "ward", gastro: "food", obgyn: "care-doctor-patient" };
+$("#centreGrid").innerHTML = DEPTS.slice(0, 8).map((d, i) => `
+  <a href="doctors.html?dept=${d.id}" class="centre rv ${"d" + (i % 4)}" data-dept="${d.id}">
+    <span class="cimg" style="background-image:url(assets/img/${CIMG[d.id]}.jpg)"></span><span class="ci">${icon(d.icon)}</span><span class="arrow">${icon("arrow")}</span>
+    <h3>${d.name}</h3><p>${d.desc}</p></a>`).join("");
+const mq = ["Robotic surgery", "Level-1 trauma centre", "Kidney transplant", "Level-III NICU", "Hybrid cath lab", "3T MRI", "Stroke-ready unit", "Bone marrow transplant", "Sleep lab", "Bariatric surgery"];
+$("#marq").innerHTML = [...mq, ...mq].map(t => `<span>${t}</span>`).join("");
+}
+if ($("#docGrid")) {
+/* ---------------- DOCTORS ---------------- */
+let docFilter = "all", docQuery = "", docShow = 8;
+function renderChips() {
+  const ch = [{ id: "all", name: "All" }, ...DEPTS];
+  $("#docChips").innerHTML = ch.map(c => `<button class="chip ${docFilter === c.id ? "on" : ""}" data-f="${c.id}">${c.name}</button>`).join("");
+}
+function nextAvail(d) {
+  const now = new Date();
+  for (let i = 0; i < 14; i++) { const dt = new Date(now); dt.setDate(now.getDate() + i); if (d.days.includes(dt.getDay())) { const s = slotsFor(d, dt).find(x => !x.booked && !x.past); if (s) return (i === 0 ? "Today" : i === 1 ? "Tomorrow" : dt.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })) + ", " + s.label; } }
+  return "Fully booked";
+}
+function renderDocs() {
+  const q = docQuery.toLowerCase().trim();
+  const list = DOCS.filter(d => (docFilter === "all" || d.dept === docFilter) && (!q || (d.name + " " + D(d.dept).name + " " + D(d.dept).short + " " + d.tags + " " + d.title).toLowerCase().includes(q)));
+  const total = list.length; const shown = list.slice(0, docShow);
+  $("#docGrid").innerHTML = list.length ? shown.map((d, i) => `
+    <article class="doc" style="animation-delay:${i * 50}ms">
+      <div class="doc-ph" style="background:linear-gradient(145deg,${d.color})">
+        <img src="${d.photo}" alt="Portrait of ${d.name}" loading="lazy">
+        <span class="avail"><i></i>${esc(nextAvail(d))}</span><span class="rating">★ ${d.rating}</span>
+      </div>
+      <div class="doc-body">
+        <h3>${d.name}</h3><div class="sp">${D(d.dept).name}</div>
+        <div class="meta"><span>${d.title}</span><span>${d.deg} · ${d.exp} yrs</span><span>Speaks ${d.langs}</span></div>
+        <div class="row"><span class="fee">Fee <b>${inr(d.fee)}</b></span><button class="btn btn-primary btn-sm" data-bookdoc="${d.id}">Book</button></div>
+      </div></article>`).join("") + (total > shown.length ? `<div style="grid-column:1/-1;text-align:center;margin-top:10px"><button class="btn btn-ghost" data-more>Show all ${total} doctors</button></div>` : "") : `<div class="empty">No doctors match “${esc(docQuery)}”. Try a speciality like “heart” or “skin”.</div>`;
+}
+$("#docChips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; docFilter = b.dataset.f; renderChips(); renderDocs(); });
+$("#docSearch").addEventListener("input", e => { docQuery = e.target.value; renderDocs(); });
+$("#docGrid").addEventListener("click", e => { if (e.target.closest("[data-more]")) { docShow = 99; renderDocs(); return; } const b = e.target.closest("[data-bookdoc]"); if (b) location.href = "book.html?doc=" + b.dataset.bookdoc; });
+if (QS.get("dept") && D(QS.get("dept"))) docFilter = QS.get("dept");
+if (QS.get("q")) { docQuery = QS.get("q"); $("#docSearch").value = docQuery; }
+renderChips(); renderDocs();
+}
+if ($("#steps")) {
+/* ---------------- BOOKING ---------------- */
+const STEPS = ["Department", "Doctor", "Date & time", "Details", "Confirm"];
+function renderSteps() {
+  $("#steps").innerHTML = STEPS.map((s, i) => `<div class="step-pill ${i < B.step ? "done" : i === B.step ? "cur" : ""}" data-go="${i}"><div class="track"><i></i></div><span>${i + 1}. ${s}</span></div>`).join("");
+}
+$("#steps").addEventListener("click", e => { const p = e.target.closest(".step-pill.done"); if (p && B.step < 5) goStep(+p.dataset.go); });
+function renderDept() {
+  $("#deptGrid").innerHTML = DEPTS.map(d => `<button type="button" class="opt ${B.dept === d.id ? "sel" : ""}" data-dept="${d.id}">${icon(d.icon)}<b>${d.name}</b><small>${d.short}</small></button>`).join("");
+}
+$("#deptGrid").addEventListener("click", e => { const b = e.target.closest(".opt"); if (!b) return; if (B.dept !== b.dataset.dept) { B.doc = null; B.date = null; B.time = null; } B.dept = b.dataset.dept; renderDept(); updSummary(); setTimeout(() => goStep(1), 260); });
+function renderDocPick() {
+  const list = DOCS.filter(d => d.dept === B.dept);
+  $("#docSub").textContent = `${list.length} doctor${list.length > 1 ? "s" : ""} available in ${D(B.dept).name}.`;
+  $("#docPick").innerHTML = list.map(d => `<button type="button" class="opt ${B.doc === d.id ? "sel" : ""}" data-doc="${d.id}"><span class="av" style="${docAv(d)}">${initials(d.name)}</span><div><b>${d.name}</b><small>${d.title}</small><small>${d.exp} yrs · ★ ${d.rating} · ${inr(d.fee)}</small></div></button>`).join("");
+}
+$("#docPick").addEventListener("click", e => { const b = e.target.closest(".opt"); if (!b) return; if (B.doc !== b.dataset.doc) { B.date = null; B.time = null; } B.doc = b.dataset.doc; renderDocPick(); updSummary(); setTimeout(() => goStep(2), 260); });
+function renderDates() {
+  const doc = DOCS.find(d => d.id === B.doc), now = new Date();
+  $("#slotSub").textContent = `${doc.name} consults on ${doc.days.length === 7 ? "all days" : doc.days.map(x => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][x]).join(", ")}. Times in IST.`;
+  let html = "", firstAvail = null;
+  for (let i = 0; i < 14; i++) {
+    const dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, 12);
+    const ok = doc.days.includes(dt.getDay()) && slotsFor(doc, dt).some(s => !s.booked && !s.past);
+    if (ok && !firstAvail) firstAvail = dt;
+    html += `<button type="button" class="date ${B.date && dkey(B.date) === dkey(dt) ? "sel" : ""}" data-d="${dt.toISOString()}" ${ok ? "" : "disabled"}><small>${i === 0 ? "Today" : dt.toLocaleDateString("en-IN", { weekday: "short" })}</small><b>${dt.getDate()}</b><small>${dt.toLocaleDateString("en-IN", { month: "short" })}</small></button>`;
   }
-  window.AUR.toast = showToast;
-
-  /* -------------------------------------------------------------------
-     2. LIVE IST CLOCK (Indian Standard Time)
-     ------------------------------------------------------------------- */
-  function initLiveClock() {
-    const clockEl = $("#istClock");
-    if (!clockEl) return;
-
-    function update() {
-      try {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString("en-IN", {
-          timeZone: "Asia/Kolkata",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: true,
-        });
-        clockEl.textContent = `${timeStr} IST`;
-      } catch (e) {
-        const d = new Date();
-        clockEl.textContent = d.toLocaleTimeString() + " IST";
-      }
-    }
-    update();
-    setInterval(update, 1000);
+  $("#dates").innerHTML = html;
+  if (!B.date && firstAvail) { B.date = firstAvail; $$("#dates .date").find(b => dkey(new Date(b.dataset.d)) === dkey(firstAvail))?.classList.add("sel"); }
+  renderSlots();
+}
+$("#dates").addEventListener("click", e => { const b = e.target.closest(".date"); if (!b) return; B.date = new Date(b.dataset.d); B.time = null; $$("#dates .date").forEach(x => x.classList.toggle("sel", x === b)); renderSlots(); updSummary(); });
+function renderSlots() {
+  const doc = DOCS.find(d => d.id === B.doc);
+  if (!B.date) { $("#slotArea").innerHTML = `<p class="sub">No slots in the next two weeks.</p>`; return; }
+  const s = slotsFor(doc, B.date);
+  const groups = [["Morning", "sun", x => x.h < 12], ["Afternoon", "sun", x => x.h >= 12 && x.h < 16], ["Evening", "moon", x => x.h >= 16]];
+  $("#slotArea").innerHTML = groups.map(([n, ic, f]) => { const g = s.filter(f); if (!g.length) return ""; const free = g.filter(x => !x.booked && !x.past).length;
+    return `<div class="slot-group"><h4><svg style="width:15px;height:15px"><use href="#i-${ic}"/></svg>${n} · ${free} open</h4><div class="slots">${g.map(x => `<button type="button" class="slot ${B.time === x.label ? "sel" : ""}" data-t="${x.label}" ${x.booked || x.past ? "disabled" : ""}>${x.label}</button>`).join("")}</div></div>`; }).join("");
+}
+$("#slotArea").addEventListener("click", e => { const b = e.target.closest(".slot"); if (!b) return; B.time = b.dataset.t; $$("#slotArea .slot").forEach(x => x.classList.toggle("sel", x === b)); updSummary(); updNav(); });
+function setSum(id, v, ph) { const el = $(id); el.textContent = v || ph; el.classList.toggle("empty-v", !v); }
+function fee() { const d = DOCS.find(x => x.id === B.doc); if (!d) return 0; let f = d.fee; if (B.mode === "Video") f *= .8; if ((B.pat.visit || "").startsWith("Follow")) f = 0; if (B.pay.startsWith("Paid online")) f *= .95; return f; }
+function updSummary() {
+  const doc = DOCS.find(x => x.id === B.doc);
+  setSum("#sDept", B.dept && D(B.dept).name, "Not selected");
+  setSum("#sDoc", doc && doc.name, "Not selected");
+  setSum("#sDate", B.date && fmtDate(B.date), "Not selected");
+  setSum("#sTime", B.time && (B.time + (B.mode === "Video" ? " · Video" : "")), "Not selected");
+  setSum("#sPat", B.pat.name && `${B.pat.name}${B.pat.age ? ", " + B.pat.age : ""}`, "Not entered");
+  tween($("#sFee"), fee(), v => inr(v));
+}
+function readPatient(validate) {
+  const P = { name: $("#pName").value.trim(), phone: $("#pPhone").value.trim(), age: $("#pAge").value.trim(), gender: $("#pGender").value, visit: $("#pVisit").value, uhid: $("#pUhid").value.trim(), reason: $("#pReason").value.trim() };
+  B.pat = P;
+  if (!validate) return true;
+  const checks = [["#pName", P.name.length >= 2], ["#pPhone", /^[6-9]\d{9}$/.test(P.phone)], ["#pAge", P.age !== "" && +P.age >= 0 && +P.age <= 120], ["#pGender", !!P.gender]];
+  let ok = true; checks.forEach(([s, v]) => { $(s).closest(".field").classList.toggle("err", !v); if (!v) ok = false; });
+  return ok;
+}
+["#pName", "#pPhone", "#pAge", "#pGender", "#pVisit"].forEach(s => $(s).addEventListener("input", () => { $(s).closest(".field").classList.remove("err"); readPatient(false); updSummary(); }));
+$("#pPhone").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, ""));
+function renderReview() {
+  const doc = DOCS.find(x => x.id === B.doc);
+  const items = [["Doctor", doc.name], ["Department", D(B.dept).name], ["Date", fmtDate(B.date)], ["Time", B.time + " (report 15 min early)"], ["Patient", `${B.pat.name}, ${B.pat.age} · ${B.pat.gender}`], ["Mobile", "+91 " + B.pat.phone], ["Consultation", B.mode], ["Visit type", B.pat.visit]];
+  $("#review").innerHTML = items.map(([k, v]) => `<div><small>${k}</small><b>${esc(v)}</b></div>`).join("");
+}
+$("#payOpts").addEventListener("click", e => { const b = e.target.closest(".opt"); if (!b) return; B.pay = b.dataset.pay; $$("#payOpts .opt").forEach(x => x.classList.toggle("sel", x === b)); updSummary(); });
+function canNext() { return [!!B.dept, !!B.doc, !!B.time, true, true][B.step]; }
+function updNav() {
+  $("#bookNav").style.display = B.step === 5 ? "none" : "flex";
+  $("#backBtn").style.visibility = B.step === 0 ? "hidden" : "visible";
+  $("#nextBtn").disabled = !canNext();
+  $("#nextBtn").innerHTML = B.step === 4 ? `Confirm booking ${icon("arrow")}` : `Continue ${icon("arrow")}`;
+}
+function goStep(n) {
+  B.step = n;
+  $$(".bstep").forEach(s => s.classList.toggle("on", +s.dataset.step === n));
+  if (n === 0) renderDept(); if (n === 1) renderDocPick(); if (n === 2) renderDates(); if (n === 4) renderReview();
+  renderSteps(); updSummary(); updNav(); placeThumbs();
+}
+$("#backBtn").addEventListener("click", () => goStep(Math.max(0, B.step - 1)));
+$("#nextBtn").addEventListener("click", () => {
+  if (B.step === 3 && !readPatient(true)) { toast("Please complete the highlighted fields"); return; }
+  if (B.step === 4) { if (!$("#consent").checked) { toast("Please accept the terms to confirm"); $("#consent").focus(); return; } confirmBooking(); return; }
+  goStep(B.step + 1);
+});
+let lastAppt = null;
+function confirmBooking() {
+  const doc = DOCS.find(x => x.id === B.doc);
+  const s = slotsFor(doc, B.date); const token = s.findIndex(x => x.label === B.time) + 1;
+  const op = "OP" + dkey(B.date).replace(/-/g, "").slice(2) + String(hash(B.pat.phone + B.time) % 9000 + 1000);
+  const appt = { id: op, token, doc: doc.id, dept: B.dept, date: B.date.toISOString(), time: B.time, mode: B.mode, pay: B.pay, fee: fee(), pat: { ...B.pat }, uhid: B.pat.uhid || "AUR-" + (hash(B.pat.phone) % 900000 + 100000) };
+  const list = store.get("aur-appts", []); list.unshift(appt); store.set("aur-appts", list.slice(0, 8));
+  lastAppt = appt;
+  $("#ticket").innerHTML = `<div class="ticket">
+    <div class="tl"><div class="tok"><small>Token number</small><b>${String(token).padStart(2, "0")}</b></div>
+      <div class="tgrid"><div><small>Patient</small><b>${esc(appt.pat.name)}</b></div><div><small>UHID</small><b>${appt.uhid}</b></div>
+      <div><small>Doctor</small><b>${doc.name}</b></div><div><small>Department</small><b>${D(appt.dept).name}</b></div>
+      <div><small>Date</small><b>${fmtDate(B.date)}</b></div><div><small>Time</small><b>${appt.time}${appt.mode === "Video" ? " · Video" : ""}</b></div>
+      <div><small>Location</small><b>${appt.mode === "Video" ? "Link sent by SMS" : "Block B, Floor 2, OPD " + (hash(doc.id) % 20 + 1)}</b></div><div><small>Payment</small><b>${appt.fee ? inr(appt.fee) : "Free"} · ${appt.pay}</b></div></div></div>
+    <div class="tr"><div class="qr">${qrSvg(op)}</div><small>${op}</small><small>Scan at the OPD kiosk</small></div></div>`;
+  goStep(5); renderMyAppts(); toast("Appointment confirmed · SMS sent (demo)");
+}
+$("#againBtn").addEventListener("click", () => { Object.assign(B, { dept: null, doc: null, date: null, time: null, pat: {} }); $("#patForm").reset(); $("#consent").checked = false; goStep(0); });
+$("#icsBtn").addEventListener("click", () => {
+  if (!lastAppt) return; const doc = DOCS.find(x => x.id === lastAppt.doc);
+  const d = new Date(lastAppt.date); const [hm, ap] = lastAppt.time.split(" "); let [h, m] = hm.split(":").map(Number); if (ap === "PM" && h < 12) h += 12; if (ap === "AM" && h === 12) h = 0;
+  const st = new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m), en = new Date(st.getTime() + 15 * 60000);
+  const f = x => x.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Aurelia Hospital Demo//EN", "BEGIN:VEVENT", "UID:" + lastAppt.id + "@aurelia.example", "DTSTAMP:" + f(new Date()), "DTSTART:" + f(st), "DTEND:" + f(en), "SUMMARY:OP appointment with " + doc.name, "LOCATION:Aurelia Hospital (demo)", "DESCRIPTION:Token " + lastAppt.token + " · " + lastAppt.id, "BEGIN:VALARM", "TRIGGER:-PT2H", "ACTION:DISPLAY", "DESCRIPTION:Reminder", "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" })); a.download = lastAppt.id + ".ics"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+function renderMyAppts() {
+  const list = store.get("aur-appts", []);
+  $("#myAppts").innerHTML = `<h4>My appointments</h4><p style="font-size:13px;color:var(--muted);margin-bottom:8px">Saved in this browser only.</p>` + (list.length ? list.map(a => { const d = new Date(a.date), doc = DOCS.find(x => x.id === a.doc);
+    return `<div class="appt"><div class="ad"><small>${d.toLocaleDateString("en-IN", { month: "short" })}</small><b>${d.getDate()}</b></div><div class="ai"><b>${doc ? doc.name : ""}</b><span>${a.time} · Token ${a.token} · ${esc(a.pat.name)}</span></div><button class="link" data-cancel="${a.id}">Cancel</button></div>`; }).join("") : `<p style="font-size:14px;color:var(--muted);padding:14px 0">No upcoming appointments yet.</p>`);
+}
+$("#myAppts").addEventListener("click", e => { const b = e.target.closest("[data-cancel]"); if (!b) return; store.set("aur-appts", store.get("aur-appts", []).filter(a => a.id !== b.dataset.cancel)); renderMyAppts(); toast("Appointment cancelled"); });
+segHandlers.mode = v => { B.mode = v; updSummary(); };
+renderMyAppts();
+{ const qd = DOCS.find(d => d.id === QS.get("doc")); if (qd) { B.dept = qd.dept; B.doc = qd.id; goStep(2); } else if (QS.get("dept") && D(QS.get("dept"))) { B.dept = QS.get("dept"); goStep(1); } else goStep(0); }
+}
+if ($("#condGrid")) {
+/* ---------------- DIET ---------------- */
+const M = (t, title, veg, nv) => ({ t, title, veg, nv: nv || veg });
+const COND = {
+  dm: { name: "Type 2 Diabetes", short: "Diabetes", e: "🩸", adj: b => b >= 23 ? -400 : 0, mac: [45, 20, 35], fibre: 35,
+    note: "Gentle deficit to improve insulin sensitivity",
+    limits: c => [["Added sugar", 20, "g", 50, "#d9534f"], ["Sodium", 2300, "mg", 4000, "#e0a63a"], ["Fibre (target)", 35, "g", 40, "#1f9d6b"], ["Carbs per meal", Math.round(c * .45 / 4 / 3.5), "g", 120, "#e0a63a"]],
+    plate: [50, 25, 25],
+    eat: ["Millets (ragi, jowar, bajra)", "Leafy greens", "Dal & sprouts", "Soaked methi seeds", "Low-fat curd", "Guava, apple, pear", "Almonds & walnuts", "Brown / red rice in small portions", "Paneer & tofu"],
+    avoid: ["Sweets & jaggery", "Fruit juices", "Maida & bakery", "Sugary drinks", "Large portions of white rice", "Fried snacks", "Mango & chikoo in excess", "Sweetened breakfast cereals"],
+    tips: ["Pair every carb with protein or fibre to slow sugar spikes.", "Eat at the same times every day and don’t skip meals, especially on medication.", "A 10–15 minute walk after meals lowers post-meal sugar.", "Check sugar two hours after meals to see how different foods affect you."],
+    meals: [M("6:30", "Wake-up", "Warm water with 1 tsp soaked methi seeds"), M("8:00", "Breakfast", "2 ragi dosas, sambar and mint chutney", "2-egg vegetable omelette and 1 multigrain toast"), M("11:00", "Mid-morning", "1 guava and 5 almonds"), M("1:30", "Lunch", "2 jowar rotis, dal, mixed vegetable sabzi, salad and curd", "1 cup brown rice, grilled fish, vegetable sabzi and salad"), M("5:00", "Evening", "Roasted chana and unsweetened green tea"), M("8:00", "Dinner", "Paneer bhurji, sautéed vegetables and 1 multigrain roti", "Chicken curry (little oil), vegetables and 1 multigrain roti")] },
+  htn: { name: "Hypertension", short: "BP (DASH)", e: "🫀", adj: b => b >= 23 ? -300 : 0, mac: [52, 18, 30], fibre: 30,
+    note: "DASH-style plan, low in sodium",
+    limits: () => [["Sodium", 1500, "mg", 4000, "#d9534f"], ["Salt (≈ ¾ tsp)", 3.8, "g", 10, "#e0a63a"], ["Potassium (target)", 4700, "mg", 5000, "#1f9d6b"], ["Caffeine", 200, "mg", 400, "#b07bd6"]],
+    plate: [50, 25, 25],
+    eat: ["Fruit: banana, orange, papaya", "Vegetables at every meal", "Low-fat milk & curd", "Oats & whole grains", "Unsalted nuts & seeds", "Beetroot", "Coconut water (if kidneys are healthy)", "Lemon, herbs & spices instead of salt"],
+    avoid: ["Pickles & papad", "Extra salt at the table", "Chips & namkeen", "Instant noodles & soups", "Sauces & ketchup", "Processed meat", "Alcohol", "Bakery biscuits"],
+    tips: ["Keep total salt under one teaspoon a day, including what’s already in food.", "Check labels: more than 400 mg sodium per serving counts as high.", "Aim for 150 minutes of brisk walking each week.", "Measure your BP at home at the same time each day."],
+    meals: [M("6:30", "Wake-up", "Warm water with lemon; no salt"), M("8:00", "Breakfast", "Vegetable oats upma (low salt) and a glass of low-fat milk", "2 boiled eggs, oats porridge and low-fat milk"), M("11:00", "Mid-morning", "1 banana and a handful of unsalted peanuts"), M("1:30", "Lunch", "Rice, palak dal, beetroot poriyal, cucumber salad and curd", "Rice, grilled chicken, beetroot poriyal and cucumber salad"), M("5:00", "Evening", "Papaya bowl and buttermilk with jeera (no salt)"), M("8:00", "Dinner", "2 phulkas, lauki chana dal and a lightly seasoned salad", "2 phulkas, steamed fish with herbs and vegetables")] },
+  heart: { name: "Heart Disease", short: "Cholesterol", e: "❤️", adj: b => b >= 23 ? -300 : 0, mac: [50, 20, 30], fibre: 30,
+    note: "Heart-healthy, low in saturated fat",
+    limits: c => [["Saturated fat (<7%)", Math.round(c * .07 / 9), "g", 40, "#d9534f"], ["Dietary cholesterol", 200, "mg", 400, "#e0a63a"], ["Sodium", 2000, "mg", 4000, "#e0a63a"], ["Omega-3 (target)", 1.5, "g", 2, "#1f9d6b"]],
+    plate: [50, 25, 25],
+    eat: ["Oats & barley", "Flaxseed & walnuts", "Fatty fish (non-veg)", "Mustard, groundnut or rice bran oil (measured)", "Rajma, chana & soy", "Fresh fruit & vegetables", "Garlic", "Skimmed dairy"],
+    avoid: ["Vanaspati & trans fats", "Excess ghee & butter", "Red & processed meat", "Deep-fried foods", "Full-fat cheese & cream", "Bakery items", "Egg yolks in excess", "Smoking & alcohol"],
+    tips: ["Limit cooking oil to 3–4 teaspoons per person per day and rotate oils.", "Soluble fibre from oats, beans and fruit helps lower LDL cholesterol.", "Have fish twice a week, or flaxseed and walnuts if vegetarian.", "Do cardiac rehab exercise only as advised by your cardiologist."],
+    meals: [M("6:30", "Wake-up", "Water and 4 soaked walnut halves"), M("8:00", "Breakfast", "Oats chilla with vegetables and mint chutney", "Egg-white bhurji with 1 multigrain toast"), M("11:00", "Mid-morning", "1 apple and 1 tbsp roasted flaxseed"), M("1:30", "Lunch", "Barley khichdi, rajma, salad and skimmed curd", "Brown rice, mackerel curry (light oil) and salad"), M("5:00", "Evening", "Sprouts chaat with lemon"), M("8:00", "Dinner", "2 phulkas, soya chunk curry and steamed vegetables", "2 phulkas, tandoori chicken (skinless) and vegetables")] },
+  ckd: { name: "Kidney Disease (CKD)", short: "CKD 3–4", e: "🫘", adj: () => 0, pk: .7, fat: 30, fibre: 25,
+    note: "Controlled protein, low potassium & phosphorus",
+    limits: () => [["Sodium", 2000, "mg", 4000, "#d9534f"], ["Potassium", 2000, "mg", 4000, "#e0a63a"], ["Phosphorus", 800, "mg", 1400, "#b07bd6"], ["Fluids (as advised)", 1.5, "L", 3, "#5aa9e6"]],
+    plate: [40, 20, 40],
+    eat: ["Bottle, ridge & snake gourd", "Cabbage & cauliflower", "Apple, pear, guava (small)", "Rice & wheat in measured amounts", "Egg whites (if allowed)", "Leached vegetables", "Unsalted puffed rice", "Measured paneer"],
+    avoid: ["Banana & coconut water", "Oranges & sweet lime", "Tomato in excess", "Salt substitutes (potassium)", "Dried fruits", "Colas (phosphorus)", "Processed cheese", "Pickles & papad"],
+    tips: ["Leach high-potassium vegetables: peel, dice, soak in warm water for two hours, then boil and drain.", "Protein needs change with stage and dialysis, so your nephrologist sets the exact amount.", "Follow your fluid limit, including tea, soups and dal water.", "Avoid painkillers like ibuprofen unless your doctor approves them."],
+    meals: [M("6:30", "Wake-up", "Half a cup of warm water (within your fluid limit)"), M("8:00", "Breakfast", "Rice flakes poha with leached vegetables", "Poha and 2 egg whites"), M("11:00", "Mid-morning", "1 small apple"), M("1:30", "Lunch", "Rice, bottle gourd sabzi, small katori thin dal and cucumber", "Rice, bottle gourd sabzi and 1 small piece of chicken"), M("5:00", "Evening", "Unsalted puffed rice and a small cup of tea"), M("8:00", "Dinner", "2 phulkas, cabbage sabzi and 30 g paneer", "2 phulkas, cabbage sabzi and 2 egg whites")] },
+  pcos: { name: "PCOS", short: "Hormonal", e: "🌸", adj: b => b >= 23 ? -400 : -100, mac: [40, 25, 35], fibre: 30,
+    note: "Low-GI plan for insulin resistance",
+    limits: () => [["Added sugar", 20, "g", 50, "#d9534f"], ["Refined carbs (servings)", 1, "/day", 6, "#e0a63a"], ["Fibre (target)", 30, "g", 40, "#1f9d6b"], ["Protein per meal", 25, "g", 40, "#0f7a72"]],
+    plate: [45, 30, 25],
+    eat: ["Low-GI grains (millets, quinoa)", "Protein at every meal", "Flax, chia & pumpkin seeds", "Cinnamon", "Berries & guava", "Leafy greens", "Nuts", "Curd & paneer"],
+    avoid: ["Sugar & desserts", "Maida & white bread", "Sweetened drinks", "Fried foods", "Packaged snacks", "Late-night eating", "Excess caffeine", "Alcohol"],
+    tips: ["Losing just 5–10% of body weight can restore regular cycles.", "Do strength training twice a week to improve insulin sensitivity.", "Sleep 7–8 hours, because poor sleep worsens hormonal balance.", "Spearmint tea is popular, but discuss supplements with your gynaecologist."],
+    meals: [M("6:30", "Wake-up", "Warm water with cinnamon and 1 tsp soaked chia"), M("8:00", "Breakfast", "Moong dal chilla stuffed with paneer", "3-egg-white omelette with spinach"), M("11:00", "Mid-morning", "Handful of berries or guava and pumpkin seeds"), M("1:30", "Lunch", "Quinoa pulao, chana curry, salad and curd", "Quinoa, grilled chicken, salad and curd"), M("5:00", "Evening", "Roasted makhana and spearmint tea"), M("8:00", "Dinner", "Tofu stir-fry with vegetables and 1 bajra roti", "Fish tikka, sautéed greens and 1 bajra roti")] },
+  nafld: { name: "Fatty Liver (NAFLD)", short: "Liver", e: "🫁", adj: b => b >= 23 ? -500 : -200, mac: [45, 22, 33], fibre: 30,
+    note: "Deficit aimed at 7–10% weight loss",
+    limits: () => [["Added sugar & fructose", 20, "g", 50, "#d9534f"], ["Alcohol", 0, "units", 14, "#d9534f"], ["Saturated fat", 20, "g", 40, "#e0a63a"], ["Fibre (target)", 30, "g", 40, "#1f9d6b"]],
+    plate: [50, 25, 25],
+    eat: ["Vegetables & salads", "Whole grains", "Dal & legumes", "Black coffee (unsweetened)", "Green tea", "Fish & lean protein", "Olive or mustard oil (measured)", "Walnuts"],
+    avoid: ["Alcohol completely", "Sugary drinks & packaged juice", "Sweets & desserts", "Fried food", "White bread & maida", "Red & processed meat", "High-fructose snacks", "Large late dinners"],
+    tips: ["Losing 7–10% of body weight can significantly reduce liver fat.", "Avoid crash diets, as rapid weight loss can strain the liver.", "Exercise for 150–300 minutes a week, even before the scale moves.", "Check with your doctor before any herbal ‘liver detox’ products."],
+    meals: [M("6:30", "Wake-up", "Water and a cup of black coffee"), M("8:00", "Breakfast", "Vegetable daliya with low-fat curd", "Boiled eggs and vegetable daliya"), M("11:00", "Mid-morning", "1 pear and green tea"), M("1:30", "Lunch", "2 rotis, mixed dal, palak sabzi and large salad", "2 rotis, fish curry (light oil) and large salad"), M("5:00", "Evening", "Sprouts salad"), M("8:00", "Dinner", "Vegetable soup, paneer tikka and stir-fried vegetables", "Vegetable soup, grilled chicken and stir-fried vegetables")] },
+  thy: { name: "Hypothyroidism", short: "Thyroid", e: "🦋", adj: b => b >= 23 ? -250 : 0, mac: [45, 25, 30], fibre: 28,
+    note: "Balanced plan supporting metabolism",
+    limits: () => [["Iodine (target)", 150, "mcg", 300, "#1f9d6b"], ["Selenium (target)", 55, "mcg", 100, "#0f7a72"], ["Added sugar", 25, "g", 50, "#d9534f"], ["Sodium", 2300, "mg", 4000, "#e0a63a"]],
+    plate: [50, 25, 25],
+    eat: ["Iodised salt (in moderation)", "Eggs & dairy", "Fish (non-veg)", "Sunflower & pumpkin seeds", "Whole grains", "Fresh fruit", "Cooked vegetables", "Lentils"],
+    avoid: ["Soy close to medicine time", "Very large amounts of raw cabbage or broccoli", "Highly processed foods", "Excess sugar", "Coffee within an hour of your tablet", "Calcium or iron supplements near your tablet"],
+    tips: ["Take levothyroxine on an empty stomach 30–60 minutes before breakfast.", "Keep calcium and iron supplements at least four hours apart from your tablet.", "Cooking cruciferous vegetables makes them safe in normal amounts.", "Get your TSH rechecked as advised, usually every 6–12 weeks after a dose change."],
+    meals: [M("6:30", "Wake-up", "Thyroid tablet with plain water; wait 45 minutes"), M("7:45", "Breakfast", "Vegetable idli, sambar and coconut chutney", "Egg dosa and sambar"), M("11:00", "Mid-morning", "1 orange and pumpkin seeds"), M("1:30", "Lunch", "Rice, moong dal, cooked beans sabzi and curd", "Rice, fish curry, beans sabzi and curd"), M("5:00", "Evening", "Milk with a handful of sunflower seeds"), M("8:00", "Dinner", "2 rotis, paneer curry and cooked vegetables", "2 rotis, egg curry and cooked vegetables")] },
+  obese: { name: "Obesity / Weight loss", short: "Weight", e: "⚖️", adj: () => -550, mac: [40, 30, 30], pk: 1.2, fibre: 30,
+    note: "Safe deficit of roughly 0.5 kg a week",
+    limits: () => [["Added sugar", 15, "g", 50, "#d9534f"], ["Cooking oil", 15, "ml", 40, "#e0a63a"], ["Fibre (target)", 30, "g", 40, "#1f9d6b"], ["Steps (target)", 9000, "/day", 12000, "#0f7a72"]],
+    plate: [50, 30, 20],
+    eat: ["Dal, paneer, eggs & chicken", "Salads before meals", "Vegetables in large portions", "Buttermilk", "Whole fruit, not juice", "Millets in small portions", "Sprouts", "Soups"],
+    avoid: ["Sugary drinks", "Fried snacks", "Sweets & mithai", "Refined carbs", "Late-night eating", "Alcohol", "Packaged ‘diet’ snacks", "Mindless eating at screens"],
+    tips: ["Aim to lose about 0.5 kg a week; faster loss is harder to keep off.", "Protein at every meal keeps you full and protects muscle.", "Sleep 7–8 hours, since short sleep raises hunger hormones.", "Walk 8,000–10,000 steps a day and add strength training twice a week."],
+    meals: [M("6:30", "Wake-up", "Warm water and 5 soaked almonds"), M("8:00", "Breakfast", "Besan chilla with paneer and green chutney", "3-egg-white omelette with vegetables and 1 toast"), M("11:00", "Mid-morning", "Buttermilk and 1 apple"), M("1:30", "Lunch", "Bowl of salad first, then 1 roti, dal, sabzi and curd", "Bowl of salad first, then 1 roti, chicken curry and sabzi"), M("5:00", "Evening", "Sprouts chaat or roasted chana"), M("7:30", "Dinner", "Clear vegetable soup and tofu-vegetable stir-fry", "Clear soup and grilled fish with vegetables")] }
+};
+const S = { cond: "dm", sex: "f", pref: "veg" };
+const CF = [0.02, 0.24, 0.08, 0.32, 0.09, 0.25];
+$("#condGrid").innerHTML = Object.entries(COND).map(([k, c]) => `<button type="button" class="cond ${k === S.cond ? "sel" : ""}" data-c="${k}"><span class="ce">${c.e}</span><b>${c.name}</b></button>`).join("");
+$("#condGrid").addEventListener("click", e => { const b = e.target.closest(".cond"); if (!b) return; S.cond = b.dataset.c; $$("#condGrid .cond").forEach(x => x.classList.toggle("sel", x === b)); calc(true); });
+const rangeFill = r => r.style.setProperty("--p", ((r.value - r.min) / (r.max - r.min) * 100) + "%");
+[["#dAge", "#oAge", "yrs"], ["#dHt", "#oHt", "cm"], ["#dWt", "#oWt", "kg"]].forEach(([i, o, u]) => { const r = $(i); rangeFill(r); r.addEventListener("input", () => { rangeFill(r); $(o).innerHTML = `${r.value}<small>${u}</small>`; calc(); }); });
+$("#dAct").addEventListener("change", () => calc());
+$("#water").innerHTML = Array.from({ length: 12 }, () => `<span class="glass-cup"><i></i></span>`).join("");
+const CIRC = 2 * Math.PI * 70;
+function arc(el, start, frac) { el.style.strokeDasharray = `${Math.max(0, frac * CIRC - 2)} ${CIRC}`; el.style.strokeDashoffset = -start * CIRC; }
+function plate(p) {
+  const [veg, pro, gr] = p, PC = 2 * Math.PI * 40, segs = [[veg, "#6fbf73", "Vegetables"], [pro, "#0f7a72", "Protein"], [gr, "#e0a63a", "Whole grains"]];
+  let acc = 0, html = `<circle cx="100" cy="100" r="96" fill="var(--paper2)" stroke="var(--line2)" stroke-width="2"/><circle cx="100" cy="100" r="84" fill="var(--paper)" stroke="var(--line)" />`;
+  html += `<g transform="rotate(-90 100 100)">` + segs.map(([v, c]) => { const s = `<circle class="seg-c" cx="100" cy="100" r="40" fill="none" stroke="${c}" stroke-width="80" stroke-dasharray="${v / 100 * PC - 1.5} ${PC}" stroke-dashoffset="${-acc / 100 * PC}" style="transition:stroke-dasharray .9s, stroke-dashoffset .9s"/>`; acc += v; return s; }).join("") + `</g>`;
+  acc = 0; segs.forEach(([v]) => { const mid = (acc + v / 2) / 100 * 2 * Math.PI - Math.PI / 2; acc += v; html += `<text x="${100 + Math.cos(mid) * 46}" y="${100 + Math.sin(mid) * 46 + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Inter,sans-serif">${v}%</text>`; });
+  const pl = $("#plate");
+  if (!pl.dataset.init) { pl.innerHTML = html; pl.dataset.init = 1; } else {
+    const circles = $$(".seg-c", pl); acc = 0; segs.forEach(([v], i) => { circles[i].setAttribute("stroke-dasharray", `${v / 100 * PC - 1.5} ${PC}`); circles[i].setAttribute("stroke-dashoffset", -acc / 100 * PC); acc += v; });
+    const texts = $$("text", pl); acc = 0; segs.forEach(([v], i) => { const mid = (acc + v / 2) / 100 * 2 * Math.PI - Math.PI / 2; acc += v; texts[i].setAttribute("x", 100 + Math.cos(mid) * 46); texts[i].setAttribute("y", 100 + Math.sin(mid) * 46 + 5); texts[i].textContent = v + "%"; });
   }
-
-  /* -------------------------------------------------------------------
-     3. DARK MODE TOGGLE (prefers-color-scheme & localStorage)
-     ------------------------------------------------------------------- */
-  function initTheme() {
-    let currentTheme = "light";
-    try {
-      const stored = localStorage.getItem("aur_theme");
-      if (stored) {
-        currentTheme = stored;
-      } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        currentTheme = "dark";
-      }
-    } catch (e) {
-      // localStorage disabled or sandbox
-    }
-
-    document.documentElement.setAttribute("data-theme", currentTheme);
-
-    const toggleBtns = $$(".theme-toggle-btn");
-    toggleBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        currentTheme = currentTheme === "dark" ? "light" : "dark";
-        document.documentElement.setAttribute("data-theme", currentTheme);
-        try {
-          localStorage.setItem("aur_theme", currentTheme);
-        } catch (e) {}
-        showToast(`Switched to ${currentTheme} mode`);
-      });
-    });
+  $("#plateLegend").innerHTML = segs.map(([v, c, n]) => `<span><i style="background:${c}"></i>${n}</span>`).join("") + `<span><i style="background:#5aa9e6"></i>Water / buttermilk</span>`;
+}
+function calc(changed) {
+  const c = COND[S.cond], age = +$("#dAge").value, ht = +$("#dHt").value, wt = +$("#dWt").value, act = +$("#dAct").value;
+  const bmi = wt / ((ht / 100) ** 2);
+  const bmr = 10 * wt + 6.25 * ht - 5 * age + (S.sex === "m" ? 5 : -161);
+  const tdee = bmr * act;
+  let adj = c.adj(bmi); const floor = S.sex === "m" ? 1500 : 1200;
+  let kcal = Math.round((tdee + adj) / 10) * 10; if (kcal < floor) { kcal = floor; adj = floor - Math.round(tdee); }
+  let pG, cG, fG, pp, cp, fp;
+  if (c.pk && S.cond === "ckd") { pG = Math.round(c.pk * wt); fG = Math.round(kcal * c.fat / 100 / 9); cG = Math.round((kcal - pG * 4 - fG * 9) / 4); }
+  else { [cp, pp, fp] = c.mac; pG = Math.round(kcal * pp / 100 / 4); if (c.pk) pG = Math.max(pG, Math.round(c.pk * wt)); fG = Math.round(kcal * fp / 100 / 9); cG = Math.round((kcal - pG * 4 - fG * 9) / 4); }
+  const tot = cG * 4 + pG * 4 + fG * 9; cp = cG * 4 / tot; pp = pG * 4 / tot; fp = fG * 9 / tot;
+  tween($("#rCal"), kcal); tween($("#rBmr"), bmr); tween($("#rTdee"), tdee); tween($("#rAdj"), adj, v => (v > 0 ? "+" : "") + Math.round(v));
+  $("#rCalNote").textContent = c.note;
+  tween($("#rBmi"), bmi, v => v.toFixed(1));
+  const cat = bmi < 18.5 ? ["Underweight", "#5aa9e6"] : bmi < 23 ? ["Healthy (Asian cut-off)", "#1f9d6b"] : bmi < 27.5 ? ["Overweight", "#e0a63a"] : ["Obese", "#d9534f"];
+  $("#rBmiCat").textContent = cat[0]; $("#rBmiCat").style.color = cat[1];
+  const ang = (Math.min(40, Math.max(14, bmi)) - 14) / 26 * 180 - 90;
+  $("#needle").style.transform = `rotate(${ang}deg)`;
+  const water = S.cond === "ckd" ? 1.5 : Math.min(4, Math.max(1.8, wt * 0.035));
+  tween($("#rWater"), water, v => v.toFixed(1));
+  const glasses = Math.round(water * 4);
+  $("#rWaterNote").textContent = S.cond === "ckd" ? "Fluid limit is set by your nephrologist" : `about ${glasses} glasses of 250 ml`;
+  $$("#water .glass-cup i").forEach((g, i) => { g.style.height = Math.max(0, Math.min(1, water * 3 - i)) * 100 + "%"; g.style.transitionDelay = i * 45 + "ms"; });
+  arc($("#dC"), 0, cp); arc($("#dP"), cp, pp); arc($("#dF"), cp + pp, fp);
+  $("#rCondName").textContent = c.short;
+  tween($("#mC"), cG, v => Math.round(v) + " g"); tween($("#mP"), pG, v => Math.round(v) + " g"); tween($("#mF"), fG, v => Math.round(v) + " g"); tween($("#mFi"), c.fibre, v => Math.round(v) + " g");
+  $("#mCp").textContent = Math.round(cp * 100) + "% of calories"; $("#mPp").textContent = Math.round(pp * 100) + "% · " + (pG / wt).toFixed(1) + " g/kg"; $("#mFp").textContent = Math.round(fp * 100) + "% of calories";
+  const lim = c.limits(kcal);
+  const lh = $("#limits");
+  if (changed || !lh.children.length || lh.dataset.c !== S.cond) {
+    lh.dataset.c = S.cond;
+    lh.innerHTML = lim.map(([n, v, u, max, col]) => `<div class="limit"><div class="lt"><span>${n}</span><b>${v.toLocaleString("en-IN")} ${u}</b></div><div class="bar"><i style="background:${col}" data-w="${Math.min(100, v / max * 100)}"></i></div></div>`).join("");
+    requestAnimationFrame(() => requestAnimationFrame(() => $$("#limits .bar i").forEach(i => i.style.width = i.dataset.w + "%")));
+  } else { $$("#limits .limit").forEach((el, i) => { $("b", el).textContent = lim[i][1].toLocaleString("en-IN") + " " + lim[i][2]; $(".bar i", el).style.width = Math.min(100, lim[i][1] / lim[i][3] * 100) + "%"; }); }
+  plate(c.plate);
+  if (changed || !$("#tips").children.length || $("#tips").dataset.c !== S.cond + S.pref) {
+    $("#tips").dataset.c = S.cond + S.pref;
+    $("#tips").innerHTML = c.tips.map((t, i) => `<li class="reveal-r" style="animation-delay:${i * 80}ms">${t}</li>`).join("");
+    $("#eat").innerHTML = c.eat.map((t, i) => `<span style="animation-delay:${i * 40}ms">${t}</span>`).join("");
+    $("#avoid").innerHTML = c.avoid.map((t, i) => `<span style="animation-delay:${i * 40}ms">${t}</span>`).join("");
   }
-
-  /* -------------------------------------------------------------------
-     4. MOBILE MENU
-     ------------------------------------------------------------------- */
-  function initMobileMenu() {
-    const burgerBtn = $("#burgerBtn");
-    const mobileOverlay = $("#mobileNavOverlay");
-    const closeBtn = $("#closeMobileNavBtn");
-
-    if (!burgerBtn || !mobileOverlay) return;
-
-    function openMenu() {
-      mobileOverlay.classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeMenu() {
-      mobileOverlay.classList.remove("open");
-      document.body.style.overflow = "";
-    }
-
-    burgerBtn.addEventListener("click", openMenu);
-    if (closeBtn) closeBtn.addEventListener("click", closeMenu);
-    mobileOverlay.addEventListener("click", (e) => {
-      if (e.target === mobileOverlay) closeMenu();
-    });
-
-    $$(".mobile-nav-links a", mobileOverlay).forEach((a) => {
-      a.addEventListener("click", closeMenu);
-    });
+  const mealsChanged = $("#meals").dataset.c !== S.cond + S.pref;
+  if (mealsChanged) {
+    $("#meals").dataset.c = S.cond + S.pref;
+    $("#meals").innerHTML = c.meals.map((m, i) => `<div class="meal" style="animation-delay:${i * 70}ms"><time>${m.t}</time><span class="dot"></span><div class="mt"><b>${m.title}</b><span>${S.pref === "veg" ? m.veg : m.nv}</span></div><span class="kc" data-f="${CF[i]}"></span></div>`).join("");
   }
+  $$("#meals .kc").forEach(k => k.textContent = "~" + Math.round(kcal * +k.dataset.f / 10) * 10 + " kcal");
+  $("#planKcal").textContent = `${S.pref === "veg" ? "Vegetarian" : "Non-vegetarian"} · about ${kcal.toLocaleString("en-IN")} kcal`;
+}
+segHandlers.sex = v => { S.sex = v; calc(); };
+segHandlers.pref = v => { S.pref = v; calc(); };
+const db = $("#dietBook"); if (db) db.href = "book.html?doc=d16";
+calc(true);
+}
+if ($("#pkgGrid")) {
+/* ---------------- PACKAGES ---------------- */
+let pkgN = 1;
+const PKGS = [
+  { n: "Essential", d: "For adults under 35", p: 2499, mrp: 3800, items: ["Complete blood count", "Fasting blood sugar & HbA1c", "Lipid profile", "Liver & kidney function", "Thyroid (TSH)", "Physician consultation"] },
+  { n: "Executive", d: "Our most comprehensive check", p: 6999, mrp: 11500, feat: 1, items: ["Everything in Essential", "ECG & 2D echo", "Treadmill stress test", "Ultrasound abdomen", "Vitamin D & B12", "Diet & cardiology consults"] },
+  { n: "Heart Check", d: "For 40+ or with risk factors", p: 8999, mrp: 14000, items: ["Lipid profile & hs-CRP", "ECG, 2D echo & TMT", "CT calcium score", "Diabetes screening", "Cardiologist consult", "Personal heart-risk report"] },
+  { n: "Women’s Wellness", d: "Tailored for women 30+", p: 4999, mrp: 8200, items: ["Pap smear & HPV screening", "Breast ultrasound / mammogram", "Thyroid & hormone panel", "Bone density (DEXA)", "Iron & Vitamin D", "Gynaecologist consult"] }
+];
+function renderPkgs() {
+  $("#pkgGrid").innerHTML = PKGS.map((p, i) => `<div class="panel pkg ${p.feat ? "feat" : ""} rv in" style="transition-delay:${i * 60}ms">${p.feat ? '<span class="tag">Most chosen</span>' : ""}<h3>${p.n}</h3><p class="muted">${p.d}</p>
+    <div class="price"><span class="pp" data-v="${Math.round(p.p * (pkgN === 2 ? 1.8 : 1))}">${inr(p.p * (pkgN === 2 ? 1.8 : 1))}</span><s>${inr(p.mrp * pkgN)}</s></div><small class="muted">${pkgN === 2 ? "for two people" : "per person"} · reports in 24 h</small>
+    <ul>${p.items.map(x => `<li>${x}</li>`).join("")}</ul><button class="btn ${p.feat ? "btn-gold" : "btn-ghost"}" data-pkg="${p.n}">Book this check</button></div>`).join("");
+}
+$("#pkgGrid").addEventListener("click", e => { const b = e.target.closest("[data-pkg]"); if (b) toast(`${b.dataset.pkg} check reserved (demo). Our team will call to fix a date.`); });
+segHandlers.pkg = v => { pkgN = +v; renderPkgs(); };
+renderPkgs();
+}
+if ($("#tTrack")) {
+/* ---------------- TESTIMONIALS / LIBRARY / FAQ ---------------- */
+const TESTI = [
+  ["After my father’s heart attack, the team had him in the cath lab within an hour. The doctors explained every step in plain words, twice when we needed it. We felt held.", "Maria L.", "Daughter of a cardiac patient", "t-shalini"],
+  ["I booked my knee consult online in under a minute, and the robotic surgery had me walking the next day. Physio continued at home.", "Robert T.", "Knee replacement, age 64", "t-rajiv"],
+  ["The NICU nurses treated our premature twins like their own. Six weeks later we took two healthy babies home.", "Aisha & Karan", "Parents of twins", "t-aisha"],
+  ["The dietitian’s plan brought my HbA1c from 8.9 to 6.4 in five months without fancy food, just smarter everyday meals.", "Marco D.", "Diabetes programme", "t-venkatesh"]
+];
+let tI = 0;
+$("#tTrack").innerHTML = TESTI.map(([q, n, r, ph]) => `<div class="t-slide"><div class="panel t-card"><div class="t-photo"><img src="assets/img/${ph}.jpg" alt="${n}" loading="lazy"><span class="qm">“</span></div><div><div class="stars">★★★★★</div><blockquote>${q}</blockquote><cite><b>${n}</b>${r}</cite></div></div></div>`).join("");
+$("#tDots").innerHTML = TESTI.map((_, i) => `<button aria-label="Story ${i + 1}" data-i="${i}"></button>`).join("");
+function tGo(i) { tI = (i + TESTI.length) % TESTI.length; $("#tTrack").style.transform = `translateX(-${tI * 100}%)`; $$("#tDots button").forEach((b, j) => b.classList.toggle("on", j === tI)); }
+$("#tDots").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { tGo(+b.dataset.i); resetT(); } });
+$("#tPrev").onclick = () => { tGo(tI - 1); resetT(); }; $("#tNext").onclick = () => { tGo(tI + 1); resetT(); };
+let tT; const resetT = () => { clearInterval(tT); tT = setInterval(() => tGo(tI + 1), 6500); }; tGo(0); resetT();
+}
+if ($("#libGrid")) {
+const LIB = [
+  ["Heart", "Seven warning signs of a heart attack women often miss", "Jaw pain, fatigue and nausea are just as common as chest pain. Here’s what to watch for.", "6 min", ["#0a2533", "#14a093"], "heart-model"],
+  ["Nutrition", "The Indian plate, rebuilt for diabetes", "You don’t need to give up rice. Portion, pairing and timing matter more than banning foods.", "8 min", ["#1d6b6f", "#7fd8cf"], "food2"],
+  ["Kidney", "Why your creatinine number isn’t the whole story", "eGFR, urine protein and blood pressure together show how your kidneys are really doing.", "5 min", ["#3b1f2b", "#c06c52"], "lab"]
+];
+$("#libGrid").innerHTML = LIB.map(([c, t, p, r, g, im], i) => `<a href="#" class="panel post rv d${i}" data-toast="Articles are placeholders in this educational demo."><div class="cover"><img src="assets/img/${im}.jpg" alt="" loading="lazy"></div><div class="pb"><span class="cat">${c}</span><h3>${t}</h3><p>${p}</p><div class="read">${r} read · Reviewed by Aurelia doctors</div></div></a>`).join("");
 
-  /* -------------------------------------------------------------------
-     5. MODALS (Patient Portal & Ambulance SOS)
-     ------------------------------------------------------------------- */
-  function initModals() {
-    // Open modal helper
-    window.AUR.openModal = function (modalId) {
-      const modal = $(modalId);
-      if (modal) {
-        modal.classList.add("open");
-        document.body.style.overflow = "hidden";
-      }
-    };
+}
+if ($("#faqList")) {
+const FAQ = [
+  ["How do I book an OP appointment?", "Use the booking tool above: choose a department, doctor, date and time, then enter patient details. You get a token number and OP number instantly. You can also call the help desk."],
+  ["What should I bring to my first visit?", "A photo ID, previous prescriptions and reports, your list of current medicines and your insurance card if you have one. Please arrive 15 minutes before your slot."],
+  ["Is cashless insurance available?", "Yes. We work with 50+ insurers and TPAs. For planned admissions, share your policy details 48 hours ahead so our desk can get pre-authorisation."],
+  ["Can I cancel or reschedule?", "Cancellation is free up to two hours before the slot. In this demo, use “My appointments” beside the booking tool."],
+  ["Are follow-up visits charged?", "A follow-up with the same doctor within 7 days is free. The booking tool applies this automatically when you choose ‘Follow-up’."],
+  ["Is the diet planner a prescription?", "No. It is an educational estimate based on standard formulas and general guidance. Your doctor or dietitian will personalise it for your test results and medicines."],
+  ["What are the visiting hours?", "General wards 4–7 PM. ICU 11 AM–12 PM and 5–6 PM, one visitor at a time. Children under 12 are not allowed in critical-care areas."]
+];
+$("#faqList").innerHTML = FAQ.map(([q, a], i) => `<div class="acc rv ${i === 0 ? "open" : ""}"><button aria-expanded="${i === 0}">${q}<span class="pm"></span></button><div class="ans"><div><p>${a}</p></div></div></div>`).join("");
+$("#faqList").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; const a = b.parentElement, open = !a.classList.contains("open"); $$("#faqList .acc").forEach(x => { x.classList.remove("open"); $("button", x).setAttribute("aria-expanded", "false"); }); if (open) { a.classList.add("open"); b.setAttribute("aria-expanded", "true"); } });
+}
 
-    // Close modal helper
-    window.AUR.closeModal = function (modalId) {
-      const modal = $(modalId);
-      if (modal) {
-        modal.classList.remove("open");
-        document.body.style.overflow = "";
-      }
-    };
+/* ---------------- CHAT ---------------- */
+const BOT = [
+  [/book|appoint|op\b|opd|slot/i, "You can book an OP visit in five quick steps using the booking tool on this page. I’ll take you there now."],
+  [/time|hour|open|timing/i, "OPD runs Monday to Saturday, 8 AM to 8 PM. Emergency, pharmacy and lab are open 24×7. Ward visiting hours are 4–7 PM."],
+  [/insur|cashless|tpa|claim/i, "We offer cashless treatment with 50+ insurers. Bring your policy card and photo ID; for planned surgery, share details 48 hours ahead."],
+  [/emergenc|ambulance|accident|urgent/i, "For emergencies, call 1800-000-0000 (demo number) or tap the red ambulance button. In a real emergency, call your local emergency number right away."],
+  [/diet|food|nutrition|calorie/i, "Try our diet planner. Pick a condition like diabetes, BP, kidney disease or PCOS and you’ll get calories, macros and an Indian meal plan."],
+  [/report|result|lab/i, "Reports are in the patient portal. Click ‘Download reports’ and sign in with your UHID; the demo OTP is 1234."],
+  [/fee|cost|price|charge/i, "Consultation fees range from ₹700 to ₹1,500 depending on the specialist. Video consults are 20% less and follow-ups within 7 days are free."],
+  [/park|where|location|address|direction/i, "We’re at 1 Wellness Avenue, Lakeview District (a fictional address). Valet parking is free for patients at Gate 2."],
+  [/hi|hello|hey|namaste/i, "Hello! I’m Aria, Aurelia’s care assistant. How can I help you today?"]
+];
+const QUICK = ["Book appointment", "OPD timings", "Insurance", "Diet planner", "Reports"];
+function bub(t, me) { const b = document.createElement("div"); b.className = "bub " + (me ? "me" : "bot"); b.textContent = t; $("#chatBody").appendChild(b); $("#chatBody").scrollTop = 1e6; return b; }
+function botReply(q) {
+  const ty = document.createElement("div"); ty.className = "bub bot typing"; ty.innerHTML = "<span></span><span></span><span></span>"; $("#chatBody").appendChild(ty); $("#chatBody").scrollTop = 1e6;
+  setTimeout(() => { ty.remove(); const m = BOT.find(([r]) => r.test(q)); bub(m ? m[1] : "I can help with appointments, timings, insurance, reports, diet and emergencies. For anything else, our help desk is on +91 00000 00000 (demo).");
+    if (/book|appoint|op\b|opd|slot/i.test(q)) setTimeout(() => { location.href = "book.html"; }, 1200);
+    if (/diet|food|nutrition|calorie/i.test(q)) setTimeout(() => { location.href = "diet.html"; }, 1200);
+  }, 700 + Math.random() * 500);
+}
+$("#chatQ").innerHTML = QUICK.map(q => `<button type="button">${q}</button>`).join("");
+$("#chatQ").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; bub(b.textContent, true); botReply(b.textContent); });
+$("#chatForm").addEventListener("submit", e => { e.preventDefault(); const v = $("#chatIn").value.trim(); if (!v) return; $("#chatIn").value = ""; bub(v, true); botReply(v); });
+$("#chatBtn").addEventListener("click", () => { const c = $("#chatbox"); c.classList.toggle("open"); if (!$("#chatBody").children.length) setTimeout(() => bub("Hi, I’m Aria 👋 I can help you book a visit, find timings or answer insurance questions."), 300); if (c.classList.contains("open")) setTimeout(() => $("#chatIn").focus(), 350); });
+$("#chatClose").addEventListener("click", () => $("#chatbox").classList.remove("open"));
 
-    $$(".modal-backdrop").forEach((backdrop) => {
-      backdrop.addEventListener("click", (e) => {
-        if (e.target === backdrop) {
-          backdrop.classList.remove("open");
-          document.body.style.overflow = "";
-        }
-      });
-      const closeBtn = backdrop.querySelector(".modal-close-btn");
-      if (closeBtn) {
-        closeBtn.addEventListener("click", () => {
-          backdrop.classList.remove("open");
-          document.body.style.overflow = "";
-        });
-      }
-    });
+/* ---------------- MODALS ---------------- */
+function openModal(id) { $("#" + id).classList.add("open"); if (id === "reportModal") { $("#rpStep1").style.display = "grid"; $("#rpStep2").style.display = "none"; $("#rpStep3").style.display = "none"; } }
+document.addEventListener("click", e => {
+  const o = e.target.closest("[data-open]"); if (o) { e.preventDefault(); openModal(o.dataset.open); return; }
+  const t = e.target.closest("[data-toast]"); if (t) { e.preventDefault(); toast(t.dataset.toast); return; }
+  if (e.target.closest("[data-close]") || e.target.classList.contains("modal")) { $$(".modal.open").forEach(m => m.classList.remove("open")); }
+});
+addEventListener("keydown", e => { if (e.key === "Escape") { $$(".modal.open").forEach(m => m.classList.remove("open")); $("#chatbox").classList.remove("open"); $("#mobileMenu").classList.remove("open"); } });
+let ambTimer;
+$("#aPhone").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, ""));
+$("#ambGo").addEventListener("click", () => {
+  const loc = $("#aLoc").value.trim(), ph = $("#aPhone").value.trim();
+  $("#aLoc").closest(".field").classList.toggle("err", !loc); $("#aPhone").closest(".field").classList.toggle("err", !/^[6-9]\d{9}$/.test(ph));
+  if (!loc || !/^[6-9]\d{9}$/.test(ph)) return;
+  $("#ambForm").style.display = "none"; $("#ambTrack").style.display = "block";
+  $("#ambInfo").textContent = `Vehicle KA-01-AU-${2000 + hash(ph) % 7999} · ${$("#aType").value} · to ${loc}`;
+  const total = 12 * 60; let left = total; clearInterval(ambTimer);
+  const tick = () => { const m = Math.floor(left / 60), s = left % 60; $("#ambEta").textContent = `${m}:${String(s).padStart(2, "0")}`; const p = (1 - left / total) * 100; $("#ambBar").style.width = p + "%"; $("#ambIcon").style.left = p + "%"; if (left-- <= 0) clearInterval(ambTimer); };
+  tick(); ambTimer = setInterval(tick, 1000);
+});
+$("#ambModal").addEventListener("transitionend", () => { if (!$("#ambModal").classList.contains("open")) { clearInterval(ambTimer); $("#ambForm").style.display = "block"; $("#ambTrack").style.display = "none"; } });
+$("#rpOtp").addEventListener("click", () => { const ok = $("#rUhid").value.trim().length > 2; $("#rUhid").closest(".field").classList.toggle("err", !ok); if (!ok) return; $("#rpStep1").style.display = "none"; $("#rpStep2").style.display = "grid"; toast("OTP sent (demo OTP: 1234)"); $("#rOtp").focus(); });
+$("#rpLogin").addEventListener("click", () => {
+  const ok = $("#rOtp").value === "1234"; $("#rOtp").closest(".field").classList.toggle("err", !ok); if (!ok) return;
+  $("#rpStep2").style.display = "none"; const r = $("#rpStep3"); r.style.display = "block";
+  const reps = [["Complete Blood Count", "12 Nov", "Normal"], ["HbA1c", "12 Nov", "6.4% · Borderline"], ["Lipid Profile", "12 Nov", "LDL 128 · Review"], ["Chest X-ray", "02 Oct", "Normal"]];
+  r.innerHTML = `<p class="sub" style="margin-top:-6px">Signed in as ${esc($("#rUhid").value.trim().toUpperCase())} (sample data)</p>` + reps.map(([n, d, s]) => `<div class="appt"><div class="ad"><small>${d.split(" ")[1]}</small><b>${d.split(" ")[0]}</b></div><div class="ai"><b>${n}</b><span>${s}</span></div><button class="link" style="color:var(--teal)" data-toast="Sample report: PDFs aren’t generated in this demo.">View</button></div>`).join("");
+});
+function simpleForm(form, fields, msg) { $(form).addEventListener("submit", e => { e.preventDefault(); let ok = true; fields.forEach(([s, fn]) => { const v = fn($(s).value.trim()); $(s).closest(".field")?.classList.toggle("err", !v); if (!v) ok = false; }); if (ok) { $(form).reset(); toast(msg); } }); }
+if ($("#contactForm")) simpleForm("#contactForm", [["#cName", v => v.length > 1], ["#cPhone", v => /^[6-9]\d{9}$/.test(v)]], "Thanks! Our care team will call you back within 30 minutes (demo).");
+if ($("#contactForm")) $("#cPhone").addEventListener("input", e => e.target.value = e.target.value.replace(/\D/g, ""));
+$("#newsForm").addEventListener("submit", e => { e.preventDefault(); e.target.reset(); toast("Subscribed. Welcome to Aurelia Health Notes (demo)."); });
 
-    // SOS triggers
-    $$("[data-action='open-sos']").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        window.AUR.openModal("#ambulanceModal");
-      });
-    });
+/* ---------------- CHROME: nav, theme, reveal, counters, live ---------------- */
+const nav = $("#nav");
+const onScroll = () => { nav.classList.toggle("scrolled", scrollY > 50); $("#toTop").classList.toggle("show", scrollY > 900); };
+addEventListener("scroll", onScroll, { passive: true }); onScroll();
+$("#toTop").onclick = () => scrollTo({ top: 0, behavior: "smooth" });
+$("#burger").onclick = () => $("#mobileMenu").classList.add("open");
+$("#menuClose").onclick = () => $("#mobileMenu").classList.remove("open");
+$$("#mobileMenu a").forEach(a => a.onclick = () => $("#mobileMenu").classList.remove("open"));
+const root = document.documentElement;
+const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+const setThemeIcon = () => $("#themeBtn use").setAttribute("href", isDark() ? "#i-sun" : "#i-moon");
+const saved = store.get("aur-theme", null); if (saved) root.dataset.theme = saved; setThemeIcon();
+$("#themeBtn").onclick = () => { root.dataset.theme = isDark() ? "light" : "dark"; store.set("aur-theme", root.dataset.theme); setThemeIcon(); };
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .12, rootMargin: "0px 0px -40px 0px" });
+const observeAll = () => $$(".rv:not(.in)").forEach(el => io.observe(el)); observeAll();
+const cio = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; const el = e.target, to = +el.dataset.count, dec = +(el.dataset.dec || 0), suf = el.dataset.suffix || ""; tween(el, to, v => v.toFixed(dec) + suf, 1800); cio.unobserve(el); }), { threshold: .5 });
+$$("[data-count]").forEach(el => cio.observe(el));
+function clock() { $("#clock").textContent = new Date().toLocaleString("en-IN", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" }) + " IST"; }
+clock(); setInterval(clock, 30000);
+const LIVE = { lsEr: [6, 2, 18, " min", 20], lsBeds: [142, 120, 170, "", 220], lsIcu: [18, 10, 26, "", 60], lsDocs: [214, 200, 230, "", 260], lsBlood: [36, 28, 44, " units", 80], ambLive: [23, 18, 30, "", 40] };
+setInterval(() => { Object.entries(LIVE).forEach(([id, v]) => { if (Math.random() < .55) return; v[0] = Math.max(v[1], Math.min(v[2], v[0] + Math.round((Math.random() - .5) * 4))); const el = $("#" + id); if (!el) return; el.textContent = v[0] + v[3]; el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 600); const bar = el.parentElement.querySelector(".bar i"); if (bar) bar.style.width = (v[0] / v[4] * 100) + "%"; }); const b = $("#bpm"); if (b) b.textContent = 68 + Math.round(Math.random() * 8); }, 3000);
+$("#yr").textContent = new Date().getFullYear();
 
-    // Portal triggers
-    $$("[data-action='open-portal']").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        window.AUR.openModal("#portalModal");
-      });
-    });
-
-    // Ambulance form submission & live tracking
-    const ambForm = $("#ambulanceForm");
-    const ambTrackingView = $("#ambulanceTrackingView");
-    if (ambForm && ambTrackingView) {
-      ambForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const address = $("#ambAddress") ? $("#ambAddress").value : "Bengaluru";
-        const emergencyType = $("#ambType") ? $("#ambType").value : "Medical Emergency";
-
-        ambForm.style.display = "none";
-        ambTrackingView.style.display = "block";
-
-        let etaMinutes = 8;
-        let etaSeconds = 45;
-        const etaDisplay = $("#ambEtaDisplay");
-        const ambFill = $("#ambLiveFill");
-
-        const interval = setInterval(() => {
-          if (etaSeconds > 0) {
-            etaSeconds -= 5;
-          } else {
-            etaMinutes--;
-            etaSeconds = 55;
-          }
-          if (etaMinutes <= 0 && etaSeconds <= 0) {
-            clearInterval(interval);
-            if (etaDisplay) etaDisplay.textContent = "Arrived at location";
-            if (ambFill) ambFill.style.width = "100%";
-          } else {
-            if (etaDisplay) etaDisplay.textContent = `${etaMinutes}m ${etaSeconds}s`;
-            if (ambFill) {
-              const pct = Math.min(95, Math.round(((540 - (etaMinutes * 60 + etaSeconds)) / 540) * 100));
-              ambFill.style.width = `${pct}%`;
-            }
-          }
-        }, 1500);
-
-        showToast("Ambulance dispatched! Unit KA-01-EA-9911 is en route.");
-      });
-    }
-
-    // Patient Portal Login simulation
-    const portalForm = $("#portalLoginForm");
-    const portalReportsView = $("#portalReportsView");
-    if (portalForm && portalReportsView) {
-      portalForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const otp = $("#portalOtp") ? $("#portalOtp").value : "";
-        if (otp === "1234" || otp.length === 4 || otp === "") {
-          portalForm.style.display = "none";
-          portalReportsView.style.display = "block";
-          showToast("UHID Verified: Welcome back, Dorothy Patel.");
-        } else {
-          showToast("Please enter demo OTP: 1234", "danger");
-        }
-      });
-    }
-  }
-
-  /* -------------------------------------------------------------------
-     6. ARIA SCRIPTED CHAT ASSISTANT
-     ------------------------------------------------------------------- */
-  function initAriaChat() {
-    const chatBtn = $("#chatBubbleBtn");
-    const chatDrawer = $("#ariaChatDrawer");
-    const closeBtn = $("#closeAriaChatBtn");
-    const chatInput = $("#ariaChatInput");
-    const sendBtn = $("#ariaChatSendBtn");
-    const messagesBody = $("#ariaChatMessages");
-
-    if (!chatBtn || !chatDrawer) return;
-
-    chatBtn.addEventListener("click", () => {
-      chatDrawer.classList.toggle("open");
-      if (chatDrawer.classList.contains("open") && chatInput) {
-        chatInput.focus();
-      }
-    });
-
-    if (closeBtn) {
-      closeBtn.addEventListener("click", () => {
-        chatDrawer.classList.remove("open");
-      });
-    }
-
-    function appendMessage(sender, text, isHtml = false) {
-      const msg = document.createElement("div");
-      msg.className = `aria-msg aria-msg-${sender}`;
-      if (isHtml) {
-        msg.innerHTML = text;
-      } else {
-        msg.textContent = text;
-      }
-      messagesBody.appendChild(msg);
-      messagesBody.scrollTop = messagesBody.scrollHeight;
-    }
-
-    function showTypingIndicator() {
-      const typing = document.createElement("div");
-      typing.id = "ariaTypingDots";
-      typing.className = "aria-msg aria-msg-bot aria-typing";
-      typing.innerHTML = `<span></span><span></span><span></span>`;
-      messagesBody.appendChild(typing);
-      messagesBody.scrollTop = messagesBody.scrollHeight;
-      return typing;
-    }
-
-    function respondToQuery(query) {
-      const q = query.toLowerCase();
-      const typingEl = showTypingIndicator();
-
-      setTimeout(() => {
-        if (typingEl.parentNode) typingEl.remove();
-
-        if (q.includes("book") || q.includes("doctor") || q.includes("appointment") || q.includes("slot")) {
-          appendMessage(
-            "bot",
-            `I can help you book an outpatient consultation with our specialists right away.<br><br><a href="book.html" class="btn btn-primary btn-sm" style="color:#fff;margin-top:4px;">Go to Book Appointment →</a>`,
-            true
-          );
-        } else if (q.includes("diet") || q.includes("food") || q.includes("nutrition") || q.includes("weight") || q.includes("diabetes")) {
-          appendMessage(
-            "bot",
-            `Our clinical diet planner calculates your personalized calorie, water, macro and meal targets based on clinical guidelines.<br><br><a href="diet.html" class="btn btn-secondary btn-sm" style="margin-top:4px;">Open Diet Planner →</a>`,
-            true
-          );
-        } else if (q.includes("symptom") || q.includes("pain") || q.includes("chest") || q.includes("headache") || q.includes("hurt")) {
-          appendMessage(
-            "bot",
-            `Explore our interactive body map symptom guide to find the right department and doctor for your symptoms.<br><br><a href="symptoms.html" class="btn btn-secondary btn-sm" style="margin-top:4px;">Launch Symptom Guide →</a>`,
-            true
-          );
-        } else if (q.includes("emergency") || q.includes("ambulance") || q.includes("urgent") || q.includes("sos")) {
-          appendMessage(
-            "bot",
-            `🚨 For acute medical emergencies, call our 24×7 hotline immediately at <strong>1800-000-0000</strong> or request an immediate GPS-tracked ambulance.<br><br><button onclick="window.AUR.openModal('#ambulanceModal')" class="btn btn-danger btn-sm" style="margin-top:4px;">Request Ambulance Now</button>`,
-            true
-          );
-        } else if (q.includes("report") || q.includes("test") || q.includes("portal") || q.includes("result")) {
-          appendMessage(
-            "bot",
-            `Access your lab tests, imaging studies, and e-prescriptions through our instant patient portal.<br><br><button onclick="window.AUR.openModal('#portalModal')" class="btn btn-secondary btn-sm" style="margin-top:4px;">Open Patient Portal</button>`,
-            true
-          );
-        } else if (q.includes("visit") || q.includes("time") || q.includes("opd") || q.includes("hours")) {
-          appendMessage(
-            "bot",
-            `Our Outpatient Department operates Monday to Saturday from 8:00 AM to 8:00 PM. A typical OP visit averages 47 minutes from valet arrival to e-prescription.<br><br><a href="visit.html" class="btn btn-secondary btn-sm" style="margin-top:4px;">Explore Visit Road →</a>`,
-            true
-          );
-        } else {
-          appendMessage(
-            "bot",
-            `Thank you for reaching out. Aurelia CARE is located at 42 Silicon Vista, Sarjapur-Outer Ring Road, Bengaluru. You can book an appointment, check symptoms, or call our 24×7 desk at 1800-000-0000.`
-          );
-        }
-      }, 700);
-    }
-
-    if (sendBtn && chatInput) {
-      sendBtn.addEventListener("click", () => {
-        const val = chatInput.value.trim();
-        if (val) {
-          appendMessage("user", val);
-          chatInput.value = "";
-          respondToQuery(val);
-        }
-      });
-
-      chatInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          sendBtn.click();
-        }
-      });
-    }
-
-    // Quick chips
-    $$(".aria-quick-chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        const text = chip.textContent.trim();
-        appendMessage("user", text);
-        respondToQuery(text);
-      });
-    });
-  }
-
-  /* -------------------------------------------------------------------
-     7. FLOATING BACK TO TOP
-     ------------------------------------------------------------------- */
-  function initBackToTop() {
-    const topBtn = $("#backToTop");
-    if (!topBtn) return;
-
-    window.addEventListener(
-      "scroll",
-      () => {
-        if (window.scrollY > 400) {
-          topBtn.classList.add("visible");
-        } else {
-          topBtn.classList.remove("visible");
-        }
-      },
-      { passive: true }
-    );
-
-    topBtn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
-
-  /* -------------------------------------------------------------------
-     8. COUNT-UP NUMBER HELPER
-     ------------------------------------------------------------------- */
-  function countUp(element, target, duration = 1500, prefix = "", suffix = "") {
-    if (!element) return;
-    const isFloat = target.toString().includes(".");
-    const startTime = performance.now();
-
-    function update(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // easeOutCubic
-      const factor = 1 - Math.pow(1 - progress, 3);
-      const current = progress === 1 ? target : factor * target;
-
-      element.textContent = `${prefix}${isFloat ? current.toFixed(1) : Math.round(current)}${suffix}`;
-
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      }
-    }
-    requestAnimationFrame(update);
-  }
-  window.AUR.countUp = countUp;
-
-  /* -------------------------------------------------------------------
-     9. SCROLL REVEAL OBSERVER
-     ------------------------------------------------------------------- */
-  function initScrollReveal() {
-    const reveals = $$(".reveal-on-scroll");
-    if (!reveals.length || !("IntersectionObserver" in window)) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("revealed");
-            // If target has count-up stats
-            const statNumbers = $$("[data-count-target]", entry.target);
-            statNumbers.forEach((el) => {
-              const target = parseFloat(el.getAttribute("data-count-target"));
-              const prefix = el.getAttribute("data-count-prefix") || "";
-              const suffix = el.getAttribute("data-count-suffix") || "";
-              countUp(el, target, 1800, prefix, suffix);
-            });
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
-
-    reveals.forEach((el) => observer.observe(el));
-  }
-
-  /* -------------------------------------------------------------------
-     10. NEWSLETTER & CONTACT FORM VALIDATIONS
-     ------------------------------------------------------------------- */
-  function initForms() {
-    const nlForm = $("#newsletterForm");
-    if (nlForm) {
-      nlForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const emailInput = nlForm.querySelector("input[type='email']");
-        if (emailInput && emailInput.value.includes("@")) {
-          showToast("Thank you for subscribing to Aurelia Health Digest!");
-          emailInput.value = "";
-        } else {
-          showToast("Please enter a valid email address.", "danger");
-        }
-      });
-    }
-
-    const callbackForm = $("#callbackForm");
-    if (callbackForm) {
-      callbackForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        showToast("Callback requested! Our care desk will reach you within 15 minutes.");
-        callbackForm.reset();
-      });
-    }
-  }
-
-  /* -------------------------------------------------------------------
-     INITIALIZE ON DOM READY
-     ------------------------------------------------------------------- */
-  function init() {
-    initTheme();
-    initLiveClock();
-    initMobileMenu();
-    initModals();
-    initAriaChat();
-    initBackToTop();
-    initScrollReveal();
-    initForms();
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+/* ---------------- INIT ---------------- */
+window.AUR = { DOCS, DEPTS, D, B, toast, store, tween, icon, inr, esc, hash, rng, slotsFor, fmtDate, qrSvg, docAv, initials, segHandlers, placeThumbs, observeAll };
+requestAnimationFrame(placeThumbs); document.fonts?.ready.then(placeThumbs);
 })();
 
+(() => {
+"use strict";
+const A = window.AUR; if (!A) return;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const NS = "http://www.w3.org/2000/svg";
 
-/* --- features.js --- */
+/* ---------- shared: human silhouette (Catmull-Rom through half outline, mirrored) ---------- */
+const LEFT = [[150,20],[132,26],[121,44],[120,62],[124,80],[134,94],[138,106],[124,112],[104,117],[92,127],[86,147],[82,177],[78,211],[74,247],[70,283],[66,317],[62,343],[59,358],[64,369],[72,359],[78,331],[84,297],[90,263],[95,229],[100,197],[103,173],[105,190],[106,212],[104,250],[100,290],[98,330],[102,362],[108,420],[112,470],[112,520],[114,568],[111,594],[116,606],[136,606],[138,592],[136,560],[138,510],[140,470],[144,410],[148,372],[150,366]];
+const OUTLINE = LEFT.concat(LEFT.slice(1, -1).reverse().map(([x, y]) => [300 - x, y]));
+function smooth(pts) {
+  const n = pts.length, P = i => pts[(i + n) % n]; let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < n; i++) { const p0 = P(i - 1), p1 = P(i), p2 = P(i + 1), p3 = P(i + 2);
+    d += ` C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)} ${p2[0]} ${p2[1]}`; }
+  return d + "Z";
+}
+const BODY = smooth(OUTLINE);
+
 /* =====================================================================
-   AURELIA CARE — INTERACTIVE FEATURES JS (features.js)
-   Hero 3D Scroll Animation, Journey Body Story, OP Booking Flow,
-   Diet Planner, Symptom Guide, Visit Road, Doctors Directory & Packages
+   1. JOURNEY THROUGH THE BODY
    ===================================================================== */
+if ($("#journey")) {
+const CH = [
+  { o: "heart", cam: [160, 208, 5], num: "01", h: "It starts with a <em>heartbeat.</em>", p: "Your heart beats about 100,000 times a day. Our cardiac team makes sure every one counts: a 24×7 cath lab, a hybrid operating room and a heart-failure clinic that follows you home.", stat: ["58 min", "average door-to-balloon time"], dept: "card", ring: [160, 211] },
+  { o: null, cam: [150, 315, 1], num: "02", h: "The whole of you, <em>in one place.</em>", p: "Forty-two specialities work as one team and share a single digital record, so nothing about you gets lost between doctors, floors or visits.", stat: ["600+", "specialists, one record"] },
+  { o: "brain", cam: [150, 50, 3.8], num: "03", h: "When minutes <em>mean neurons.</em>", p: "Our stroke code activates in under ten minutes. Neurologists, neurosurgeons and rehab therapists work side by side, from migraine care to minimally invasive spine surgery.", stat: ["< 10 min", "stroke code activation"], dept: "neuro", ring: [150, 49] },
+  { o: "lungs", cam: [150, 190, 2.4], num: "04", h: "Every breath, <em>supported.</em>", p: "Asthma, COPD and sleep apnoea are treated with personalised plans, interventional bronchoscopy and an overnight sleep lab, all on one floor.", stat: ["22,000", "breaths you take every day"], dept: "pulmo", ring: [150, 190] },
+  { o: "gut", cam: [150, 272, 2.6], num: "05", h: "Gut feeling, <em>backed by science.</em>", p: "Advanced endoscopy, a dedicated liver clinic and a liver-transplant programme, with dietitians embedded in every team.", stat: ["9 m", "of digestive tract we look after"], dept: "gastro", ring: [150, 268] },
+  { o: "kidney", cam: [150, 298, 3], num: "06", h: "Quiet organs, <em>serious care.</em>", p: "Your kidneys filter about 180 litres of blood a day. Our 40-station dialysis centre and transplant unit keep that going when they can’t.", stat: ["180 L", "of blood filtered daily"], dept: "neph", ring: [150, 298] },
+  { o: "knee", cam: [150, 478, 2.6], num: "07", h: "Back on your feet, <em>faster.</em>", p: "Robotic knee and hip replacement means smaller cuts and more precise alignment. Most patients are walking within 24 hours.", stat: ["24 h", "to first steps after robotic knee surgery"], dept: "ortho" },
+  { o: "all", cam: [150, 315, 1], num: "08", h: "Ready <em>when you are.</em>", p: "Whatever brings you in, start with the right doctor. Book an OP visit in a minute, or tell us where it hurts and we’ll guide you.", stat: ["11 min", "average OPD wait today"], final: true }
+];
+const N = CH.length;
+const sec = $("#journey"); sec.style.setProperty("--n", N);
+$("#storyCh").innerHTML = CH.map((c, i) => `<div class="sch" data-i="${i}"><div class="num">${c.num} <span>/ 0${N}</span></div><h3>${c.h}</h3><p>${c.p}</p><div class="stat"><b>${c.stat[0]}</b>${c.stat[1]}</div>${c.final
+  ? `<div class="acts"><a href="book.html" class="btn btn-gold">Book an OP visit</a><a href="symptoms.html" class="btn btn-ghost">Where does it hurt?</a></div>`
+  : c.dept ? `<div class="acts"><a href="doctors.html?dept=${c.dept}" class="btn btn-ghost btn-sm">Meet the ${A.D(c.dept).name} team →</a></div>` : ""}</div>`).join("");
+$("#storyRail").innerHTML = CH.map((_, i) => `<button aria-label="Chapter ${i + 1}" data-j="${i}"><i></i></button>`).join("");
+$("#storyRail").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; const total = sec.offsetHeight - innerHeight; scrollTo({ top: sec.offsetTop + (+b.dataset.j / (N - 1)) * total + 2, behavior: "smooth" }); });
 
-(function () {
-  "use strict";
+const RIBS = Array.from({ length: 7 }, (_, i) => { const y = 140 + i * 12.5, w = 40 - Math.max(0, i - 4) * 4, d = 18 + i * 2.5;
+  return `<path d="M146 ${y} C134 ${y - 6} ${150 - w} ${y - 2} ${150 - w - 3} ${y + d * .55} C${150 - w - 3} ${y + d} ${150 - w + 6} ${y + d + 4} ${150 - w + 14} ${y + d + 2}"/>`
+       + `<path d="M154 ${y} C166 ${y - 6} ${150 + w} ${y - 2} ${150 + w + 3} ${y + d * .55} C${150 + w + 3} ${y + d} ${150 + w - 6} ${y + d + 4} ${150 + w - 14} ${y + d + 2}"/>`; }).join("");
+const SI = (() => { const sp = 8.2, x0 = 136, x1 = 166, n = 5, seg = 6; let d = `M${x0} 298`; for (let r = 0; r < n; r++) { const y = 298 + r * sp, dir = r % 2 ? -1 : 1, from = dir > 0 ? x0 : x1, step = (x1 - x0) / seg; for (let k = 0; k < seg; k++) { const xa = from + dir * step * (k + .5), xb = from + dir * step * (k + 1); d += ` Q${xa.toFixed(1)} ${(y + (k % 2 ? 1.3 : -1.3)).toFixed(1)} ${xb.toFixed(1)} ${y}`; } if (r < n - 1) d += ` A${sp / 2} ${sp / 2} 0 0 ${dir > 0 ? 1 : 0} ${dir > 0 ? x1 : x0} ${y + sp}`; } return d; })();
+$("#storySvg").innerHTML = `
+<defs>
+  <linearGradient id="skinG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9a98f"/><stop offset=".3" stop-color="#f1d3bf"/><stop offset=".5" stop-color="#f6ddcb"/><stop offset=".7" stop-color="#f1d3bf"/><stop offset="1" stop-color="#d9a98f"/></linearGradient>
+  <radialGradient id="skinHi" cx="45%" cy="28%" r="55%"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="sbFloor" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#1f7f7a" stop-opacity=".28"/><stop offset="1" stop-color="#1f7f7a" stop-opacity="0"/></radialGradient>
+  <linearGradient id="sbScan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a9b95" stop-opacity="0"/><stop offset=".85" stop-color="#2a9b95" stop-opacity=".08"/><stop offset="1" stop-color="#2a9b95" stop-opacity=".3"/></linearGradient>
+  <radialGradient id="sgMyo" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#f26a5a"/><stop offset=".5" stop-color="#c8312e"/><stop offset="1" stop-color="#6e0f17"/></radialGradient>
+  <radialGradient id="sgAtr" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ef8a7c"/><stop offset="1" stop-color="#a8323a"/></radialGradient>
+  <radialGradient id="sgBrain" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffd3dc"/><stop offset=".6" stop-color="#ee9aae"/><stop offset="1" stop-color="#b85c78"/></radialGradient>
+  <radialGradient id="sgLung" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#e7c1bf"/><stop offset=".6" stop-color="#c39294"/><stop offset="1" stop-color="#8d6064"/></radialGradient>
+  <pattern id="lungTex" width="3.2" height="3.2" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".45" fill="#7b4c50" opacity=".28"/><circle cx="2.6" cy="2.4" r=".3" fill="#fff" opacity=".25"/></pattern>
+  <radialGradient id="sgLiver" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#ec7f62"/><stop offset=".55" stop-color="#c94f37"/><stop offset="1" stop-color="#8a2b1e"/></radialGradient>
+  <radialGradient id="sgStom" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#f9c7bb"/><stop offset="1" stop-color="#d98b80"/></radialGradient>
+  <radialGradient id="sgKid" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#e0786b"/><stop offset="1" stop-color="#7e2027"/></radialGradient>
+  <radialGradient id="sgGall" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#c3d35a"/><stop offset="1" stop-color="#5f7316"/></radialGradient>
+  <clipPath id="sbClip"><path d="${BODY}"/></clipPath>
+</defs>
+<g id="cam">
+  <ellipse cx="150" cy="612" rx="62" ry="9" fill="url(#sbFloor)"/>
+  <path d="${BODY}" fill="url(#skinG)" opacity=".62"/>
+  <path d="${BODY}" fill="url(#skinHi)"/>
+  <path d="${BODY}" fill="none" stroke="#b07f68" stroke-opacity=".55" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+  <g clip-path="url(#sbClip)" fill="none" stroke="#9c6b55" stroke-opacity=".18" stroke-width="1.2" stroke-linecap="round">
+    <path d="M118 140 C124 160 140 166 149 160 M182 140 C176 160 160 166 151 160"/>
+    <path d="M150 236 V338 M134 250 H166 M136 270 H164 M138 290 H162"/>
+    <path d="M104 126 C96 140 94 156 98 170 M196 126 C204 140 206 156 202 170"/>
+    <path d="M118 400 C116 430 118 450 122 462 M182 400 C184 430 182 450 178 462"/>
+  </g>
 
-  const $ = window.AUR.$ || ((s, c = document) => c.querySelector(s));
-  const $$ = window.AUR.$$ || ((s, c = document) => Array.from(c.querySelectorAll(s)));
+  <g class="vessels" fill="none" stroke-linecap="round" clip-path="url(#sbClip)">
+    <g stroke="#3d64c9" stroke-width="2.6">
+      <path d="M146 168 C130 136 114 134 100 137 C92 175 86 225 80 262 C76 292 72 322 64 354"/>
+      <path d="M154 168 C170 136 186 134 200 137 C208 175 214 225 220 262 C224 292 228 322 236 354"/>
+      <path d="M146 330 C136 348 128 362 125 382 L122 460 L120 590 M154 330 C164 348 172 362 175 382 L178 460 L180 590"/>
+    </g>
+    <g stroke="#3d64c9" stroke-width="1.1" opacity=".75"><path d="M90 200 L82 222 M86 250 L94 280 M210 200 L218 222 M214 250 L206 280 M122 420 L114 440 M178 420 L186 440"/></g>
+    <g stroke="#d8323f" stroke-width="2.3">
+      <path d="M152 178 C136 132 118 130 105 134 C97 172 91 222 85 260 C81 290 77 320 69 352"/>
+      <path d="M160 178 C168 132 184 130 195 134 C203 172 209 222 215 260 C219 290 223 320 231 352"/>
+      <path d="M152 330 C141 346 134 360 131 382 L128 460 L126 590 M152 330 C161 346 168 360 170 382 L173 460 L175 590"/>
+    </g>
+    <g stroke="#d8323f" stroke-width="1" opacity=".75"><path d="M95 190 L104 214 M88 240 L80 266 M205 190 L196 214 M212 240 L220 266 M129 410 L137 432 M172 410 L164 432"/></g>
+  </g>
 
-  /* -------------------------------------------------------------------
-     DOCTORS DATA (16 DOCTORS MATCHING EXACT ETHNICITIES & SPECIALTIES)
-     ------------------------------------------------------------------- */
-  const DOCTORS = [
-    {
-      id: "d1",
-      name: "Dr. Elena Marquez",
-      dept: "card",
-      deptName: "Cardiology",
-      title: "Senior Consultant Interventional Cardiologist",
-      degrees: "MD, FACC, FSCAI",
-      exp: 18,
-      rating: 4.9,
-      fee: 1200,
-      photo: "assets/img/doc-d1.jpg",
-      languages: ["English", "Spanish", "Hindi"],
-      workingDays: [1, 2, 3, 4, 5], // Mon-Fri
-      hours: "9:00 AM – 2:00 PM",
-      nextSlot: "Today 11:30 AM",
-      conditions: ["hypertension", "angina", "heart attack", "cholesterol", "palpitations"],
-    },
-    {
-      id: "d2",
-      name: "Dr. Omar Haddad",
-      dept: "card",
-      deptName: "Cardiac Surgery",
-      title: "Chief of Cardiothoracic & Vascular Surgery",
-      degrees: "MS, MCh (CTVS), FACS",
-      exp: 22,
-      rating: 4.9,
-      fee: 1500,
-      photo: "assets/img/doc-d2.jpg",
-      languages: ["English", "Arabic", "Hindi"],
-      workingDays: [2, 3, 4, 5, 6], // Tue-Sat
-      hours: "10:00 AM – 4:00 PM",
-      nextSlot: "Tomorrow 10:00 AM",
-      conditions: ["bypass surgery", "valve replacement", "aortic aneurysm", "cabg"],
-    },
-    {
-      id: "d3",
-      name: "Dr. Meera Iyer",
-      dept: "neuro",
-      deptName: "Neurology",
-      title: "Director of Stroke & Comprehensive Neurocare",
-      degrees: "MD, DM (Neurology)",
-      exp: 16,
-      rating: 4.95,
-      fee: 1300,
-      photo: "assets/img/doc-d3.jpg",
-      languages: ["English", "Kannada", "Hindi", "Tamil"],
-      workingDays: [1, 2, 3, 4, 5, 6], // Mon-Sat
-      hours: "9:00 AM – 1:00 PM",
-      nextSlot: "Today 12:15 PM",
-      conditions: ["stroke", "epilepsy", "migraine", "neuropathy", "headache", "parkinsons"],
-    },
-    {
-      id: "d4",
-      name: "Dr. Arjun Shetty",
-      dept: "ortho",
-      deptName: "Spine Surgery",
-      title: "Lead Consultant Minimally Invasive Spine Surgery",
-      degrees: "MS (Ortho), FNB (Spine)",
-      exp: 15,
-      rating: 4.85,
-      fee: 1200,
-      photo: "assets/img/doc-d4.jpg",
-      languages: ["English", "Kannada", "Hindi", "Telugu"],
-      workingDays: [1, 2, 3, 4, 5], // Mon-Fri
-      hours: "10:00 AM – 3:00 PM",
-      nextSlot: "Today 2:30 PM",
-      conditions: ["sciatica", "slipped disc", "cervical spondylosis", "back pain", "scoliosis"],
-    },
-    {
-      id: "d5",
-      name: "Dr. Rahul Kapoor",
-      dept: "ortho",
-      deptName: "Joint Replacement",
-      title: "Chief of Robotic Joint Reconstruction",
-      degrees: "MS, MCh (Ortho), Fellow (Arthroplasty)",
-      exp: 19,
-      rating: 4.9,
-      fee: 1200,
-      photo: "assets/img/doc-d5.jpg",
-      languages: ["English", "Hindi", "Punjabi"],
-      workingDays: [2, 3, 4, 5, 6], // Tue-Sat
-      hours: "9:00 AM – 2:00 PM",
-      nextSlot: "Today 1:00 PM",
-      conditions: ["knee replacement", "hip arthritis", "joint pain", "osteoarthritis"],
-    },
-    {
-      id: "d6",
-      name: "Dr. Sofia Rossi",
-      dept: "ortho",
-      deptName: "Sports Medicine",
-      title: "Consultant Arthroscopy & Athletic Injury",
-      degrees: "MD, Dip. Sports Med (IOC)",
-      exp: 12,
-      rating: 4.8,
-      fee: 1000,
-      photo: "assets/img/doc-d6.jpg",
-      languages: ["English", "Italian", "Hindi"],
-      workingDays: [1, 2, 3, 4], // Mon-Thu
-      hours: "11:00 AM – 5:00 PM",
-      nextSlot: "Today 3:45 PM",
-      conditions: ["acl tear", "meniscus injury", "shoulder dislocation", "ligament sprain", "sports injury"],
-    },
-    {
-      id: "d7",
-      name: "Dr. Daniel Tan",
-      dept: "onco",
-      deptName: "Medical Oncology",
-      title: "Senior Consultant Precision Oncology & Immunotherapy",
-      degrees: "MBBS, MRCP (UK), FRCR",
-      exp: 21,
-      rating: 4.95,
-      fee: 1500,
-      photo: "assets/img/doc-d7.jpg",
-      languages: ["English", "Mandarin", "Malay"],
-      workingDays: [1, 2, 3, 4, 5], // Mon-Fri
-      hours: "8:30 AM – 2:30 PM",
-      nextSlot: "Tomorrow 9:00 AM",
-      conditions: ["cancer screening", "chemotherapy", "immunotherapy", "lymphoma", "solid tumors"],
-    },
-    {
-      id: "d8",
-      name: "Dr. Amara Okafor",
-      dept: "paed",
-      deptName: "Paediatrics",
-      title: "Head of Paediatric & Adolescent Medicine",
-      degrees: "MBBS, FAAP, DCH",
-      exp: 14,
-      rating: 4.9,
-      fee: 900,
-      photo: "assets/img/doc-d8.jpg",
-      languages: ["English", "Yoruba", "Hindi"],
-      workingDays: [1, 2, 3, 4, 5, 6], // Mon-Sat
-      hours: "10:00 AM – 4:00 PM",
-      nextSlot: "Today 11:00 AM",
-      conditions: ["child fever", "growth assessment", "paediatric asthma", "infant vaccination", "colic"],
-    },
-    {
-      id: "d9",
-      name: "Dr. Farhan Qureshi",
-      dept: "nephro",
-      deptName: "Nephrology",
-      title: "Chief Nephrologist & Transplant Physician",
-      degrees: "MD, DM (Nephrology), FISN",
-      exp: 17,
-      rating: 4.85,
-      fee: 1300,
-      photo: "assets/img/doc-d9.jpg",
-      languages: ["English", "Urdu", "Hindi", "Kannada"],
-      workingDays: [1, 2, 3, 4, 5], // Mon-Fri
-      hours: "9:00 AM – 3:00 PM",
-      nextSlot: "Today 2:00 PM",
-      conditions: ["kidney failure", "dialysis", "creatinine", "proteinuria", "kidney transplant"],
-    },
-    {
-      id: "d10",
-      name: "Dr. Grace Mensah",
-      dept: "gastro",
-      deptName: "Gastroenterology",
-      title: "Consultant Gastroenterologist & Therapeutic Endoscopist",
-      degrees: "MBChB, FRCP (Gastro), FACG",
-      exp: 15,
-      rating: 4.85,
-      fee: 1100,
-      photo: "assets/img/doc-d10.jpg",
-      languages: ["English", "Twi", "Hindi"],
-      workingDays: [2, 3, 4, 5, 6], // Tue-Sat
-      hours: "10:00 AM – 3:30 PM",
-      nextSlot: "Tomorrow 10:30 AM",
-      conditions: ["acid reflux", "ibs", "fatty liver", "ulcer", "colonoscopy", "crohns"],
-    },
-    {
-      id: "d11",
-      name: "Dr. Margaret Hughes",
-      dept: "women",
-      deptName: "Women’s Health",
-      title: "Senior Consultant Obstetrics & Advanced Gynaecology",
-      degrees: "MBBS, FRCOG, FICOG",
-      exp: 24,
-      rating: 4.9,
-      fee: 1200,
-      photo: "assets/img/doc-d11.jpg",
-      languages: ["English", "French"],
-      workingDays: [1, 2, 3, 4, 5], // Mon-Fri
-      hours: "9:00 AM – 1:00 PM",
-      nextSlot: "Today 11:45 AM",
-      conditions: ["pregnancy", "pcos", "fibroids", "menopause", "prenatal care", "endometriosis"],
-    },
-    {
-      id: "d12",
-      name: "Dr. Kwame Asante",
-      dept: "endo",
-      deptName: "Endocrinology",
-      title: "Lead Consultant Diabetologist & Metabolic Disorders",
-      degrees: "MD, FACE, FACP",
-      exp: 16,
-      rating: 4.8,
-      fee: 1100,
-      photo: "assets/img/doc-d12.jpg",
-      languages: ["English", "Akan", "Hindi"],
-      workingDays: [1, 2, 3, 4, 5], // Mon-Fri
-      hours: "11:00 AM – 4:00 PM",
-      nextSlot: "Today 1:15 PM",
-      conditions: ["type 2 diabetes", "thyroid nodules", "obesity", "hypothyroidism", "hormonal imbalance"],
-    },
-    {
-      id: "d13",
-      name: "Dr. Lukas Weber",
-      dept: "pulm",
-      deptName: "Pulmonology",
-      title: "Senior Consultant Interventional Pulmonology & Sleep",
-      degrees: "MD, FCCP, EDARM",
-      exp: 13,
-      rating: 4.85,
-      fee: 1000,
-      photo: "assets/img/doc-d13.jpg",
-      languages: ["English", "German", "Hindi"],
-      workingDays: [1, 2, 3, 4, 5, 6], // Mon-Sat
-      hours: "9:00 AM – 2:00 PM",
-      nextSlot: "Today 12:00 PM",
-      conditions: ["asthma", "copd", "sleep apnea", "chronic cough", "bronchitis", "pneumonia"],
-    },
-    {
-      id: "d14",
-      name: "Dr. Nia Williams",
-      dept: "derm",
-      deptName: "Dermatology",
-      title: "Consultant Dermatologist & Cutaneous Surgeon",
-      degrees: "MD, FAAD",
-      exp: 11,
-      rating: 4.9,
-      fee: 900,
-      photo: "assets/img/doc-d14.jpg",
-      languages: ["English", "Welsh", "Hindi"],
-      workingDays: [2, 3, 4, 5, 6], // Tue-Sat
-      hours: "12:00 PM – 6:00 PM",
-      nextSlot: "Today 2:45 PM",
-      conditions: ["eczema", "psoriasis", "acne", "hair loss", "skin allergies"],
-    },
-    {
-      id: "d15",
-      name: "Dr. Richard Collins",
-      dept: "gen",
-      deptName: "General Medicine",
-      title: "Chief of Internal Medicine & Preventive Health",
-      degrees: "MBBS, MD (Internal Medicine), FACP",
-      exp: 26,
-      rating: 4.9,
-      fee: 800,
-      photo: "assets/img/doc-d15.jpg",
-      languages: ["English", "Hindi"],
-      workingDays: [0, 1, 2, 3, 4, 5, 6], // ALL 7 DAYS
-      hours: "8:00 AM – 2:00 PM",
-      nextSlot: "Today 9:30 AM",
-      conditions: ["fever", "hypertension check", "fatigue", "viral infections", "annual checkup", "general illness"],
-    },
-    {
-      id: "d16",
-      name: "Ms. Sarah Mitchell",
-      dept: "nutr",
-      deptName: "Clinical Nutrition",
-      title: "Chief Clinical Dietitian & Metabolic Health Specialist",
-      degrees: "MSc (Clinical Nutrition), RD, CDE",
-      exp: 14,
-      rating: 4.95,
-      fee: 700,
-      photo: "assets/img/doc-d16.jpg",
-      languages: ["English", "Hindi"],
-      workingDays: [1, 2, 3, 4, 5], // Mon-Fri
-      hours: "9:00 AM – 5:00 PM",
-      nextSlot: "Today 10:45 AM",
-      conditions: ["diabetes diet", "ckd meal plan", "weight management", "cardiac nutrition", "pcos diet"],
-    },
-  ];
+  <g class="organ" id="o-brain">
+    <path d="M127 52 C125 35 139 27 152 29 C167 27 177 38 175 52 C177 63 166 71 150 69 C135 71 125 63 127 52Z" fill="url(#sgBrain)"/>
+    <path d="M135 42 C139 37 145 44 150 39 C155 35 161 42 166 39 M133 52 C139 47 144 56 150 51 C156 47 161 56 168 52 M137 61 C143 58 148 63 154 60 C158 58 162 61 165 60 M150 30 V68" stroke="#a74a66" stroke-width="1.2" fill="none" opacity=".7"/>
+    <g fill="#fff"><circle class="o-spark" cx="140" cy="45" r="1.4"/><circle class="o-spark" cx="160" cy="56" r="1.4" style="animation-delay:.6s"/><circle class="o-spark" cx="152" cy="40" r="1.2" style="animation-delay:1.1s"/></g>
+  </g>
 
-  window.AUR.DOCTORS = DOCTORS;
+  <g class="organ" id="o-lungs">
+    <g class="o-breathe">
+      <path d="M143 142 C124 140 108 164 106 200 C105 226 114 242 130 240 C138 236 142 214 142 196 C138 186 140 166 143 142Z" fill="url(#sgLung)"/>
+      <path d="M157 142 C176 140 192 164 194 200 C195 226 186 242 170 240 C162 236 160 222 162 206 C160 196 160 170 157 142Z" fill="url(#sgLung)"/>
+      <path d="M143 142 C124 140 108 164 106 200 C105 226 114 242 130 240 C138 236 142 214 142 196 C138 186 140 166 143 142Z M157 142 C176 140 192 164 194 200 C195 226 186 242 170 240 C162 236 160 222 162 206 C160 196 160 170 157 142Z" fill="url(#lungTex)"/>
+      <path d="M140 170 C128 182 118 196 112 214 M160 168 C172 180 182 194 188 210" stroke="#7b4c50" stroke-width=".9" fill="none" opacity=".45"/>
+    </g>
+    <path d="M150 104 V146 M150 146 C146 152 140 156 134 162 M150 146 C154 152 160 156 166 162" stroke="#efe2d6" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <path d="M150 106 V146" stroke="#c9b8a8" stroke-width="3.4" stroke-dasharray="1 2" fill="none"/>
+  </g>
 
-  /* -------------------------------------------------------------------
-     DEPARTMENTS LIST (13 SPECIALTIES)
-     ------------------------------------------------------------------- */
-  const DEPARTMENTS = [
-    { id: "card", name: "Cardiology", icon: "🫀", desc: "Door-to-balloon < 58 mins. 24x7 Cath Labs." },
-    { id: "neuro", name: "Neurosciences", icon: "🧠", desc: "Comprehensive Stroke Center & Neurosurgery." },
-    { id: "ortho", name: "Orthopaedics", icon: "🦴", desc: "Robotic Joint Replacement & Spine Care." },
-    { id: "onco", name: "Oncology", icon: "🎗️", desc: "Precision Immunotherapy & Tumor Board." },
-    { id: "paed", name: "Paediatrics", icon: "🧸", desc: "Neonatal ICU & Adolescent Medicine." },
-    { id: "nephro", name: "Nephrology", icon: "🫘", desc: "Advanced Dialysis & Renal Transplants." },
-    { id: "gastro", name: "Gastroenterology", icon: "🍏", desc: "Digestive Health & Interventional Endoscopy." },
-    { id: "women", name: "Women’s Health", icon: "🌸", desc: "High-risk Obstetrics & Gynaecology." },
-    { id: "endo", name: "Endocrinology", icon: "🦋", desc: "Diabetes Reversal & Thyroid Clinics." },
-    { id: "pulm", name: "Pulmonology", icon: "🫁", desc: "Asthma, Sleep Medicine & Bronchoscopy." },
-    { id: "derm", name: "Dermatology", icon: "✨", desc: "Clinical Dermatology & Laser Care." },
-    { id: "gen", name: "General Medicine", icon: "🩺", desc: "7-day OPD Internal Medicine Care." },
-    { id: "nutr", name: "Clinical Nutrition", icon: "🥗", desc: "Condition-specific Clinical Diets." },
-  ];
+  <g class="neck">
+    <path d="M144 86 C144 80 156 80 156 86 L157 98 C154 102 146 102 143 98Z" fill="#cfe0da" stroke="#8fa9a0" stroke-width=".6"/>
+    <path d="M145 89 H155 M146 93 H154" stroke="#8fa9a0" stroke-width=".6"/>
+    <path d="M150 104 C145 100 140 102 140 108 C140 113 145 114 148 111 L150 109 L152 111 C155 114 160 113 160 108 C160 102 155 100 150 104Z" fill="#f2a8a3" stroke="#c97a76" stroke-width=".5"/>
+  </g>
+  <g class="vessels central" fill="none" stroke-linecap="round">
+    <path d="M141 178 C139 150 140 120 141 96 M159 178 C161 150 160 120 159 96" stroke="#d8323f" stroke-width="2.4"/>
+    <path d="M136 172 C134 150 134 120 135 96 M164 172 C166 150 166 120 165 96" stroke="#3d64c9" stroke-width="2.6"/>
+    <path d="M147 194 V166 M146 168 H154" stroke="#3d64c9" stroke-width="4"/>
+    <path d="M147 236 C146 270 146 300 146 330" stroke="#3d64c9" stroke-width="4"/>
+    <path d="M156 196 C154 182 158 174 165 175 C171 177 171 186 168 194 C164 220 153 250 152 330" stroke="#d8323f" stroke-width="4.2"/>
+  </g>
 
-  window.AUR.DEPARTMENTS = DEPARTMENTS;
+  <g class="ribs" fill="none" stroke="#f1dfb4" stroke-width="2.6" stroke-linecap="round">
+    <path d="M150 126 C136 121 120 121 102 127 M150 126 C164 121 180 121 198 127" stroke-width="4"/>
+    <path d="M150 132 V200" stroke-width="6"/>
+    ${RIBS}
+  </g>
 
-  /* -------------------------------------------------------------------
-     1. HOME HERO 3D SCENE SCROLL ANIMATION
-     ------------------------------------------------------------------- */
-  function initHero3D() {
-    const heroSection = $("#heroSection");
-    const heroStage = $("#hero3DStage");
-    const heroShield = $("#heroShield");
-    const glowFlash = $("#shieldGlowBurst");
-    const flyingObjs = $$(".flying-obj");
-    const serviceTiles = $$(".service-tile-card");
+  <g class="organ" id="o-heart">
+    <path d="M158 194 C163 184 172 182 182 184" stroke="#4f72cf" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+    <g class="o-beat">
+      <path d="M143 194 C138 186 146 180 152 185 C155 190 152 196 148 198Z" fill="url(#sgAtr)"/>
+      <path d="M147 192 C136 198 136 216 146 228 C154 238 166 243 175 239 C181 228 183 212 177 200 C171 190 158 186 147 192Z" fill="url(#sgMyo)"/>
+      <g fill="none" stroke-linecap="round">
+        <path d="M156 194 C152 206 156 222 168 238 M156 206 L148 214 M158 218 L150 226 M162 226 L170 222" stroke="#ffb09f" stroke-width=".8" opacity=".9"/>
+        <path d="M165 194 C170 206 174 218 174 232 M170 206 L176 212 M172 220 L178 222" stroke="#4f72cf" stroke-width=".7" opacity=".8"/>
+      </g>
+      <ellipse cx="152" cy="206" rx="5" ry="8" fill="#fff" opacity=".2" transform="rotate(-25 152 206)"/>
+    </g>
+  </g>
 
-    if (!heroSection || !heroStage || !heroShield || !flyingObjs.length) return;
+  <g class="organ" id="o-kidney">
+    <ellipse cx="128" cy="292" rx="8.5" ry="14" fill="url(#sgKid)" transform="rotate(-12 128 292)"/>
+    <ellipse cx="172" cy="292" rx="8.5" ry="14" fill="url(#sgKid)" transform="rotate(12 172 292)"/>
+    <path d="M132 302 C138 318 144 330 147 340 M168 302 C162 318 156 330 153 340" stroke="#f0c56a" stroke-width="1.6" fill="none"/>
+    <path class="o-flow" d="M132 302 C138 318 144 330 147 340 M168 302 C162 318 156 330 153 340" stroke="#fff" stroke-width="1" fill="none"/>
+    <ellipse cx="150" cy="344" rx="8" ry="6" fill="#e9a35f" opacity=".9"/>
+  </g>
 
-    // Mapping:
-    // 0: calendar -> tile 0 (Book Appointment)
-    // 1: phone bubble -> tile 1 (Online Consultation)
-    // 2: DNA -> tile 2 (Lab Reports)
-    // 3: capsule -> tile 3 (Pharmacy Delivery)
-    // 4: stethoscope -> tile 4 (Symptom Guide)
-    // 5: cross -> tile 5 (24x7 Emergency)
+  <g class="organ" id="o-gut">
+    <path d="M140 268 C150 264 164 266 172 270 C170 274 156 276 142 274Z" fill="#f2c46a"/>
+    <path d="M160 242 C178 234 196 246 192 266 C188 282 170 284 160 277 C153 271 156 262 164 260 C172 258 172 250 160 242Z" fill="url(#sgStom)"/>
+    <path d="M110 240 C120 228 150 228 166 236 C171 240 169 246 163 250 C150 262 126 272 116 266 C109 258 107 248 110 240Z" fill="url(#sgLiver)"/>
+    <path d="M140 232 C144 242 142 254 146 262" stroke="#f3d7b4" stroke-width="1.6" fill="none" opacity=".8"/>
+    <ellipse cx="128" cy="266" rx="5.5" ry="4.5" fill="url(#sgGall)"/>
+    <path d="M126 340 V294 C126 284 132 280 142 280 H160 C170 280 176 284 176 294 V340" fill="none" stroke="#dc8873" stroke-width="7" stroke-linecap="round"/>
+    <path d="M126 340 V294 C126 284 132 280 142 280 H160 C170 280 176 284 176 294 V340" fill="none" stroke="#efa38f" stroke-width="9.5" stroke-linecap="round" stroke-dasharray="0.1 6.6"/>
+    <path d="M126 340 V294 C126 284 132 280 142 280 H160 C170 280 176 284 176 294 V340" fill="none" stroke="#ffd6c9" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="0.1 6.6" transform="translate(-1 -1.5)" opacity=".8"/>
+    <path d="${SI}" fill="none" stroke="#b9604e" stroke-width="5.6" stroke-linejoin="round"/>
+    <path d="${SI}" fill="none" stroke="#f0a593" stroke-width="4" stroke-linejoin="round"/>
+    <path class="o-flow" d="${SI}" stroke="#ffe2d8" stroke-width=".8" fill="none" opacity=".8"/>
+  </g>
 
-    const initialOffsets = [
-      { x: -110, y: -70 }, // calendar
-      { x: 100, y: -75 },  // phone bubble
-      { x: -130, y: 30 },  // DNA
-      { x: 120, y: 25 },   // capsule
-      { x: -60, y: -110 }, // stethoscope
-      { x: 60, y: -110 },  // cross
-    ];
+  <g class="organ" id="o-knee">
+    <g stroke="#f1e2bf" stroke-width="5.5" stroke-linecap="round" fill="none">
+      <path d="M118 348 C128 358 140 360 150 356 C160 360 172 358 182 348" stroke-width="5"/>
+      <path d="M129 368 L126 462 M171 368 L174 462"/><path d="M125 480 L124 588 M175 480 L176 588"/>
+    </g>
+    <g fill="#f8eedb"><ellipse cx="126" cy="466" rx="8" ry="5"/><ellipse cx="174" cy="466" rx="8" ry="5"/><ellipse cx="125" cy="477" rx="7.5" ry="4"/><ellipse cx="175" cy="477" rx="7.5" ry="4"/></g>
+    <circle cx="126" cy="470" r="4" fill="#ffd27a"/><circle cx="174" cy="470" r="4" fill="#ffd27a"/>
+    <circle cx="126" cy="471" r="11" fill="none" stroke="#2a9b95" stroke-width=".8" stroke-dasharray="2 2"/><circle cx="174" cy="471" r="11" fill="none" stroke="#2a9b95" stroke-width=".8" stroke-dasharray="2 2"/>
+  </g>
+  <g clip-path="url(#sbClip)"><rect class="scan" x="0" y="0" width="300" height="70" fill="url(#sbScan)"/></g>
+  <circle id="storyRing" class="ring-c" cx="160" cy="211" r="10" stroke-width=".6" opacity="0"/>
+</g>`;
+const cam = $("#cam"), ring = $("#storyRing"), stage = $("#storyStage");
+const cur = { cx: 160, cy: 208, s: 5 }; let target = { ...cur }, active = -1, running = false;
+function computeTarget() {
+  const total = sec.offsetHeight - innerHeight, p = clamp(-sec.getBoundingClientRect().top / total);
+  const f = p * (N - 1), i = Math.min(N - 2, Math.floor(f)); let t = clamp((f - i - 0.28) / 0.44); t = t * t * (3 - 2 * t);
+  const a = CH[i].cam, b = CH[i + 1].cam;
+  target = { cx: lerp(a[0], b[0], t), cy: lerp(a[1], b[1], t), s: Math.exp(lerp(Math.log(a[2]), Math.log(b[2]), t)) };
+  const act = Math.round(f);
+  $$("#storyRail i").forEach((el, j) => el.style.transform = `scaleX(${clamp(f - j + 1)})`);
+  $("#storyHint").style.opacity = p > 0.02 ? 0 : 1;
+  if (act !== active) {
+    active = act;
+    $$("#storyCh .sch").forEach((el, j) => { el.classList.toggle("on", j === act); el.classList.toggle("past", j < act); });
+    const big = $("#storyBig"); if (big) { big.textContent = CH[act].num; big.classList.remove("swap"); void big.offsetWidth; big.classList.add("swap"); }
+    const o = CH[act].o;
+    stage.classList.toggle("all", !o || o === "all");
+    $$(".organ", stage).forEach(g => g.classList.toggle("lit", g.id === "o-" + o));
+    if (CH[act].ring) { ring.setAttribute("cx", CH[act].ring[0]); ring.setAttribute("cy", CH[act].ring[1]); ring.setAttribute("opacity", 1); } else ring.setAttribute("opacity", 0);
+  }
+}
+function frame() {
+  if (!running) return;
+  computeTarget();
+  cur.cx = lerp(cur.cx, target.cx, .1); cur.cy = lerp(cur.cy, target.cy, .1); cur.s = Math.exp(lerp(Math.log(cur.s), Math.log(target.s), .1));
+  cam.setAttribute("transform", `translate(150 310) scale(${cur.s.toFixed(4)}) translate(${(-cur.cx).toFixed(2)} ${(-cur.cy).toFixed(2)})`);
+  ring.setAttribute("r", (26 / cur.s).toFixed(2)); ring.setAttribute("stroke-width", (1.6 / cur.s).toFixed(3));
+  requestAnimationFrame(frame);
+}
+new IntersectionObserver(es => es.forEach(e => { running = e.isIntersecting; if (running) requestAnimationFrame(frame); }), { rootMargin: "200px 0px" }).observe(sec);
+computeTarget(); Object.assign(cur, target); frame();
 
-    let cachedTileRects = [];
-    let cachedStageCenter = { x: 0, y: 0 };
+}
+/* =====================================================================
+   2. BODY MAP SYMPTOM GUIDE
+   ===================================================================== */
+if ($("#bmSvg")) {
+const R = true;
+const REG = {
+  head: { name: "Head", sym: [["Headache that keeps coming back", "neuro"], ["Migraine with flashing lights", "neuro"], ["Dizziness or spinning", "neuro"], ["Sudden weakness, face droop or slurred speech", "neuro", R], ["Fever with headache", "gen"], ["Memory problems", "neuro"]] },
+  throat: { name: "Throat & neck", sym: [["Sore throat or cold", "gen"], ["Swelling in front of the neck", "endo"], ["Lump in the neck", "onco"], ["Difficulty swallowing", "gastro"], ["Hoarse voice for 3+ weeks", "gen"]] },
+  chest: { name: "Chest", sym: [["Chest pain or pressure", "card"], ["Chest pain with sweating or arm pain", "card", R], ["Racing or irregular heartbeat", "card"], ["Breathless climbing stairs", "card"], ["Cough lasting 3+ weeks", "pulmo"], ["Wheezing or tight chest", "pulmo"], ["Severe breathlessness at rest", "pulmo", R]] },
+  upperAbd: { name: "Upper abdomen", sym: [["Acidity or heartburn", "gastro"], ["Pain after meals", "gastro"], ["Bloating and gas", "gastro"], ["Yellow eyes or skin", "gastro"], ["Vomiting blood or black stools", "gastro", R], ["Diagnosed fatty liver", "gastro"]] },
+  lowerAbd: { name: "Lower abdomen & pelvis", sym: [["Irregular or painful periods", "obgyn"], ["Pregnancy check-up", "obgyn"], ["Burning when passing urine", "neph"], ["Constipation or loose stools", "gastro"], ["Blood in stools", "gastro"], ["Sudden severe pain", "gen", R]] },
+  shoulder: { name: "Shoulder", sym: [["Shoulder pain lifting the arm", "ortho"], ["Stiff, frozen shoulder", "ortho"], ["Dislocated or injured shoulder", "ortho"], ["Left shoulder pain with chest discomfort", "card", R]] },
+  arm: { name: "Arm & hand", sym: [["Wrist or elbow pain", "ortho"], ["Numbness or tingling in fingers", "neuro"], ["Swollen, painful finger joints", "ortho"], ["Rash or itching on the skin", "derm"], ["Possible fracture after a fall", "ortho", R]] },
+  knee: { name: "Knee", sym: [["Knee pain on stairs", "ortho"], ["Sports or twisting injury", "ortho"], ["Swollen knee", "ortho"], ["Knee locks or gives way", "ortho"], ["Long-standing arthritis", "ortho"]] },
+  foot: { name: "Foot & ankle", sym: [["Heel pain in the morning", "ortho"], ["Sprained ankle", "ortho"], ["Wound that won’t heal (diabetic)", "endo"], ["Burning or numb feet", "endo"], ["Swollen ankles", "card"]] },
+  neck: { name: "Back of neck", sym: [["Neck pain or stiffness", "neuro"], ["Pain spreading to the arm", "neuro"], ["Neck pain with high fever and stiffness", "gen", R]] },
+  upperBack: { name: "Upper back", sym: [["Upper back pain from posture", "ortho"], ["Pain between shoulder blades", "ortho"], ["Back pain while breathing deeply", "pulmo"], ["Sudden tearing pain in the back", "card", R]] },
+  lowerBack: { name: "Lower back", sym: [["Lower back pain", "neuro"], ["Pain shooting down the leg (sciatica)", "neuro"], ["Back pain after lifting", "ortho"], ["Back pain with loss of bladder control", "neuro", R]] },
+  flank: { name: "Side of the back (kidneys)", sym: [["Dull ache on one side", "neph"], ["Puffy face or swollen feet", "neph"], ["Foamy or reduced urine", "neph"], ["Severe pain with fever and chills", "neph", R], ["High creatinine in a report", "neph"]] },
+  calf: { name: "Calf & leg", sym: [["Leg cramps at night", "gen"], ["Varicose veins", "card"], ["Pain in calves while walking", "card"], ["One leg suddenly swollen and painful", "card", R]] },
+  whole: { name: "Whole body", sym: [["Fever for more than 3 days", "gen"], ["Always tired", "gen"], ["Unexplained weight change", "endo"], ["Excess thirst and urination", "endo"], ["Skin rash, acne or hair fall", "derm"], ["Feeling faint or confused", "gen", R]] }
+};
+const SPOTS = {
+  front: [["head", [[150, 46]]], ["throat", [[150, 100]]], ["chest", [[150, 168]]], ["shoulder", [[100, 128], [200, 128]]], ["upperAbd", [[150, 244]]], ["lowerAbd", [[150, 318]]], ["arm", [[66, 350], [234, 350]]], ["knee", [[126, 470], [174, 470]]], ["foot", [[124, 594], [176, 594]]]],
+  back: [["head", [[150, 46]]], ["neck", [[150, 104]]], ["upperBack", [[150, 180]]], ["shoulder", [[100, 128], [200, 128]]], ["flank", [[118, 282], [182, 282]]], ["lowerBack", [[150, 318]]], ["arm", [[66, 350], [234, 350]]], ["calf", [[126, 535], [174, 535]]], ["foot", [[124, 596], [176, 596]]]]
+};
+const WHY = { card: "Your symptoms point to the heart and blood vessels.", neuro: "This sounds like it involves the nerves, brain or spine.", ortho: "This looks like a bone, joint or muscle problem.", pulmo: "These symptoms usually relate to the lungs and airways.", gastro: "This points to the digestive system or liver.", neph: "These are common signs of a kidney or urinary problem.", obgyn: "A women’s health specialist is the right first stop.", endo: "This may be linked to hormones, thyroid or diabetes.", derm: "A dermatologist treats skin, hair and nail problems.", gen: "A physician can examine you and refer you if needed.", onco: "A specialist should check any new lump promptly.", paed: "Children are best seen first by a paediatrician." };
+const BM = { side: "front", region: null, picked: new Set() };
+const bmSvg = $("#bmSvg");
+function drawBody() {
+  const back = BM.side === "back";
+  bmSvg.innerHTML = `<defs><linearGradient id="bmFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--teal)" stop-opacity=".16"/><stop offset="1" stop-color="var(--teal)" stop-opacity=".05"/></linearGradient></defs>
+  <g class="bm-body"><path d="${BODY}" fill="url(#bmFill)" stroke="var(--teal)" stroke-opacity=".45" stroke-width="1.4"/>
+  ${back ? `<path d="M150 108 V352" stroke="var(--teal)" stroke-opacity=".35" stroke-width="2" stroke-dasharray="4 5"/><path d="M118 150 C112 170 116 196 130 206 M182 150 C188 170 184 196 170 206" stroke="var(--teal)" stroke-opacity=".3" fill="none" stroke-width="1.5"/>`
+    : `<path d="M140 52 h.1 M160 52 h.1" stroke="var(--teal)" stroke-opacity=".5" stroke-width="4" stroke-linecap="round"/><path d="M143 70 Q150 75 157 70" stroke="var(--teal)" stroke-opacity=".4" fill="none" stroke-width="1.5"/><path d="M150 112 V340" stroke="var(--teal)" stroke-opacity=".15" stroke-width="1" stroke-dasharray="2 5"/>`}</g>
+  ${SPOTS[BM.side].map(([k, pts]) => pts.map(([x, y], i) => `<g class="bm-spot ${BM.region === k ? "sel" : ""}" data-r="${k}" tabindex="${i ? -1 : 0}" role="button" aria-label="${REG[k].name}">
+    <circle class="hit" cx="${x}" cy="${y}" r="20"/><circle class="halo" cx="${x}" cy="${y}" r="8" style="animation-delay:${(x + y) % 7 * .25}s"/><circle class="dot" cx="${x}" cy="${y}" r="7"/>
+    <text class="lbl" x="${x > 150 ? x + 14 : x < 150 ? x - 14 : x + 14}" y="${y + 4}" text-anchor="${x < 150 ? "end" : "start"}">${REG[k].name}</text></g>`).join("")).join("")}`;
+}
+function nextSlot(d) {
+  const now = new Date();
+  for (let i = 0; i < 14; i++) { const dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, 12); if (!d.days.includes(dt.getDay())) continue; const s = A.slotsFor(d, dt).find(x => !x.booked && !x.past); if (s) return (i === 0 ? "Today" : i === 1 ? "Tomorrow" : dt.toLocaleDateString("en-IN", { weekday: "short", day: "numeric" })) + ", " + s.label; }
+  return "Fully booked";
+}
+function renderPanel() {
+  const P = $("#bmPanel");
+  if (!BM.region) { P.innerHTML = `<div class="bm-empty"><div class="big-ic"><svg><use href="#i-search"/></svg></div><h3>Where does it hurt?</h3><p>Tap a glowing point on the body, or choose a whole-body symptom below it. Turn the figure around for back pain.</p></div>`; return; }
+  const reg = REG[BM.region], picked = [...BM.picked].map(i => reg.sym[i]);
+  let html = `<div class="bm-sec"><h3>${reg.name}</h3><p class="sub">What are you feeling? Choose all that apply.</p><div class="sym-chips">${reg.sym.map(([t, , red], i) => `<button type="button" class="sym ${BM.picked.has(i) ? "on" : ""} ${red ? "red" : ""}" data-s="${i}" style="animation-delay:${i * 40}ms">${t}</button>`).join("")}</div></div>`;
+  if (picked.length) {
+    if (picked.some(s => s[2])) html += `<div class="bm-sec redflag"><span class="ring"><svg><use href="#i-phone"/></svg></span><div><b>This could be an emergency.</b><span>Please don’t wait for an OP slot. Call emergency services or come to our ER now.</span></div><button class="btn btn-white btn-sm" data-open="ambModal">Get an ambulance</button></div>`;
+    const tally = {}; picked.forEach(([, d]) => tally[d] = (tally[d] || 0) + 1);
+    let dept = Object.entries(tally).sort((a, b) => b[1] - a[1])[0][0];
+    const child = $("#bmChild").checked && !picked.some(s => s[2]);
+    if (child) dept = "paed";
+    if (dept === "onco" || !A.DOCS.some(d => d.dept === dept)) dept = dept === "onco" ? "onco" : "gen";
+    const conf = child ? 90 : Math.min(96, Math.round(58 + 38 * (tally[dept] || 1) / picked.length + Math.min(picked.length, 3) * 2));
+    const C = 2 * Math.PI * 26, docs = A.DOCS.filter(d => d.dept === dept).slice(0, 2);
+    html += `<div class="bm-sec"><div class="match"><span class="mi"><svg><use href="#i-${A.D(dept).icon}"/></svg></span><div><small>Recommended speciality</small><b>${A.D(dept).name}</b><p>${WHY[dept]}</p></div>
+      <div class="conf"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" stroke="rgba(255,255,255,.12)"/><circle cx="32" cy="32" r="26" stroke="#7fd8cf" stroke-linecap="round" stroke-dasharray="0 ${C}" data-c="${conf / 100 * C} ${C}" style="transition:stroke-dasharray 1s cubic-bezier(.6,0,.2,1)"/></svg><span>${conf}% match</span></div></div>
+      <div class="bm-docs">${docs.map((d, i) => `<div class="bm-doc" style="animation-delay:${i * 90}ms"><span class="av" style="${A.docAv(d)}">${A.initials(d.name)}</span><div class="t"><b>${d.name}</b><span>${nextSlot(d)} · ${A.inr(d.fee)}</span></div><button class="btn btn-primary btn-sm" data-bmbook="${d.id}">Book</button></div>`).join("")}</div></div>`;
+  }
+  html += `<p class="bm-note"><svg style="width:16px;height:16px;flex:none;margin-top:2px"><use href="#i-info"/></svg>A guide to the right department, not a diagnosis. If you’re unsure, a General Medicine visit is always a good start.</p>`;
+  P.innerHTML = html;
+  requestAnimationFrame(() => requestAnimationFrame(() => { const c = $(".conf circle[data-c]", P); if (c) c.style.strokeDasharray = c.dataset.c; }));
+}
+function pickRegion(k) {
+  BM.region = k; BM.picked.clear();
+  $$(".bm-spot", bmSvg).forEach(g => g.classList.toggle("sel", g.dataset.r === k));
+  $("#bmGeneral button")?.classList.toggle("on", k === "whole");
+  renderPanel();
+  if (innerWidth < 1000) $("#bmPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+bmSvg.addEventListener("click", e => { const g = e.target.closest(".bm-spot"); if (g) pickRegion(g.dataset.r); });
+bmSvg.addEventListener("keydown", e => { const g = e.target.closest(".bm-spot"); if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); pickRegion(g.dataset.r); } });
+$("#bmGeneral").innerHTML = `<button type="button">Whole-body symptoms (fever, tiredness, rash…)</button>`;
+$("#bmGeneral button").addEventListener("click", () => pickRegion("whole"));
+$("#bmPanel").addEventListener("click", e => {
+  const s = e.target.closest(".sym"); if (s) { const i = +s.dataset.s; BM.picked.has(i) ? BM.picked.delete(i) : BM.picked.add(i); renderPanel(); return; }
+  const b = e.target.closest("[data-bmbook]"); if (b) { const d = A.DOCS.find(x => x.id === b.dataset.bmbook); location.href = "book.html?doc=" + d.id; }
+});
+$("#bmChild").addEventListener("change", () => BM.region && renderPanel());
+A.segHandlers.side = v => { BM.side = v; if (BM.region && !SPOTS[v].some(([k]) => k === BM.region) && BM.region !== "whole") { BM.region = null; BM.picked.clear(); renderPanel(); } bmSvg.classList.add("flip"); setTimeout(() => { drawBody(); bmSvg.classList.remove("flip"); }, 10); };
+drawBody(); renderPanel();
 
-    function measureLayout() {
-      const stageRect = heroStage.getBoundingClientRect();
-      cachedStageCenter = {
-        x: stageRect.left + stageRect.width / 2,
-        y: stageRect.top + stageRect.height / 2 + window.scrollY,
-      };
+}
+/* =====================================================================
+   3. YOUR VISIT TIMELINE
+   ===================================================================== */
+if ($("#road")) {
+const appts = A.store.get("aur-appts", []); const ap = appts[0];
+const apDoc = ap && A.DOCS.find(d => d.id === ap.doc) || A.DOCS[0];
+const myTok = ap ? ap.token : 9;
+let serving = Math.max(1, myTok - 3), parking = 46;
+const STOPS = [
+  { t: "Arrive & park", m: 3, ic: "pin", p: "Drive in through Gate 2. Valet parking is free for patients, and wheelchairs and buggies wait at the porch for anyone who needs them.", tip: "Coming by cab? The Gate 2 drop-off is closest to the OPD lifts.",
+    live: () => `<div class="lt"><span class="pulse-dot" style="background:#5ff0dc"></span>Live at Gate 2</div><div class="lbig"><span data-live="parking">${parking}</span> <small>valet spots free</small></div><p>Free for patients · open 24×7</p><div class="row3"><div><small>Wheelchairs</small><b>12</b></div><div><small>Buggy arrives in</small><b>2 min</b></div><div><small>Walk to OPD</small><b>90 s</b></div></div>` },
+  { t: "Check in at a kiosk", m: 1, ic: "file", p: "Scan the QR code on your booking slip at any lobby kiosk. It confirms your details, prints your token and lets your doctor’s team know you’ve arrived.", tip: "No smartphone? Just type your mobile number at the kiosk.",
+    live: () => `<div class="lt">Self check-in kiosk</div><div class="kiosk"><div class="qr">${A.qrSvg(ap ? ap.id : "AUR-DEMO")}</div><div><div class="lbig" style="font-size:44px;margin:0">Token ${String(myTok).padStart(2, "0")}</div><p>${ap ? "Your booking " + ap.id : "Scanning your booking slip…"}</p><p style="color:#5ff0dc;margin-top:6px">✓ Checked in · doctor notified</p></div></div>` },
+  { t: "Vitals & triage", m: 5, ic: "heart", p: "A nurse checks your blood pressure, pulse, oxygen level, temperature and weight. The readings go straight into your digital record, so your doctor sees them before you walk in.", tip: "Loose sleeves make the blood-pressure check quicker.",
+    live: () => `<div class="lt">Recorded to your health record</div><div class="lbig" style="font-size:44px">All vitals synced</div><div class="row3"><div><small>Blood pressure</small><b>118/76</b></div><div><small>SpO₂</small><b data-count2="98">0</b></div><div><small>Pulse</small><b data-count2="72">0</b></div></div>` },
+  { t: "Relax in the lounge", m: 11, ic: "clock", p: "Your token shows on the lounge screens and on your phone. Have a coffee, use the free Wi-Fi or settle children in the play corner. We’ll text you two tokens before your turn.", tip: "Want to step out for a walk? Your phone will buzz when you’re nearly up.",
+    live: () => `<div class="lt"><span class="pulse-dot" style="background:#5ff0dc"></span>OPD token board · ${apDoc.name}</div><div class="board"><div><small>Now serving</small><b data-live="serving">${String(serving).padStart(2, "0")}</b></div><div class="you"><small>Your token</small><b>${String(myTok).padStart(2, "0")}</b></div></div><p style="margin-top:14px">About <b style="color:#fff" data-live="wait">${Math.max(0, (myTok - serving) * 4)}</b> minutes to go · café, Wi-Fi and kids’ corner nearby</p>` },
+  { t: "Your consultation", m: 15, ic: "chat", p: "Your doctor already has your history and today’s vitals, so the time goes to you, not paperwork. Prescriptions and test orders are sent digitally, so you have nothing to carry.", tip: "Write down your top three questions before you go in.",
+    live: () => `<div class="lt">Your doctor</div><div style="display:flex;gap:16px;align-items:center;margin-top:16px;position:relative"><span style="width:72px;height:72px;border-radius:20px;display:grid;place-items:center;font-family:var(--serif);font-size:28px;${A.docAv(apDoc)}">${A.initials(apDoc.name)}</span><div><div style="font-family:var(--serif);font-size:26px;line-height:1.1">${apDoc.name}</div><p>${A.D(apDoc.dept).name} · ${apDoc.exp} yrs</p></div></div><div class="row3"><div><small>Room</small><b>OPD ${A.hash(apDoc.id) % 20 + 1}</b></div><div><small>Block</small><b>B · 2F</b></div><div><small>Rating</small><b>★ ${apDoc.rating}</b></div></div>` },
+  { t: "Tests & pharmacy", m: 10, ic: "pill", p: "If you need blood tests or a scan, they’re on the same floor. Your medicines are packed while you’re in the consult, so they’re usually ready by the time you reach the counter.", tip: "Fasting test? Book a morning slot and have breakfast at our café afterwards.",
+    live: () => `<div class="lt"><span class="pulse-dot" style="background:#5ff0dc"></span>Live queues</div><div class="lbig">4 <small>min at pharmacy</small></div><p>Prescription received · packing in progress</p><div class="row3"><div><small>Lab queue</small><b>6 min</b></div><div><small>Imaging</small><b>Floor 1</b></div><div><small>Walk</small><b>40 m</b></div></div>` },
+  { t: "Head home", m: 2, ic: "hosp", p: "Pay on your phone or at any counter. Reports appear in your patient portal as soon as they’re signed, and a follow-up with the same doctor is free within 7 days.", tip: "Add your follow-up date to your calendar before you leave.",
+    live: () => { const f = new Date(ap ? ap.date : Date.now()); f.setDate(f.getDate() + 7); return `<div class="phone"><div style="font-size:12px;color:#9fc2c8;text-align:center">Aurelia app</div><div class="pn"><i></i>Bill paid · receipt saved</div><div class="pn" style="animation-delay:.25s"><i></i>Prescription in your portal</div><div class="pn" style="animation-delay:.5s"><i></i>Reports ready by 6 PM</div><div class="pn" style="animation-delay:.75s"><i></i>Free follow-up till ${f.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</div></div>`; } }
+];
+$("#visitPersonal").innerHTML = ap
+  ? `<div class="visit-personal"><svg><use href="#i-cal"/></svg><span>Your visit: <b>${A.fmtDate(new Date(ap.date))}, ${ap.time}</b> with <b>${apDoc.name}</b>, token ${ap.token}. Here’s how your day will go.</span></div>`
+  : `<div class="visit-personal"><svg><use href="#i-cal"/></svg><span>No appointment yet? <a href="book.html" style="color:var(--teal);font-weight:600">Book one in 60 seconds</a> and this walkthrough becomes personal.</span></div>`;
+const road = $("#road");
+road.innerHTML = `<defs><linearGradient id="roadGrad" x1="0" x2="1"><stop offset="0" stop-color="var(--teal)"/><stop offset="1" stop-color="var(--gold)"/></linearGradient></defs>
+  <path id="roadPath" class="base" d="M40 125 C140 125 150 45 250 45 S360 145 450 145 S560 45 650 45 S760 145 850 145 S960 45 1060 45 S1140 105 1165 105"/>
+  <path id="roadProg" class="prog" d="M40 125 C140 125 150 45 250 45 S360 145 450 145 S560 45 650 45 S760 145 850 145 S960 45 1060 45 S1140 105 1165 105"/>
+  <g id="roadNodes"></g><g class="traveler" id="trav"><circle class="tglow" r="18"/><circle class="tdot" r="8"/></g>`;
+const rp = $("#roadPath"), L = rp.getTotalLength(), prog = $("#roadProg");
+prog.style.strokeDasharray = L; prog.style.strokeDashoffset = L;
+const nodeLen = STOPS.map((_, i) => 24 + i * (L - 48) / (STOPS.length - 1));
+$("#roadNodes").innerHTML = STOPS.map((s, i) => { const pt = rp.getPointAtLength(nodeLen[i]), up = pt.y < 95;
+  return `<g class="node" data-i="${i}" tabindex="0" role="button" aria-label="Step ${i + 1}: ${s.t}"><circle class="n" cx="${pt.x}" cy="${pt.y}" r="21"/><g class="ic"><use href="#i-${s.ic}" x="${pt.x - 10}" y="${pt.y - 10}" width="20" height="20"/></g><text x="${pt.x}" y="${up ? pt.y - 34 : pt.y + 44}">${s.t}</text></g>`; }).join("");
+const trav = $("#trav"); let travLen = nodeLen[0], vi = -1, auto = true, autoT, inView = false, liveT;
+function moveTrav(to) {
+  const from = travLen, t0 = performance.now(), dur = 1100; cancelAnimationFrame(moveTrav.raf);
+  const step = t => { const p = Math.min(1, (t - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; travLen = from + (to - from) * e; const pt = rp.getPointAtLength(travLen); trav.setAttribute("transform", `translate(${pt.x} ${pt.y})`); if (p < 1) moveTrav.raf = requestAnimationFrame(step); };
+  moveTrav.raf = requestAnimationFrame(step); prog.style.strokeDashoffset = L - to;
+}
+function showStop(i, user) {
+  if (user) { auto = false; }
+  vi = (i + STOPS.length) % STOPS.length; const s = STOPS[vi];
+  if (vi === 3) serving = Math.max(1, myTok - 3);
+  $$("#roadNodes .node").forEach((n, j) => { n.classList.toggle("cur", j === vi); n.classList.toggle("done", j < vi); });
+  moveTrav(nodeLen[vi]);
+  const rw = $("#roadWrap"); if (rw.scrollWidth > rw.clientWidth + 4) { const px = rp.getPointAtLength(nodeLen[vi]).x / 1200 * rw.scrollWidth; rw.scrollTo({ left: px - rw.clientWidth / 2, behavior: "smooth" }); }
+  const elapsed = STOPS.slice(0, vi).reduce((a, x) => a + x.m, 0);
+  $("#visitDetail").innerHTML = `<div class="vd-text" key="${vi}"><span class="vstep">Step ${vi + 1} of ${STOPS.length} · about ${elapsed} min in</span><h3>${s.t}</h3><span class="vtime"><svg><use href="#i-clock"/></svg>${s.m} min${vi === 3 ? " (live estimate)" : ""}</span><p>${s.p}</p><div class="vd-tip"><b>Tip</b>${s.tip}</div>
+    <div class="vd-ctrl"><button class="icon-btn" data-vgo="-1" aria-label="Previous step" style="transform:scaleX(-1)"><svg><use href="#i-arrow"/></svg></button><button class="icon-btn" id="vPlay" aria-label="${auto ? "Pause" : "Play"} walkthrough">${auto ? "❚❚" : "▶"}</button><button class="icon-btn" data-vgo="1" aria-label="Next step"><svg><use href="#i-arrow"/></svg></button><div class="vd-bar"><i id="vBar"></i></div></div></div>
+    <div class="vd-live">${s.live()}</div>`;
+  $$("#visitDetail [data-count2]").forEach(el => A.tween(el, +el.dataset.count2, v => Math.round(v) + (el.dataset.count2 === "98" ? "%" : ""), 1400));
+  const bar = $("#vBar"); clearTimeout(autoT);
+  if (auto && inView) { bar.style.transition = "none"; bar.style.width = "0"; requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transition = "width 6s linear"; bar.style.width = "100%"; })); autoT = setTimeout(() => showStop(vi + 1), 6000); }
+  else bar.style.width = ((vi + 1) / STOPS.length * 100) + "%";
+}
+$("#visitDetail").addEventListener("click", e => { const g = e.target.closest("[data-vgo]"); if (g) { showStop(vi + +g.dataset.vgo, true); return; } if (e.target.closest("#vPlay")) { auto = !auto; showStop(auto ? vi : vi, false); } });
+$("#roadNodes").addEventListener("click", e => { const n = e.target.closest(".node"); if (n) showStop(+n.dataset.i, true); });
+$("#roadNodes").addEventListener("keydown", e => { const n = e.target.closest(".node"); if (n && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); showStop(+n.dataset.i, true); } });
+new IntersectionObserver(es => es.forEach(e => { const was = inView; inView = e.isIntersecting; if (inView && !was) { showStop(vi < 0 ? 0 : vi); } if (!inView) clearTimeout(autoT); }), { threshold: .35 }).observe($("#visit .visit-shell"));
+liveT = setInterval(() => {
+  parking = Math.max(30, Math.min(60, parking + Math.round((Math.random() - .5) * 4)));
+  const pk = $('[data-live="parking"]'); if (pk) pk.textContent = parking;
+  const sv = $('[data-live="serving"]'); if (sv && serving < myTok) { serving++; sv.textContent = String(serving).padStart(2, "0"); sv.classList.remove("flip"); void sv.offsetWidth; sv.classList.add("flip"); const w = $('[data-live="wait"]'); if (w) w.textContent = Math.max(0, (myTok - serving) * 4); if (serving === myTok) A.toast(`Token ${myTok}: it’s your turn (demo)`); }
+}, 2600);
+setTimeout(() => A.tween($("#visitTotal"), STOPS.reduce((a, s) => a + s.m, 0), v => Math.round(v), 1400), 400);
+showStop(0); trav.setAttribute("transform", (() => { const pt = rp.getPointAtLength(nodeLen[0]); return `translate(${pt.x} ${pt.y})`; })());
 
-      cachedTileRects = serviceTiles.map((tile) => {
-        const slot = tile.querySelector(".service-tile-icon-slot") || tile;
-        const rect = slot.getBoundingClientRect();
-        return {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2 + window.scrollY,
-        };
-      });
-    }
-
-    measureLayout();
-    window.addEventListener("resize", measureLayout, { passive: true });
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(measureLayout);
-    }
-
-    let ticking = false;
-
-    function onScroll() {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          updateHeroAnimation();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }
-
-    function updateHeroAnimation() {
-      const scrollY = window.scrollY;
-      const heroHeight = heroSection.offsetHeight;
-      // Normalised scroll progress between 0 and 1
-      const progress = Math.min(Math.max(scrollY / (heroHeight * 0.75), 0), 1);
-
-      if (progress <= 0.02) {
-        // State a: Resting on tray, gently floating
-        heroShield.style.transform = `translate3d(0, 0, 0) scale(1)`;
-        heroShield.style.opacity = "1";
-        if (glowFlash) glowFlash.style.opacity = "0";
-
-        flyingObjs.forEach((obj) => {
-          obj.style.opacity = "0";
-          obj.style.transform = `scale(0.1) translate3d(0, 0, 0)`;
-        });
-
-        serviceTiles.forEach((tile) => {
-          tile.style.transform = "none";
-          const badge = tile.querySelector(".tile-badge-status");
-          if (badge) badge.classList.remove("active");
-        });
-        return;
-      }
-
-      if (progress > 0.02 && progress <= 0.35) {
-        // State b: Shield swells, bursts glow, 6 objects shoot OUT
-        const subP = (progress - 0.02) / 0.33; // 0 to 1
-        const shieldScale = 1 + subP * 0.16; // up to 1.16
-        heroShield.style.transform = `translate3d(0, 0, 0) scale(${shieldScale})`;
-        heroShield.style.opacity = `${1 - subP * 0.4}`;
-
-        if (glowFlash) {
-          glowFlash.style.opacity = `${Math.sin(subP * Math.PI) * 0.85}`;
-          glowFlash.style.transform = `scale(${0.6 + subP * 0.8})`;
-        }
-
-        flyingObjs.forEach((obj, idx) => {
-          const off = initialOffsets[idx];
-          // staggered overshoot
-          const objProgress = Math.min(Math.max((subP - idx * 0.06) / 0.6, 0), 1);
-          const easeOutOvershoot = Math.sin((objProgress * Math.PI) / 2);
-
-          const curX = off.x * easeOutOvershoot;
-          const curY = off.y * easeOutOvershoot;
-          const curScale = 0.2 + 0.8 * easeOutOvershoot;
-
-          obj.style.opacity = `${objProgress}`;
-          obj.style.transform = `translate3d(${curX}px, ${curY}px, 0) scale(${curScale})`;
-        });
-
-        serviceTiles.forEach((tile) => {
-          const tilt = (1 - subP) * 12;
-          tile.style.transform = `perspective(800px) rotateX(${tilt}deg)`;
-          const badge = tile.querySelector(".tile-badge-status");
-          if (badge) badge.classList.remove("active");
-        });
-        return;
-      }
-
-      if (progress > 0.35) {
-        // State c: Objects fly down into the 6 service tiles
-        const subP = (progress - 0.35) / 0.65; // 0 to 1
-        heroShield.style.opacity = `${Math.max(0, 0.6 - subP * 1.5)}`;
-
-        if (glowFlash) glowFlash.style.opacity = "0";
-
-        flyingObjs.forEach((obj, idx) => {
-          const startX = initialOffsets[idx].x;
-          const startY = initialOffsets[idx].y;
-
-          const target = cachedTileRects[idx];
-          if (!target) return;
-
-          // Target relative to stage center
-          const targetDeltaX = target.x - cachedStageCenter.x;
-          const targetDeltaY = target.y - cachedStageCenter.y;
-
-          // easeInOutCubic
-          const t = subP < 0.5 ? 4 * subP * subP * subP : 1 - Math.pow(-2 * subP + 2, 3) / 2;
-
-          const curX = startX + (targetDeltaX - startX) * t;
-          const curY = startY + (targetDeltaY - startY) * t;
-          const curScale = 1 - t * 0.45; // shrink as it approaches icon size
-
-          obj.style.opacity = `${Math.max(0, 1 - (t > 0.95 ? (t - 0.95) * 20 : 0))}`;
-          obj.style.transform = `translate3d(${curX}px, ${curY}px, 0) scale(${curScale})`;
-        });
-
-        serviceTiles.forEach((tile, idx) => {
-          tile.style.transform = "none";
-          const badge = tile.querySelector(".tile-badge-status");
-          if (badge) {
-            if (subP > 0.85) {
-              badge.classList.add("active");
-            } else {
-              badge.classList.remove("active");
-            }
-          }
-        });
-      }
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    updateHeroAnimation();
-
-    // Mouse-move 3D card tilt on hover
-    serviceTiles.forEach((tile) => {
-      tile.addEventListener("mousemove", (e) => {
-        const rect = tile.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-        const rotX = -(y / rect.height) * 12;
-        const rotY = (x / rect.width) * 12;
-        tile.style.transform = `perspective(600px) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg) translateY(-8px) scale(1.02)`;
-      });
-      tile.addEventListener("mouseleave", () => {
-        tile.style.transform = "none";
-      });
+}
+/* tile hover tilt */
+$$(".tile").forEach(el => {
+  el.addEventListener("mousemove", e => { const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; el.style.setProperty("--ry", (x * 14).toFixed(2) + "deg"); el.style.setProperty("--rx", (-y * 14).toFixed(2) + "deg"); });
+  el.addEventListener("mouseleave", () => { el.style.setProperty("--ry", "0deg"); el.style.setProperty("--rx", "0deg"); });
+});
+/* hero: first scroll bursts objects out of the heart; further scroll flies them into the cards */
+if ($(".hero3d") && $(".tiles")) {
+  const h3 = $(".hero3d"), objs = $$(".hero3d .o3[data-t]"), tiles = $$(".tiles .tile");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  objs.forEach(o => { const ti = $(".ti", tiles[+o.dataset.t]); if ($(".ti3d", ti)) return; const svg = $("svg", o).cloneNode(true); svg.classList.add("ti3d"); $("svg", ti)?.remove(); ti.prepend(svg); });
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let rel = [], ticking = false;
+  function measure() {
+    objs.forEach(o => o.style.transform = "");
+    const sr = h3.getBoundingClientRect();
+    rel = objs.map(o => { const r = o.getBoundingClientRect(); return { x: (r.left + r.width / 2 - sr.left) / sr.width, y: (r.top + r.height / 2 - sr.top) / sr.height, w: r.width / sr.width }; });
+    render();
+  }
+  function render() {
+    ticking = false;
+    const sr = h3.getBoundingClientRect(), sceneMid = sr.top + sr.height / 2 + scrollY;
+    const trigger = Math.max(8, sceneMid - innerHeight * .72);
+    const burst = reduce || scrollY > trigger;
+    h3.classList.toggle("burst", burst);
+    const tt = tiles[0].getBoundingClientRect().top + scrollY;
+    const f0 = trigger + 170, f1 = Math.max(f0 + 320, tt - innerHeight * .42);
+    const F = reduce ? 1 : clamp((scrollY - f0) / (f1 - f0));
+    objs.forEach((o, i) => {
+      const k = +o.dataset.t, tile = tiles[k], r = rel[i];
+      const tk = ease(clamp((F - k * .05) / .5));
+      tile.style.setProperty("--tf", `translateY(${((1 - tk) * 70).toFixed(1)}px) rotateX(${((1 - tk) * 38).toFixed(1)}deg) rotateY(${((1 - tk) * -12).toFixed(1)}deg) scale(${(.9 + .1 * tk).toFixed(3)})`);
+      tile.style.opacity = clamp(tk * 1.6).toFixed(3);
+      const fk = ease(clamp((F - .2 - k * .06) / .45));
+      if (fk > 0) {
+        const t = $(".ti", tile).getBoundingClientRect();
+        const nx = sr.left + r.x * sr.width, ny = sr.top + r.y * sr.height, nw = r.w * sr.width;
+        const dx = t.left + t.width / 2 - nx, dy = t.top + t.height / 2 - ny, s = t.width * .82 / nw;
+        o.style.transform = `translate(${(dx * fk).toFixed(1)}px, ${(dy * fk).toFixed(1)}px) scale(${(1 + (s - 1) * fk).toFixed(4)})`;
+      } else o.style.transform = "";
+      o.style.opacity = fk >= .995 ? 0 : 1;
+      tile.classList.toggle("landed", fk >= .995);
     });
   }
-
-  /* -------------------------------------------------------------------
-     2. LIVE STATUS STRIP TICKER (Ticking every 3 seconds)
-     ------------------------------------------------------------------- */
-  function initLiveStatusTicker() {
-    const strip = $("#liveStatusStrip");
-    if (!strip) return;
-
-    let erWait = 11;
-    let genBeds = 42;
-    let icuBeds = 7;
-    let docsDuty = 38;
-    let bloodO = 18;
-
-    const elWait = $("#statusErWait");
-    const elGen = $("#statusGenBeds");
-    const elIcu = $("#statusIcuBeds");
-    const elDocs = $("#statusDocsDuty");
-    const elBlood = $("#statusBloodO");
-
-    const barWait = $("#barErWait");
-    const barGen = $("#barGenBeds");
-    const barIcu = $("#barIcuBeds");
-
-    setInterval(() => {
-      // Small realistic fluctuations
-      erWait = Math.min(18, Math.max(7, erWait + (Math.random() > 0.5 ? 1 : -1)));
-      genBeds = Math.min(50, Math.max(34, genBeds + (Math.random() > 0.5 ? 1 : -1)));
-      icuBeds = Math.min(9, Math.max(4, icuBeds + (Math.random() > 0.6 ? 1 : -1)));
-      docsDuty = Math.min(42, Math.max(35, docsDuty + (Math.random() > 0.5 ? 1 : -1)));
-      bloodO = Math.min(22, Math.max(14, bloodO + (Math.random() > 0.7 ? 1 : -1)));
-
-      if (elWait) elWait.textContent = `${erWait} mins`;
-      if (elGen) elGen.textContent = `${genBeds} / 120`;
-      if (elIcu) elIcu.textContent = `${icuBeds} / 24`;
-      if (elDocs) elDocs.textContent = `${docsDuty} Active`;
-      if (elBlood) elBlood.textContent = `${bloodO} Units`;
-
-      if (barWait) barWait.style.width = `${Math.round((erWait / 30) * 100)}%`;
-      if (barGen) barGen.style.width = `${Math.round((genBeds / 120) * 100)}%`;
-      if (barIcu) barIcu.style.width = `${Math.round((icuBeds / 24) * 100)}%`;
-    }, 3000);
-  }
-
-  /* -------------------------------------------------------------------
-     3. "A JOURNEY THROUGH YOU" — ILLUSTRATED BODY SCROLL STORY
-     ------------------------------------------------------------------- */
-  function initJourneyStory() {
-    const journeySection = $("#journeySection");
-    const figureContainer = $("#journeyFigureContainer");
-    const progressSegments = $$(".progress-segment");
-
-    if (!journeySection || !figureContainer) return;
-
-    const CHAPTERS = [
-      {
-        num: "01",
-        eyebrow: "01 / 08 · CARDIOLOGY",
-        title: "It starts with a heartbeat.",
-        desc: "From door to balloon in under 58 minutes. Our digital catheterisation suites operate around the clock with zero transfer delay.",
-        statNum: "58 min",
-        statText: "Door-to-balloon time\n(Global standard < 90m)",
-        linkText: "Meet the Cardiology team →",
-        linkUrl: "doctors.html?dept=card",
-        cam: { x: 0, y: -40, scale: 1.85, organ: "heart" },
-      },
-      {
-        num: "02",
-        eyebrow: "02 / 08 · COMPREHENSIVE CARE",
-        title: "The whole of you, in one place.",
-        desc: "Medicine should never be fractured. 600 specialists across 25 surgical departments share a single unified patient record.",
-        statNum: "600+",
-        statText: "Super-specialists on\na single electronic record",
-        linkText: "Explore all specialities →",
-        linkUrl: "specialities.html",
-        cam: { x: 0, y: 0, scale: 1.0, organ: "full" },
-      },
-      {
-        num: "03",
-        eyebrow: "03 / 08 · NEUROSCIENCES",
-        title: "When minutes mean neurons.",
-        desc: "Rapid stroke code response team mobilises in under 10 minutes. Biplane neuro-interventions with 3D brain navigation.",
-        statNum: "< 10 min",
-        statText: "Code Stroke activation\ntime to scan initiation",
-        linkText: "Meet the Neuro team →",
-        linkUrl: "doctors.html?dept=neuro",
-        cam: { x: 0, y: 160, scale: 2.1, organ: "brain" },
-      },
-      {
-        num: "04",
-        eyebrow: "04 / 08 · PULMONOLOGY",
-        title: "Every breath, supported.",
-        desc: "You take 22,000 breaths a day. Our advanced lung health unit provides robotic bronchoscopy and high-precision asthma care.",
-        statNum: "22,000",
-        statText: "Breaths taken daily\nsupported by our care",
-        linkText: "Meet Pulmonology team →",
-        linkUrl: "doctors.html?dept=pulm",
-        cam: { x: 0, y: -20, scale: 1.75, organ: "lungs" },
-      },
-      {
-        num: "05",
-        eyebrow: "05 / 08 · GASTROENTEROLOGY",
-        title: "Gut feeling, backed by science.",
-        desc: "9 metres of digestive complexity handled with high-definition endoscopic ultrasound and motility labs.",
-        statNum: "9 m",
-        statText: "Digestive tract navigated\nwith micro-endoscopy",
-        linkText: "Meet Gastro team →",
-        linkUrl: "doctors.html?dept=gastro",
-        cam: { x: 0, y: -80, scale: 1.75, organ: "gut" },
-      },
-      {
-        num: "06",
-        eyebrow: "06 / 08 · NEPHROLOGY",
-        title: "Quiet organs, serious care.",
-        desc: "Your kidneys filter 180 litres of blood daily. Our transplant institute achieves 98.4% 1-year graft survival.",
-        statNum: "180 L",
-        statText: "Fluid filtered daily by\nhealthy kidneys",
-        linkText: "Meet Nephrology team →",
-        linkUrl: "doctors.html?dept=nephro",
-        cam: { x: 0, y: -90, scale: 1.8, organ: "kidneys" },
-      },
-      {
-        num: "07",
-        eyebrow: "07 / 08 · ORTHOPAEDICS",
-        title: "Back on your feet, faster.",
-        desc: "Robotic sub-millimetre joint alignment means patients take their first supported steps within 24 hours of surgery.",
-        statNum: "24 h",
-        statText: "To first steps post\nrobotic joint surgery",
-        linkText: "Meet Ortho team →",
-        linkUrl: "doctors.html?dept=ortho",
-        cam: { x: 0, y: -230, scale: 1.65, organ: "knees" },
-      },
-      {
-        num: "08",
-        eyebrow: "08 / 08 · OUTPATIENT CARE",
-        title: "Ready when you are.",
-        desc: "Average outpatient wait time is 11 minutes. Digital check-in, on-site diagnostics, and medicine delivery at your fingertips.",
-        statNum: "11 min",
-        statText: "Average OP wait time\nacross all departments",
-        linkText: "Book an OP visit →",
-        linkUrl: "book.html",
-        cam: { x: 0, y: 0, scale: 1.0, organ: "full" },
-      },
-    ];
-
-    let currentChapter = -1;
-
-    const elNum = $("#journeyChapterNumeral");
-    const elEyebrow = $("#journeyChapterEyebrow");
-    const elTitle = $("#journeyChapterTitle");
-    const elDesc = $("#journeyChapterDesc");
-    const elStatNum = $("#journeyChapterStatNum");
-    const elStatText = $("#journeyChapterStatText");
-    const elLink = $("#journeyChapterLink");
-
-    function setChapter(index) {
-      if (index === currentChapter || index < 0 || index >= CHAPTERS.length) return;
-      currentChapter = index;
-      const c = CHAPTERS[index];
-
-      if (elNum) elNum.textContent = c.num;
-      if (elEyebrow) elEyebrow.textContent = c.eyebrow;
-      if (elTitle) elTitle.innerHTML = c.title;
-      if (elDesc) elDesc.textContent = c.desc;
-      if (elStatNum) elStatNum.textContent = c.statNum;
-      if (elStatText) elStatText.innerHTML = c.statText.replace("\n", "<br>");
-      if (elLink) {
-        elLink.textContent = c.linkText;
-        elLink.href = c.linkUrl;
-      }
-
-      // Camera transform on the figure
-      figureContainer.style.transform = `translate3d(${c.cam.x}px, ${c.cam.y}px, 0) scale(${c.cam.scale})`;
-
-      // Organ highlight
-      $$(".organ-group", figureContainer).forEach((grp) => {
-        if (c.cam.organ === "full") {
-          grp.style.opacity = "1";
-          grp.style.filter = "none";
-        } else if (grp.getAttribute("data-organ") === c.cam.organ) {
-          grp.style.opacity = "1";
-          grp.style.filter = "drop-shadow(0 0 12px #2a9b95)";
-        } else {
-          grp.style.opacity = "0.35";
-          grp.style.filter = "none";
-        }
-      });
-
-      // Update rail
-      progressSegments.forEach((seg, i) => {
-        if (i === index) {
-          seg.classList.add("active");
-        } else {
-          seg.classList.remove("active");
-        }
-      });
-    }
-
-    setChapter(0);
-
-    // Click rail segments to scroll to that chapter
-    progressSegments.forEach((seg, i) => {
-      seg.addEventListener("click", () => {
-        const spacers = $$(".journey-scroll-spacer", journeySection);
-        if (spacers[i]) {
-          spacers[i].scrollIntoView({ behavior: "smooth" });
-        }
-      });
-    });
-
-    // Scroll listener to activate chapters
-    const spacers = $$(".journey-scroll-spacer", journeySection);
-    function onJourneyScroll() {
-      const topOffset = window.scrollY + window.innerHeight * 0.4;
-      spacers.forEach((sp, idx) => {
-        const top = sp.offsetTop;
-        const h = sp.offsetHeight;
-        if (topOffset >= top && topOffset < top + h) {
-          setChapter(idx);
-        }
-      });
-    }
-
-    window.addEventListener("scroll", onJourneyScroll, { passive: true });
-  }
-
-  /* -------------------------------------------------------------------
-     4. TESTIMONIALS CAROUSEL (Home)
-     ------------------------------------------------------------------- */
-  function initStoriesCarousel() {
-    const wrap = $("#storiesCarousel");
-    if (!wrap) return;
-
-    const slides = $$(".story-card-slide", wrap);
-    const prevBtn = $("#storyPrevBtn");
-    const nextBtn = $("#storyNextBtn");
-    let current = 0;
-
-    function showSlide(index) {
-      slides.forEach((s, i) => {
-        s.style.display = i === index ? "grid" : "none";
-      });
-      current = index;
-    }
-
-    showSlide(0);
-
-    if (prevBtn) {
-      prevBtn.addEventListener("click", () => {
-        const next = (current - 1 + slides.length) % slides.length;
-        showSlide(next);
-      });
-    }
-
-    if (nextBtn) {
-      nextBtn.addEventListener("click", () => {
-        const next = (current + 1) % slides.length;
-        showSlide(next);
-      });
-    }
-
-    // Auto advance every 7 seconds
-    setInterval(() => {
-      const next = (current + 1) % slides.length;
-      showSlide(next);
-    }, 7000);
-  }
-
-  /* -------------------------------------------------------------------
-     5. OP BOOKING FLOW (book.html)
-     ------------------------------------------------------------------- */
-  function initBookingFlow() {
-    const bookingApp = $("#bookingApp");
-    if (!bookingApp) return;
-
-    let currentStep = 1;
-    let selectedDept = null;
-    let selectedDoc = null;
-    let selectedDate = null;
-    let selectedSlot = null;
-    let isVideo = false;
-    let isFollowUp = false;
-    let payMethod = "hospital"; // hospital, online, insurance
-
-    const params = new URLSearchParams(window.location.search);
-    const queryDocId = params.get("doc");
-    const queryDeptId = params.get("dept");
-
-    // UI elements
-    const stepBar = $("#bookingStepBar");
-    const trackFill = $("#bookingTrackFill");
-    const stepContainers = $$(".booking-step-content", bookingApp);
-    const summaryPanel = $("#bookingSummaryPanel");
-
-    function renderSummary() {
-      if (!summaryPanel) return;
-
-      const docEl = $("#summaryDoctorName");
-      const deptEl = $("#summaryDeptName");
-      const dateEl = $("#summaryDateTime");
-      const typeEl = $("#summaryVisitType");
-      const feeValEl = $("#summaryFeeValue");
-      const feeRuleEl = $("#summaryFeeRule");
-
-      if (selectedDoc) {
-        if (docEl) docEl.textContent = selectedDoc.name;
-        if (deptEl) deptEl.textContent = selectedDoc.deptName;
-      } else {
-        if (docEl) docEl.textContent = "Select a specialist";
-        if (deptEl) deptEl.textContent = selectedDept ? selectedDept.name : "Select department";
-      }
-
-      if (selectedDate && selectedSlot) {
-        if (dateEl) dateEl.textContent = `${selectedDate}, ${selectedSlot}`;
-      } else {
-        if (dateEl) dateEl.textContent = "Select date & time";
-      }
-
-      if (typeEl) {
-        typeEl.textContent = isVideo ? "Video Consultation" : "In-Person OP Visit";
-      }
-
-      // Compute fee
-      let baseFee = selectedDoc ? selectedDoc.fee : 1000;
-      let finalFee = baseFee;
-      let ruleText = "Standard Outpatient Fee";
-
-      if (isFollowUp) {
-        finalFee = 0;
-        ruleText = "Follow-up within 7 days: Complimentary";
-      } else {
-        if (isVideo) {
-          finalFee = Math.round(finalFee * 0.8);
-          ruleText = "Video consult (-20%) applied";
-        }
-        if (payMethod === "online") {
-          finalFee = Math.round(finalFee * 0.95);
-          ruleText += " • Online payment (-5%)";
-        }
-      }
-
-      if (feeValEl) {
-        feeValEl.textContent = `₹${finalFee.toLocaleString("en-IN")}`;
-      }
-      if (feeRuleEl) {
-        feeRuleEl.textContent = ruleText;
-      }
-    }
-
-    function goToStep(step) {
-      currentStep = step;
-      stepContainers.forEach((c) => {
-        const s = parseInt(c.getAttribute("data-step"), 10);
-        c.style.display = s === step ? "block" : "none";
-      });
-
-      // Update step bubble classes
-      $$(".step-bubble", stepBar).forEach((b) => {
-        const s = parseInt(b.getAttribute("data-step"), 10);
-        b.classList.remove("active", "completed");
-        if (s === step) {
-          b.classList.add("active");
-        } else if (s < step) {
-          b.classList.add("completed");
-        }
-      });
-
-      if (trackFill) {
-        trackFill.style.width = `${((step - 1) / 4) * 100}%`;
-      }
-
-      renderSummary();
-      window.scrollTo({ top: bookingApp.offsetTop - 80, behavior: "smooth" });
-    }
-
-    // Step 1: Populate departments
-    const deptGrid = $("#deptGrid");
-    if (deptGrid) {
-      deptGrid.innerHTML = "";
-      DEPARTMENTS.forEach((d) => {
-        const card = document.createElement("div");
-        card.className = `dept-card ${selectedDept && selectedDept.id === d.id ? "selected" : ""}`;
-        card.innerHTML = `
-          <div style="font-size:32px;margin-bottom:8px;">${d.icon}</div>
-          <div style="font-weight:700;font-size:15px;margin-bottom:4px;">${d.name}</div>
-          <div style="font-size:12px;color:var(--muted);">${d.desc}</div>
-        `;
-        card.addEventListener("click", () => {
-          selectedDept = d;
-          $$(".dept-card", deptGrid).forEach((c) => c.classList.remove("selected"));
-          card.classList.add("selected");
-          populateDoctors(d.id);
-          goToStep(2);
-        });
-        deptGrid.appendChild(card);
-      });
-    }
-
-    // Step 2: Populate doctors
-    const docGrid = $("#bookingDocGrid");
-    function populateDoctors(deptId) {
-      if (!docGrid) return;
-      docGrid.innerHTML = "";
-      const filtered = deptId ? DOCTORS.filter((d) => d.dept === deptId) : DOCTORS;
-
-      if (!filtered.length) {
-        docGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;">All specialists in this department are available for walk-in. Please select General Medicine.</div>`;
-        return;
-      }
-
-      filtered.forEach((doc) => {
-        const card = document.createElement("div");
-        card.className = `booking-doc-card ${selectedDoc && selectedDoc.id === doc.id ? "selected" : ""}`;
-        card.innerHTML = `
-          <div style="display:flex;gap:14px;align-items:center;">
-            <img src="${doc.photo}" alt="${doc.name}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--teal);">
-            <div>
-              <div style="font-weight:700;font-size:16px;">${doc.name}</div>
-              <div style="font-size:12px;color:var(--teal);font-weight:600;">${doc.deptName}</div>
-              <div style="font-size:12px;color:var(--muted);">${doc.degrees} · ${doc.exp}y exp</div>
-            </div>
-          </div>
-          <div style="font-size:12px;color:var(--ink2);">Languages: ${doc.languages.join(", ")}</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:10px;border-top:1px solid var(--border);">
-            <span style="font-weight:700;color:var(--navy);">₹${doc.fee.toLocaleString("en-IN")}</span>
-            <span class="badge badge-mint">${doc.nextSlot}</span>
-          </div>
-        `;
-        card.addEventListener("click", () => {
-          selectedDoc = doc;
-          $$(".booking-doc-card", docGrid).forEach((c) => c.classList.remove("selected"));
-          card.classList.add("selected");
-          populateDatesAndSlots(doc);
-          goToStep(3);
-        });
-        docGrid.appendChild(card);
-      });
-    }
-
-    // Step 3: Populate 14 Days & Slots
-    function populateDatesAndSlots(doc) {
-      const ribbon = $("#dateSelectorRibbon");
-      const morningGrid = $("#morningSlotsGrid");
-      const afternoonGrid = $("#afternoonSlotsGrid");
-      const eveningGrid = $("#eveningSlotsGrid");
-
-      if (!ribbon) return;
-      ribbon.innerHTML = "";
-
-      const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-      const today = new Date();
-      let availableDates = [];
-
-      for (let i = 0; i < 14; i++) {
-        const d = new Date();
-        d.setDate(today.getDate() + i);
-        const dayOfWeek = d.getDay();
-
-        // Check if doctor works on this day
-        if (doc.workingDays.includes(dayOfWeek)) {
-          availableDates.push(d);
-        }
-      }
-
-      availableDates.forEach((d, idx) => {
-        const pill = document.createElement("div");
-        pill.className = `date-pill ${idx === 0 ? "selected" : ""}`;
-        const dayName = daysOfWeek[d.getDay()];
-        const dayNum = d.getDate();
-        const mon = months[d.getMonth()];
-
-        pill.innerHTML = `
-          <span style="font-size:11px;font-weight:600;opacity:0.8;">${dayName}</span>
-          <span style="font-size:18px;font-weight:700;margin:2px 0;">${dayNum}</span>
-          <span style="font-size:11px;opacity:0.8;">${mon}</span>
-        `;
-
-        if (idx === 0) {
-          selectedDate = `${dayName}, ${dayNum} ${mon}`;
-        }
-
-        pill.addEventListener("click", () => {
-          $$(".date-pill", ribbon).forEach((p) => p.classList.remove("selected"));
-          pill.classList.add("selected");
-          selectedDate = `${dayName}, ${dayNum} ${mon}`;
-          generateSlots(doc, d);
-          renderSummary();
-        });
-        ribbon.appendChild(pill);
-      });
-
-      if (availableDates.length > 0) {
-        generateSlots(doc, availableDates[0]);
-      }
-    }
-
-    function generateSlots(doc, dateObj) {
-      const morningGrid = $("#morningSlotsGrid");
-      const afternoonGrid = $("#afternoonSlotsGrid");
-      const eveningGrid = $("#eveningSlotsGrid");
-
-      if (!morningGrid || !afternoonGrid || !eveningGrid) return;
-
-      morningGrid.innerHTML = "";
-      afternoonGrid.innerHTML = "";
-      eveningGrid.innerHTML = "";
-
-      const seed = doc.id.charCodeAt(1) + dateObj.getDate() + dateObj.getMonth();
-
-      function isBooked(index) {
-        // ~38% pseudo-randomly booked
-        return ((seed * 17 + index * 31) % 100) < 38;
-      }
-
-      const morningTimes = ["09:00 AM", "09:15 AM", "09:30 AM", "09:45 AM", "10:15 AM", "10:30 AM", "11:00 AM", "11:30 AM"];
-      const afternoonTimes = ["12:00 PM", "12:15 PM", "12:45 PM", "01:15 PM", "02:00 PM", "02:30 PM", "03:15 PM", "03:45 PM"];
-      const eveningTimes = ["04:15 PM", "04:30 PM", "05:00 PM", "05:30 PM", "06:00 PM", "06:45 PM", "07:15 PM", "07:45 PM"];
-
-      function createSlotButtons(times, targetGrid, offset) {
-        times.forEach((t, i) => {
-          const booked = isBooked(offset + i);
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = `slot-btn ${selectedSlot === t ? "selected" : ""}`;
-          btn.textContent = t;
-          if (booked) {
-            btn.disabled = true;
-          } else {
-            btn.addEventListener("click", () => {
-              $$(".slot-btn", bookingApp).forEach((b) => b.classList.remove("selected"));
-              btn.classList.add("selected");
-              selectedSlot = t;
-              renderSummary();
-            });
-          }
-          targetGrid.appendChild(btn);
-        });
-      }
-
-      createSlotButtons(morningTimes, morningGrid, 0);
-      createSlotButtons(afternoonTimes, afternoonGrid, 10);
-      createSlotButtons(eveningTimes, eveningGrid, 20);
-    }
-
-    // Step 4: Details & Validation
-    const segmentedButtons = $$(".segment-btn", bookingApp);
-    segmentedButtons.forEach((b) => {
-      b.addEventListener("click", () => {
-        segmentedButtons.forEach((x) => x.classList.remove("active"));
-        b.classList.add("active");
-        isVideo = b.getAttribute("data-type") === "video";
-        renderSummary();
-      });
-    });
-
-    const visitTypeSelect = $("#patientVisitType");
-    if (visitTypeSelect) {
-      visitTypeSelect.addEventListener("change", (e) => {
-        isFollowUp = e.target.value === "followup";
-        renderSummary();
-      });
-    }
-
-    // Step navigation buttons
-    $("#btnStep1Next") && $("#btnStep1Next").addEventListener("click", () => goToStep(2));
-    $("#btnStep2Back") && $("#btnStep2Back").addEventListener("click", () => goToStep(1));
-    $("#btnStep2Next") &&
-      $("#btnStep2Next").addEventListener("click", () => {
-        if (!selectedDoc) {
-          window.AUR.toast("Please select a doctor to continue", "danger");
-          return;
-        }
-        goToStep(3);
-      });
-    $("#btnStep3Back") && $("#btnStep3Back").addEventListener("click", () => goToStep(2));
-    $("#btnStep3Next") &&
-      $("#btnStep3Next").addEventListener("click", () => {
-        if (!selectedSlot) {
-          window.AUR.toast("Please select an appointment time slot", "danger");
-          return;
-        }
-        goToStep(4);
-      });
-    $("#btnStep4Back") && $("#btnStep4Back").addEventListener("click", () => goToStep(3));
-    $("#btnStep4Next") &&
-      $("#btnStep4Next").addEventListener("click", () => {
-        const name = $("#patientName") ? $("#patientName").value.trim() : "";
-        const phone = $("#patientPhone") ? $("#patientPhone").value.trim() : "";
-        const age = $("#patientAge") ? $("#patientAge").value.trim() : "";
-
-        if (!name || name.length < 2) {
-          window.AUR.toast("Please enter the patient's full name", "danger");
-          return;
-        }
-        if (!phone || !/^\d{10}$/.test(phone.replace(/\D/g, ""))) {
-          window.AUR.toast("Please enter a valid 10-digit Indian mobile number", "danger");
-          return;
-        }
-        if (!age || parseInt(age, 10) < 1) {
-          window.AUR.toast("Please enter patient age", "danger");
-          return;
-        }
-        goToStep(5);
-      });
-    $("#btnStep5Back") && $("#btnStep5Back").addEventListener("click", () => goToStep(4));
-
-    // Payment methods
-    $$("input[name='payOption']").forEach((radio) => {
-      radio.addEventListener("change", (e) => {
-        payMethod = e.target.value;
-        renderSummary();
-      });
-    });
-
-    // Step 5 Submit Confirmation
-    const bookingForm = $("#bookingFinalForm");
-    if (bookingForm) {
-      bookingForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const consent = $("#patientConsent");
-        if (consent && !consent.checked) {
-          window.AUR.toast("Please agree to the medical consultation consent", "danger");
-          return;
-        }
-
-        const patientName = $("#patientName").value.trim();
-        const patientPhone = $("#patientPhone").value.trim();
-        const tokenNum = `AUR-${Math.floor(1000 + Math.random() * 9000)}`;
-        const uhidNum = `AUR-${Math.floor(800000 + Math.random() * 100000)}`;
-        const opdRoom = `Block B, Floor 2, OPD ${Math.floor(10 + Math.random() * 15)}`;
-
-        const bookingData = {
-          token: tokenNum,
-          uhid: uhidNum,
-          doctor: selectedDoc.name,
-          dept: selectedDoc.deptName,
-          date: selectedDate,
-          time: selectedSlot,
-          room: opdRoom,
-          patient: patientName,
-          phone: patientPhone,
-          mode: isVideo ? "Video Consultation" : "In-Person OP Visit",
-          created: new Date().toISOString(),
-        };
-
-        try {
-          const list = JSON.parse(localStorage.getItem("aur_my_appointments") || "[]");
-          list.unshift(bookingData);
-          localStorage.setItem("aur_my_appointments", JSON.stringify(list));
-        } catch (err) {}
-
-        // Render confirmation boarding pass
-        const confirmationView = $("#bookingConfirmationView");
-        const stepsContainer = $("#bookingStepsWrapper");
-
-        if (stepsContainer) stepsContainer.style.display = "none";
-        if (summaryPanel) summaryPanel.style.display = "none";
-
-        if (confirmationView) {
-          confirmationView.style.display = "block";
-          $("#confToken") && ($("#confToken").textContent = tokenNum);
-          $("#confUhid") && ($("#confUhid").textContent = uhidNum);
-          $("#confDoctor") && ($("#confDoctor").textContent = selectedDoc.name);
-          $("#confDept") && ($("#confDept").textContent = selectedDoc.deptName);
-          $("#confDate") && ($("#confDate").textContent = selectedDate);
-          $("#confTime") && ($("#confTime").textContent = selectedSlot);
-          $("#confRoom") && ($("#confRoom").textContent = opdRoom);
-          $("#confPatient") && ($("#confPatient").textContent = patientName);
-        }
-
-        window.AUR.toast("Appointment confirmed! Boarding pass generated.");
-      });
-    }
-
-    // Calendar (.ics) download
-    const calBtn = $("#btnDownloadIcs");
-    if (calBtn) {
-      calBtn.addEventListener("click", () => {
-        const icsData = [
-          "BEGIN:VCALENDAR",
-          "VERSION:2.0",
-          "PRODID:-//Aurelia CARE//Hospital Appointment//EN",
-          "BEGIN:VEVENT",
-          `SUMMARY:OP Consultation with ${selectedDoc ? selectedDoc.name : "Aurelia Doctor"}`,
-          `DESCRIPTION:Outpatient visit at Aurelia CARE Bengaluru. Room: Block B, Floor 2. Please arrive 15 minutes before time.`,
-          `LOCATION:Aurelia CARE - Hospital & Research, 42 Silicon Vista, Sarjapur-Outer Ring Road, Bengaluru`,
-          "STATUS:CONFIRMED",
-          "BEGIN:VALARM",
-          "TRIGGER:-PT2H",
-          "ACTION:DISPLAY",
-          "DESCRIPTION:Reminder: Aurelia CARE consultation in 2 hours",
-          "END:VALARM",
-          "END:VEVENT",
-          "END:VCALENDAR",
-        ].join("\r\n");
-
-        const blob = new Blob([icsData], { type: "text/calendar;charset=utf-8" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `aurelia-appointment-${Date.now()}.ics`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.AUR.toast("Calendar invite (.ics) downloaded!");
-      });
-    }
-
-    // Print slip
-    const printBtn = $("#btnPrintSlip");
-    if (printBtn) {
-      printBtn.addEventListener("click", () => {
-        window.print();
-      });
-    }
-
-    // Handle query strings on page load
-    if (queryDocId) {
-      const match = DOCTORS.find((d) => d.id === queryDocId);
-      if (match) {
-        selectedDoc = match;
-        selectedDept = DEPARTMENTS.find((dept) => dept.id === match.dept);
-        populateDoctors(match.dept);
-        populateDatesAndSlots(match);
-        goToStep(3); // Directly open at Date step!
-        return;
-      }
-    }
-
-    if (queryDeptId) {
-      const matchDept = DEPARTMENTS.find((d) => d.id === queryDeptId);
-      if (matchDept) {
-        selectedDept = matchDept;
-        populateDoctors(matchDept.id);
-        goToStep(2);
-        return;
-      }
-    }
-
-    populateDoctors();
-    goToStep(1);
-  }
-
-  /* -------------------------------------------------------------------
-     6. DIET PLANNER (diet.html)
-     ------------------------------------------------------------------- */
-  function initDietPlanner() {
-    const dietSection = $("#dietPlanner");
-    if (!dietSection) return;
-
-    let sex = "F"; // F or M
-    let age = 38;
-    let height = 165; // cm
-    let weight = 68; // kg
-    let activity = 1.375; // 1.2, 1.375, 1.55, 1.725
-    let isVeg = true;
-    let condition = "diabetes"; // diabetes, dash, heart, ckd, pcos, nafld, thyroid, weightloss
-
-    const CONDITIONS_INFO = {
-      diabetes: {
-        name: "Type 2 Diabetes",
-        calorieAdj: -300,
-        limits: { sodium: 2000, sugar: 15, satFat: 12 },
-        eatMore: ["Methi seeds", "Karela / bitter gourd", "Millets / ragi", "Moong dal", "Jamun / berries"],
-        avoid: ["Refined maida", "White sugar & syrups", "Deep fried samosas", "Fruit juices", "Full-fat dairy"],
-        guideline: "Focus on complex low-GI carbs, high soluble fibre, and timed regular meals to stabilize insulin spikes.",
-      },
-      dash: {
-        name: "Hypertension (DASH)",
-        calorieAdj: -200,
-        limits: { sodium: 1500, sugar: 20, satFat: 10 },
-        eatMore: ["Potassium-rich greens", "Tender coconut", "Flaxseeds", "Garlic & ginger", "Pomegranate"],
-        avoid: ["Pickles & papads", "Processed namkeen", "Soy sauce & MSG", "Canned broths", "Excess caffeine"],
-        guideline: "Strict sodium restriction (<1,500mg) paired with potassium, magnesium and calcium rich whole foods.",
-      },
-      heart: {
-        name: "Heart Disease (Lipid Management)",
-        calorieAdj: -250,
-        limits: { sodium: 1800, sugar: 15, satFat: 8 },
-        eatMore: ["Walnuts & almonds", "Oats beta-glucan", "Extra virgin olive oil", "Steamed fish / soy", "Avocado"],
-        avoid: ["Vanaspati / trans fats", "Red meat & organ meats", "Commercial pastries", "Palm oil", "Ghee in excess"],
-        guideline: "Target LDL reduction via high soluble fibre, phytosterols, and replacing saturated fat with PUFA/MUFA.",
-      },
-      ckd: {
-        name: "Kidney Disease (CKD Stage 3–4)",
-        calorieAdj: 0,
-        proteinCap: 0.7, // g/kg
-        waterCap: 1500, // ml
-        limits: { sodium: 1800, potassium: 2000, phosphorus: 800 },
-        eatMore: ["Leached vegetables", "Egg white / paneer in moderation", "Apple / guava", "White rice (boiled)", "Cucumber"],
-        avoid: ["Tender coconut water", "High-potassium bananas", "Colas & dark sodas", "Organ meats", "Dry fruits"],
-        guideline: "Protein restricted to 0.7g/kg/day to minimize uremic toxins; monitor potassium and phosphorus strictly.",
-      },
-      pcos: {
-        name: "PCOS (Metabolic Balance)",
-        calorieAdj: -350,
-        limits: { sodium: 2000, sugar: 15, satFat: 12 },
-        eatMore: ["Spearmint tea", "Cinnamon & turmeric", "Pumpkin seeds (zinc)", "Sprouted legumes", "Cruciferous greens"],
-        avoid: ["High glycemic sweets", "Dairy excess", "Processed refined grains", "Alcohol", "Sugary beverages"],
-        guideline: "Address insulin resistance and androgen excess through low-GI meals, anti-inflammatory spices and zinc.",
-      },
-      nafld: {
-        name: "Fatty Liver (NAFLD)",
-        calorieAdj: -400,
-        limits: { sodium: 2000, sugar: 10, satFat: 10 },
-        eatMore: ["Black coffee (unfiltered)", "Green leafy vegetables", "Tofu / soya", "Artichoke / crucifers", "Omega-3 oils"],
-        avoid: ["High-fructose corn syrup", "Alcohol (absolute stop)", "Refined bakery items", "Deep-fried snacks"],
-        guideline: "Gradual 7-10% weight loss reverses hepatic steatosis; eliminate all added sugars and fructose.",
-      },
-      thyroid: {
-        name: "Hypothyroidism",
-        calorieAdj: -250,
-        limits: { sodium: 2000, sugar: 20, satFat: 12 },
-        eatMore: ["Brazil nuts (selenium)", "Iodised salt", "Steamed eggs", "Chia seeds", "Cooked vegetables"],
-        avoid: ["Raw goitrogens (raw cabbage/kale)", "Gluten excess", "Soy within 4h of levothyroxine", "Processed meats"],
-        guideline: "Support thyroid hormone synthesis with selenium, iodine, and zinc; cook goitrogenic vegetables thoroughly.",
-      },
-      weightloss: {
-        name: "Obesity / Weight Loss",
-        calorieAdj: -500,
-        proteinCap: 1.3, // g/kg
-        limits: { sodium: 2000, sugar: 15, satFat: 10 },
-        eatMore: ["High satiety vegetables", "Sprouted chana & rajma", "Low fat paneer / grilled chicken", "Clear soups", "Salads"],
-        avoid: ["Liquid calories & sodas", "Buffet overeating", "Late night carbs", "Commercial snacks", "Sugary desserts"],
-        guideline: "Sustainable caloric deficit with elevated protein (1.2–1.4g/kg) to preserve lean muscle mass.",
-      },
-    };
-
-    function recalculate() {
-      // Mifflin-St Jeor Formula
-      let bmr = 0;
-      if (sex === "M") {
-        bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-      } else {
-        bmr = 10 * weight + 6.25 * height - 5 * age - 161;
-      }
-
-      const maintenance = Math.round(bmr * activity);
-      const condData = CONDITIONS_INFO[condition] || CONDITIONS_INFO.diabetes;
-
-      let targetCalories = maintenance + condData.calorieAdj;
-      // Clinical floors
-      const minFloor = sex === "M" ? 1500 : 1200;
-      if (targetCalories < minFloor) targetCalories = minFloor;
-
-      // BMI (Asian cut-offs: <18.5 Underweight, 18.5-22.9 Normal, 23-27.4 Overweight, >=27.5 Obese)
-      const heightM = height / 100;
-      const bmi = (weight / (heightM * heightM)).toFixed(1);
-
-      // Water target: ~35ml / kg
-      let waterMl = Math.round(weight * 35);
-      if (condData.waterCap) {
-        waterMl = condData.waterCap;
-      }
-      const waterGlasses = Math.min(12, Math.max(4, Math.round(waterMl / 250)));
-
-      // Macros
-      let proteinG = 0;
-      if (condData.proteinCap) {
-        proteinG = Math.round(weight * condData.proteinCap);
-      } else {
-        proteinG = Math.round(weight * 1.0);
-      }
-      const proteinKcal = proteinG * 4;
-      const fatKcal = Math.round(targetCalories * 0.28);
-      const fatG = Math.round(fatKcal / 9);
-      const carbKcal = Math.max(0, targetCalories - proteinKcal - fatKcal);
-      const carbG = Math.round(carbKcal / 4);
-      const fibreG = Math.round((targetCalories / 1000) * 14);
-
-      // Update UI elements
-      $("#calTargetVal") && ($("#calTargetVal").textContent = targetCalories.toLocaleString("en-IN"));
-      $("#calBmrVal") && ($("#calBmrVal").textContent = `${Math.round(bmr)} kcal`);
-      $("#calMaintVal") && ($("#calMaintVal").textContent = `${maintenance} kcal`);
-      $("#calAdjVal") && ($("#calAdjVal").textContent = `${condData.calorieAdj > 0 ? "+" : ""}${condData.calorieAdj} kcal`);
-
-      // BMI Needle rotation
-      // Gauge scale: 15 to 35 -> 180 degrees
-      const bmiNeedle = $("#bmiNeedle");
-      const bmiValEl = $("#bmiValueText");
-      const bmiLabelEl = $("#bmiCategoryLabel");
-
-      if (bmiNeedle) {
-        const clampedBmi = Math.min(35, Math.max(15, parseFloat(bmi)));
-        const deg = ((clampedBmi - 15) / 20) * 180 - 90;
-        bmiNeedle.style.transform = `rotate(${deg}deg)`;
-      }
-
-      if (bmiValEl) bmiValEl.textContent = bmi;
-      if (bmiLabelEl) {
-        let cat = "Normal Weight";
-        let color = "#10b981";
-        if (bmi < 18.5) {
-          cat = "Underweight (<18.5)";
-          color = "#3b82f6";
-        } else if (bmi <= 22.9) {
-          cat = "Optimal Asian BMI (18.5–22.9)";
-          color = "#10b981";
-        } else if (bmi <= 27.4) {
-          cat = "Overweight (23.0–27.4)";
-          color = "#f59e0b";
-        } else {
-          cat = "Obese (≥27.5)";
-          color = "#ef4444";
-        }
-        bmiLabelEl.textContent = cat;
-        bmiLabelEl.style.color = color;
-      }
-
-      // Water glasses
-      const glassesWrap = $("#waterGlassesRow");
-      const waterText = $("#waterTargetText");
-      if (glassesWrap) {
-        glassesWrap.innerHTML = "";
-        for (let i = 0; i < 10; i++) {
-          const g = document.createElement("div");
-          g.className = "water-glass";
-          const fill = document.createElement("div");
-          fill.className = "water-glass-fill";
-          fill.style.height = i < waterGlasses ? "100%" : "0%";
-          g.appendChild(fill);
-          glassesWrap.appendChild(g);
-        }
-      }
-      if (waterText) {
-        waterText.textContent = condData.waterCap
-          ? `${waterMl} ml / day (Restricted fluid limit for CKD)`
-          : `${waterMl} ml (~${waterGlasses} glasses of 250ml)`;
-      }
-
-      // Macros display
-      $("#macroProteinG") && ($("#macroProteinG").textContent = `${proteinG}g`);
-      $("#macroCarbG") && ($("#macroCarbG").textContent = `${carbG}g`);
-      $("#macroFatG") && ($("#macroFatG").textContent = `${fatG}g`);
-      $("#macroFibreG") && ($("#macroFibreG").textContent = `${fibreG}g`);
-
-      // Clinical guidance & chips
-      $("#dietGuidelineText") && ($("#dietGuidelineText").textContent = condData.guideline);
-
-      const eatMoreWrap = $("#dietEatMoreChips");
-      if (eatMoreWrap) {
-        eatMoreWrap.innerHTML = condData.eatMore.map((item) => `<span class="badge badge-mint" style="margin:3px;">+ ${item}</span>`).join("");
-      }
-
-      const avoidWrap = $("#dietAvoidChips");
-      if (avoidWrap) {
-        avoidWrap.innerHTML = condData.avoid.map((item) => `<span class="badge badge-danger" style="margin:3px;">- ${item}</span>`).join("");
-      }
-
-      // 6-Meal Indian Timeline
-      render6MealPlan(targetCalories, isVeg, condition);
-    }
-
-    function render6MealPlan(totalCal, veg, cond) {
-      const timeline = $("#sampleDayTimeline");
-      if (!timeline) return;
-
-      const m1Cal = Math.round(totalCal * 0.05);
-      const m2Cal = Math.round(totalCal * 0.25);
-      const m3Cal = Math.round(totalCal * 0.1);
-      const m4Cal = Math.round(totalCal * 0.32);
-      const m5Cal = Math.round(totalCal * 0.08);
-      const m6Cal = Math.round(totalCal * 0.2);
-
-      const meals = [
-        {
-          name: "Early Morning (6:30 AM)",
-          cal: m1Cal,
-          desc: cond === "diabetes" ? "Warm water + soaked methi & cinnamon" : "Warm lemon water + 4 soaked almonds & 1 walnut",
-        },
-        {
-          name: "Breakfast (8:30 AM)",
-          cal: m2Cal,
-          desc: veg
-            ? "Sprouted moong dal chilla with mint chutney + 1 cup tender vegetable sambar"
-            : "2 boiled egg whites + 1 whole egg omelette with spinach & 1 multigrain toast",
-        },
-        {
-          name: "Mid-Morning (11:00 AM)",
-          cal: m3Cal,
-          desc: cond === "ckd" ? "1 small sweet apple / guava slices" : "Tender coconut water or cucumber & chaat masala + roasted chana",
-        },
-        {
-          name: "Lunch (1:30 PM)",
-          cal: m4Cal,
-          desc: veg
-            ? "1.5 Multigrain phulkas + 1 bowl yellow dal tadka + Palak subzi + Fresh cucumber salad + Curd"
-            : "Steamed brown rice / 2 rotis + Grilled fresh fish or herb chicken breast + Sauteed beans + Salad",
-        },
-        {
-          name: "Evening Snack (5:00 PM)",
-          cal: m5Cal,
-          desc: "Roasted foxnuts (makhana) with rock salt + Steaming green tea or buttermilk",
-        },
-        {
-          name: "Dinner (8:00 PM)",
-          cal: m6Cal,
-          desc: veg
-            ? "Lauki / pumpkin vegetable soup + 1 Ragi phulka + Methi paneer or stirred tofu"
-            : "Clear chicken vegetable broth + 1 Multigrain roti + Stir-fried egg whites & broccoli",
-        },
-      ];
-
-      timeline.innerHTML = meals
-        .map(
-          (m) => `
-        <div class="meal-row">
-          <div>
-            <div style="font-weight:700;font-size:14px;color:var(--ink);">${m.name}</div>
-            <div style="font-size:13px;color:var(--ink2);margin-top:2px;">${m.desc}</div>
-          </div>
-          <div style="font-weight:700;font-size:14px;color:var(--teal);white-space:nowrap;margin-left:14px;">${m.cal} kcal</div>
-        </div>
-      `
-        )
-        .join("");
-    }
-
-    // Condition Chips click handlers
-    $$(".condition-chip", dietSection).forEach((chip) => {
-      chip.addEventListener("click", () => {
-        $$(".condition-chip", dietSection).forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-        condition = chip.getAttribute("data-condition");
-        recalculate();
-      });
-    });
-
-    // Sex toggle
-    const sexBtns = $$(".sex-toggle-btn", dietSection);
-    sexBtns.forEach((b) => {
-      b.addEventListener("click", () => {
-        sexBtns.forEach((x) => x.classList.remove("active"));
-        b.classList.add("active");
-        sex = b.getAttribute("data-sex");
-        recalculate();
-      });
-    });
-
-    // Veg / Non-Veg toggle
-    const vegBtns = $$(".diet-type-btn", dietSection);
-    vegBtns.forEach((b) => {
-      b.addEventListener("click", () => {
-        vegBtns.forEach((x) => x.classList.remove("active"));
-        b.classList.add("active");
-        isVeg = b.getAttribute("data-type") === "veg";
-        recalculate();
-      });
-    });
-
-    // Activity selector
-    const actSelect = $("#dietActivitySelect");
-    if (actSelect) {
-      actSelect.addEventListener("change", (e) => {
-        activity = parseFloat(e.target.value);
-        recalculate();
-      });
-    }
-
-    // Sliders
-    const ageSlider = $("#sliderAge");
-    const heightSlider = $("#sliderHeight");
-    const weightSlider = $("#sliderWeight");
-
-    if (ageSlider) {
-      ageSlider.addEventListener("input", (e) => {
-        age = parseInt(e.target.value, 10);
-        $("#valAge") && ($("#valAge").textContent = `${age} yrs`);
-        recalculate();
-      });
-    }
-    if (heightSlider) {
-      heightSlider.addEventListener("input", (e) => {
-        height = parseInt(e.target.value, 10);
-        $("#valHeight") && ($("#valHeight").textContent = `${height} cm`);
-        recalculate();
-      });
-    }
-    if (weightSlider) {
-      weightSlider.addEventListener("input", (e) => {
-        weight = parseInt(e.target.value, 10);
-        $("#valWeight") && ($("#valWeight").textContent = `${weight} kg`);
-        recalculate();
-      });
-    }
-
-    recalculate();
-  }
-
-  /* -------------------------------------------------------------------
-     7. SYMPTOM GUIDE (symptoms.html)
-     ------------------------------------------------------------------- */
-  function initSymptomGuide() {
-    const symptomGuide = $("#symptomGuide");
-    if (!symptomGuide) return;
-
-    let isBackView = false;
-    let isChild = false;
-    let selectedSymptoms = new Set();
-
-    const HOTSPOTS = {
-      front: [
-        { id: "head", label: "Head & Face", x: 50, y: 8, symptoms: ["Severe headache", "Dizziness / Vertigo", "Facial droop (FAST)", "Sinus pressure"] },
-        { id: "throat", label: "Throat & Neck", x: 50, y: 15, symptoms: ["Sore throat", "Swallowing difficulty", "Neck lump", "Hoarseness"] },
-        { id: "chest", label: "Chest & Heart", x: 50, y: 25, symptoms: ["Chest pain / pressure", "Shortness of breath", "Palpitations", "Persistent cough"] },
-        { id: "shoulders", label: "Shoulders", x: 34, y: 22, symptoms: ["Shoulder stiffness", "Rotator cuff pain", "Inability to lift arm"] },
-        { id: "upper-abdomen", label: "Upper Abdomen", x: 50, y: 36, symptoms: ["Burning acidity", "Upper abdominal fullness", "Nausea after meals", "Jaundice signs"] },
-        { id: "lower-abdomen", label: "Lower Abdomen", x: 50, y: 46, symptoms: ["Cramping pain", "Bloating", "Irregular bowel", "Pelvic pressure"] },
-        { id: "arms", label: "Arms & Elbows", x: 26, y: 38, symptoms: ["Numbness in fingers", "Tennis elbow pain", "Tremors"] },
-        { id: "knees", label: "Knees & Joints", x: 44, y: 72, symptoms: ["Knee clicking / swelling", "Difficulty climbing stairs", "Morning joint stiffness"] },
-        { id: "feet", label: "Feet & Ankles", x: 46, y: 92, symptoms: ["Ankle sprain", "Heel pain in morning", "Foot swelling / edema"] },
-      ],
-      back: [
-        { id: "cervical", label: "Cervical Spine", x: 50, y: 14, symptoms: ["Neck stiffness", "Pain radiating to shoulder", "Tension headache"] },
-        { id: "upper-back", label: "Upper Back", x: 50, y: 26, symptoms: ["Interscapular ache", "Postural muscle spasm", "Ribcage tightness"] },
-        { id: "lumbar", label: "Lower Back", x: 50, y: 44, symptoms: ["Severe low back ache", "Sciatica pain shooting down leg", "Spinal stiffness"] },
-        { id: "flanks", label: "Flanks / Kidneys", x: 38, y: 38, symptoms: ["Flank pain", "Painful urination", "Blood in urine", "Frothy urine"] },
-        { id: "calves", label: "Calves & Achilles", x: 46, y: 80, symptoms: ["Calf muscle cramps", "Achilles tendon pain", "Varicose vein throbbing"] },
-      ],
-    };
-
-    const RED_FLAGS = [
-      "Chest pain / pressure",
-      "Shortness of breath",
-      "Facial droop (FAST)",
-      "Severe headache",
-      "Blood in urine",
-    ];
-
-    const mapStage = $("#bodyMapSvgWrap");
-    const symptomChecklist = $("#symptomChecklist");
-    const redFlagBanner = $("#redFlagBanner");
-    const recommendationsPanel = $("#symptomRecommendations");
-
-    function renderHotspots() {
-      if (!mapStage) return;
-      mapStage.innerHTML = "";
-
-      const currentList = isBackView ? HOTSPOTS.back : HOTSPOTS.front;
-      currentList.forEach((spot) => {
-        const dot = document.createElement("div");
-        dot.className = `body-hotspot ${spot.symptoms.some((s) => selectedSymptoms.has(s)) ? "active" : ""}`;
-        dot.style.left = `${spot.x}%`;
-        dot.style.top = `${spot.y}%`;
-        dot.title = spot.label;
-
-        dot.addEventListener("click", () => {
-          showSymptomsForHotspot(spot);
-        });
-        mapStage.appendChild(dot);
-      });
-    }
-
-    function showSymptomsForHotspot(spot) {
-      if (!symptomChecklist) return;
-      symptomChecklist.innerHTML = `
-        <h4 style="font-size:16px;margin-bottom:12px;color:var(--navy);">${spot.label} — Choose symptoms:</h4>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          ${spot.symptoms
-            .map(
-              (s) => `
-            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;background:var(--paper2);padding:8px 12px;border-radius:8px;">
-              <input type="checkbox" value="${s}" ${selectedSymptoms.has(s) ? "checked" : ""}>
-              <span>${s}</span>
-            </label>
-          `
-            )
-            .join("")}
-        </div>
-      `;
-
-      $$("input[type='checkbox']", symptomChecklist).forEach((cb) => {
-        cb.addEventListener("change", (e) => {
-          if (e.target.checked) {
-            selectedSymptoms.add(e.target.value);
-          } else {
-            selectedSymptoms.delete(e.target.value);
-          }
-          renderHotspots();
-          evaluateRecommendations();
-        });
-      });
-    }
-
-    function evaluateRecommendations() {
-      // Check red flags
-      let hasRedFlag = false;
-      RED_FLAGS.forEach((rf) => {
-        if (selectedSymptoms.has(rf)) hasRedFlag = true;
-      });
-
-      if (redFlagBanner) {
-        redFlagBanner.style.display = hasRedFlag ? "flex" : "none";
-      }
-
-      if (!recommendationsPanel) return;
-
-      if (selectedSymptoms.size === 0) {
-        recommendationsPanel.innerHTML = `
-          <div style="text-align:center;padding:40px 20px;color:var(--muted);">
-            <div style="font-size:36px;margin-bottom:10px;">🩺</div>
-            <div style="font-weight:600;">Select symptoms on the body map</div>
-            <div style="font-size:13px;margin-top:4px;">We'll match you to the right department and doctors with next available slots.</div>
-          </div>
-        `;
-        return;
-      }
-
-      // Department matching rules
-      let deptId = "gen";
-      let matchPct = 85;
-      let rationale = "Recommended for initial clinical evaluation and diagnostic triage.";
-
-      if (isChild) {
-        deptId = "paed";
-        matchPct = 98;
-        rationale = "Paediatric assessment recommended for comprehensive child care.";
-      } else {
-        const symList = Array.from(selectedSymptoms);
-        if (symList.some((s) => s.includes("Chest") || s.includes("Palpitation") || s.includes("breath"))) {
-          deptId = "card";
-          matchPct = 96;
-          rationale = "Cardiopulmonary symptoms warrant urgent cardiac evaluation and ECG.";
-        } else if (symList.some((s) => s.includes("Head") || s.includes("droop") || s.includes("Vertigo") || s.includes("Numbness"))) {
-          deptId = "neuro";
-          matchPct = 94;
-          rationale = "Neurological symptoms indicate comprehensive brain & nerve review.";
-        } else if (symList.some((s) => s.includes("Knee") || s.includes("Back") || s.includes("Shoulder") || s.includes("Spine"))) {
-          deptId = "ortho";
-          matchPct = 92;
-          rationale = "Musculoskeletal signs suggest orthopaedic joint or spine evaluation.";
-        } else if (symList.some((s) => s.includes("Abdomen") || s.includes("acidity") || s.includes("Nausea") || s.includes("Jaundice"))) {
-          deptId = "gastro";
-          matchPct = 91;
-          rationale = "Gastrointestinal tract evaluation and ultrasound recommended.";
-        } else if (symList.some((s) => s.includes("Flank") || s.includes("urine") || s.includes("Kidney"))) {
-          deptId = "nephro";
-          matchPct = 95;
-          rationale = "Renal symptoms warrant urine routine, serum creatinine and nephrology review.";
-        }
-      }
-
-      const dept = DEPARTMENTS.find((d) => d.id === deptId) || DEPARTMENTS[0];
-      const matchedDocs = DOCTORS.filter((d) => d.dept === deptId).slice(0, 2);
-
-      recommendationsPanel.innerHTML = `
-        <div style="background:#ffffff;border-radius:var(--radius-lg);padding:30px;box-shadow:var(--shadow);border:1.5px solid var(--border);">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <div>
-              <span class="badge badge-mint">${dept.name}</span>
-              <h3 style="margin:8px 0 4px;font-size:20px;">Primary Speciality Match</h3>
-            </div>
-            <div style="width:54px;height:54px;border-radius:50%;background:rgba(42,155,149,0.12);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:var(--teal);">
-              ${matchPct}%
-            </div>
-          </div>
-          <p style="font-size:14px;color:var(--ink2);margin-bottom:20px;">${rationale}</p>
-          <div style="font-weight:700;font-size:14.5px;margin-bottom:12px;color:var(--navy);">Recommended Specialists:</div>
-          <div style="display:flex;flex-direction:column;gap:12px;">
-            ${matchedDocs
-              .map(
-                (doc) => `
-              <div style="display:flex;align-items:center;justify-content:space-between;background:var(--paper2);padding:14px 16px;border-radius:var(--radius-md);border:1px solid var(--border);">
-                <div style="display:flex;align-items:center;gap:12px;">
-                  <img src="${doc.photo}" alt="${doc.name}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
-                  <div>
-                    <div style="font-weight:700;font-size:14.5px;">${doc.name}</div>
-                    <div style="font-size:12px;color:var(--muted);">${doc.title}</div>
-                    <div style="font-size:11.5px;color:var(--teal);font-weight:600;">${doc.nextSlot}</div>
-                  </div>
-                </div>
-                <a href="book.html?doc=${doc.id}" class="btn btn-primary btn-sm">Book</a>
-              </div>
-            `
-              )
-              .join("")}
-          </div>
-          <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);font-style:italic;">
-            Note: This guide is for educational prioritization only, not a clinical diagnosis.
-          </div>
-        </div>
-      `;
-    }
-
-    // Toggle Front / Back View
-    const toggleBackBtn = $("#btnToggleFrontBack");
-    if (toggleBackBtn) {
-      toggleBackBtn.addEventListener("click", () => {
-        isBackView = !isBackView;
-        toggleBackBtn.textContent = isBackView ? "Switch to Front View" : "Switch to Back View";
-        renderHotspots();
-      });
-    }
-
-    // Patient is a child toggle
-    const childToggle = $("#childSwitchToggle");
-    if (childToggle) {
-      childToggle.addEventListener("change", (e) => {
-        isChild = e.target.checked;
-        evaluateRecommendations();
-      });
-    }
-
-    // Whole body symptoms button
-    const wholeBodyBtn = $("#btnWholeBodySymptoms");
-    if (wholeBodyBtn) {
-      wholeBodyBtn.addEventListener("click", () => {
-        showSymptomsForHotspot({
-          label: "Whole-Body Symptoms",
-          symptoms: ["Unexplained fever", "Severe fatigue", "Sudden weight loss", "Dizziness / Vertigo", "Night sweats"],
-        });
-      });
-    }
-
-    renderHotspots();
-    evaluateRecommendations();
-  }
-
-  /* -------------------------------------------------------------------
-     8. YOUR VISIT ANIMATED ROAD (visit.html)
-     ------------------------------------------------------------------- */
-  function initVisitRoad() {
-    const visitRoadApp = $("#visitRoadApp");
-    if (!visitRoadApp) return;
-
-    let currentStop = 0;
-    let isPlaying = true;
-    let timer = null;
-
-    const STOPS = [
-      {
-        id: 1,
-        title: "Arrive & Park",
-        duration: "3 mins",
-        desc: "Complimentary valet at Gate 2. Digital sensor directs you to available underground parking bay.",
-        tip: "Show your booking SMS at Gate 2 for immediate priority valet intake.",
-        widgetType: "valet",
-      },
-      {
-        id: 2,
-        title: "Check-in at Kiosk",
-        duration: "1 min",
-        desc: "Scan your booking QR code at the entrance kiosk to receive your smart consultation token.",
-        tip: "Prefer no touch? Self-check in seamlessly via the patient mobile app within 200m of campus.",
-        widgetType: "kiosk",
-      },
-      {
-        id: 3,
-        title: "Vitals & Triage",
-        duration: "5 mins",
-        desc: "Nursing care station records your blood pressure, heart rate, SpO₂, height and weight.",
-        tip: "All vitals are automatically logged to your physician's digital screen before you step in.",
-        widgetType: "vitals",
-      },
-      {
-        id: 4,
-        title: "Relax in the Lounge",
-        duration: "11 mins",
-        desc: "Quiet, unhurried waiting lounge with organic herbal tea, Wi-Fi, and live queue display screens.",
-        tip: "A digital chime alerts your phone 3 minutes before your doctor is ready.",
-        widgetType: "lounge",
-      },
-      {
-        id: 5,
-        title: "Your Consultation",
-        duration: "15 mins",
-        desc: "Unhurried face-to-face consultation. Your specialist listens, examines, and discusses your care plan.",
-        tip: "Feel free to ask questions or have family members join in-person or via secure video link.",
-        widgetType: "consult",
-      },
-      {
-        id: 6,
-        title: "Tests & Pharmacy",
-        duration: "10 mins",
-        desc: "Immediate on-floor blood collection and fast-track digital prescription dispensing.",
-        tip: "Prescriptions are also sent to your WhatsApp with home delivery options.",
-        widgetType: "pharmacy",
-      },
-      {
-        id: 7,
-        title: "Head Home",
-        duration: "2 mins",
-        desc: "Your valet car is waiting at the exit porch. Summary and digital invoices sent to your portal.",
-        tip: "Follow-up questions are answered directly via your secure patient chat portal.",
-        widgetType: "exit",
-      },
-    ];
-
-    const roadInfoTitle = $("#roadStepTitle");
-    const roadInfoDesc = $("#roadStepDesc");
-    const roadInfoTip = $("#roadStepTip");
-    const roadInfoDuration = $("#roadStepDuration");
-    const roadLiveWidget = $("#roadLiveWidget");
-    const travellerDot = $("#roadTravellerDot");
-
-    function renderWidget(type) {
-      if (!roadLiveWidget) return;
-
-      if (type === "valet") {
-        roadLiveWidget.innerHTML = `
-          <div>
-            <div class="badge badge-mint" style="margin-bottom:12px;">Live Parking Sensor</div>
-            <h4 style="color:#fff;font-size:22px;margin-bottom:8px;">Basement 1 Valet Hub</h4>
-            <div style="font-size:36px;font-weight:700;color:#8fe3d9;margin-bottom:4px;">18 Bays Free</div>
-            <div style="font-size:13px;color:#c4e9e5;">Gate 2 Valet Desk · Typical drop-off 90 seconds</div>
-          </div>
-          <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.15);font-size:12.5px;color:#a4cecb;">
-            ● Sensor refreshed 4 seconds ago
-          </div>
-        `;
-      } else if (type === "kiosk") {
-        roadLiveWidget.innerHTML = `
-          <div>
-            <div class="badge badge-mint" style="margin-bottom:12px;">Express Kiosk Scan</div>
-            <h4 style="color:#fff;font-size:22px;margin-bottom:12px;">Digital Pass Scanner</h4>
-            <div style="background:rgba(255,255,255,0.1);padding:20px;border-radius:12px;text-align:center;border:1px dashed #8fe3d9;position:relative;overflow:hidden;">
-              <div style="font-size:42px;">📱</div>
-              <div style="font-size:13px;color:#fff;margin-top:6px;">Place QR code here</div>
-              <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#8fe3d9;animation:scan-down 2s linear infinite;"></div>
-            </div>
-          </div>
-          <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.15);font-size:12.5px;color:#a4cecb;">
-            Token instantly generated on mobile
-          </div>
-        `;
-      } else if (type === "vitals") {
-        roadLiveWidget.innerHTML = `
-          <div>
-            <div class="badge badge-mint" style="margin-bottom:12px;">Nursing Vitals Triage</div>
-            <h4 style="color:#fff;font-size:22px;margin-bottom:14px;">Instant Telemetry Sync</h4>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-              <div style="background:rgba(255,255,255,0.08);padding:10px;border-radius:8px;">
-                <div style="font-size:11px;color:#a4cecb;">HEART RATE</div>
-                <div style="font-size:20px;font-weight:700;color:#fff;">72 bpm</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.08);padding:10px;border-radius:8px;">
-                <div style="font-size:11px;color:#a4cecb;">BLOOD PRESSURE</div>
-                <div style="font-size:20px;font-weight:700;color:#fff;">118/76</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.08);padding:10px;border-radius:8px;">
-                <div style="font-size:11px;color:#a4cecb;">SpO₂ OXYGEN</div>
-                <div style="font-size:20px;font-weight:700;color:#fff;">98%</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.08);padding:10px;border-radius:8px;">
-                <div style="font-size:11px;color:#a4cecb;">TEMPERATURE</div>
-                <div style="font-size:20px;font-weight:700;color:#fff;">98.4°F</div>
-              </div>
-            </div>
-          </div>
-          <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.15);font-size:12.5px;color:#a4cecb;">
-            Synced to EHR record
-          </div>
-        `;
-      } else if (type === "lounge") {
-        roadLiveWidget.innerHTML = `
-          <div>
-            <div class="badge badge-mint" style="margin-bottom:12px;">Live Token Board</div>
-            <h4 style="color:#fff;font-size:22px;margin-bottom:10px;">Lounge Display</h4>
-            <div style="font-size:14px;color:#a4cecb;">Now serving at OPD 14:</div>
-            <div style="font-size:32px;font-weight:700;color:#8fe3d9;margin:4px 0 8px;">AUR-8420</div>
-            <div style="font-size:13px;color:#fff;">Your Token: <strong>AUR-8421</strong> (Next in line)</div>
-          </div>
-          <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.15);font-size:12.5px;color:#a4cecb;">
-            Chime alert active on your phone
-          </div>
-        `;
-      } else if (type === "consult") {
-        roadLiveWidget.innerHTML = `
-          <div>
-            <div class="badge badge-mint" style="margin-bottom:12px;">Active Consultation</div>
-            <h4 style="color:#fff;font-size:22px;margin-bottom:10px;">Dr. Elena Marquez</h4>
-            <div style="font-size:13px;color:#a4cecb;margin-bottom:12px;">Cardiology · OPD Suite 14</div>
-            <div style="background:rgba(255,255,255,0.08);padding:12px;border-radius:8px;font-size:13px;color:#fff;">
-              "Resting ECG normal. Let's discuss stress echoes and long-term lipid strategy."
-            </div>
-          </div>
-          <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.15);font-size:12.5px;color:#a4cecb;">
-            Full 15-minute dedicated window
-          </div>
-        `;
-      } else if (type === "pharmacy") {
-        roadLiveWidget.innerHTML = `
-          <div>
-            <div class="badge badge-mint" style="margin-bottom:12px;">Diagnostic & Drug Desk</div>
-            <h4 style="color:#fff;font-size:22px;margin-bottom:10px;">Fast-Track Dispatch</h4>
-            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
-              <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,0.08);padding:8px 12px;border-radius:6px;">
-                <span>Lipid Profile Blood Draw</span>
-                <span style="color:#8fe3d9;">Station 3 Ready</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;background:rgba(255,255,255,0.08);padding:8px 12px;border-radius:6px;">
-                <span>E-Prescription Dispensing</span>
-                <span style="color:#8fe3d9;">Bay B Packed</span>
-              </div>
-            </div>
-          </div>
-          <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.15);font-size:12.5px;color:#a4cecb;">
-            Typical wait 4 minutes
-          </div>
-        `;
-      } else {
-        roadLiveWidget.innerHTML = `
-          <div>
-            <div class="badge badge-mint" style="margin-bottom:12px;">Visit Completed</div>
-            <h4 style="color:#fff;font-size:22px;margin-bottom:10px;">Safe Travels Home</h4>
-            <div style="font-size:13.5px;color:#c4e9e5;margin-bottom:12px;">Valet vehicle brought to Porch B. Your consultation summary is saved to your patient portal.</div>
-            <div style="background:rgba(255,255,255,0.08);padding:10px;border-radius:8px;font-size:12.5px;">
-              Total visit duration: <strong>47 minutes</strong>
-            </div>
-          </div>
-          <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,0.15);font-size:12.5px;color:#a4cecb;">
-            Aurelia CARE Bengaluru
-          </div>
-        `;
-      }
-    }
-
-    function setStop(index) {
-      currentStop = index;
-      const s = STOPS[index];
-
-      if (roadInfoTitle) roadInfoTitle.textContent = `${index + 1}. ${s.title}`;
-      if (roadInfoDesc) roadInfoDesc.textContent = s.desc;
-      if (roadInfoTip) roadInfoTip.textContent = `💡 Clinical Tip: ${s.tip}`;
-      if (roadInfoDuration) roadInfoDuration.textContent = s.duration;
-
-      renderWidget(s.widgetType);
-
-      // Move traveller dot along SVG road
-      if (travellerDot) {
-        // Coords along SVG road
-        const roadCoords = [
-          { x: 50, y: 70 },
-          { x: 180, y: 150 },
-          { x: 310, y: 80 },
-          { x: 440, y: 220 },
-          { x: 570, y: 140 },
-          { x: 700, y: 280 },
-          { x: 820, y: 200 },
-        ];
-        const pt = roadCoords[index] || roadCoords[0];
-        travellerDot.setAttribute("cx", pt.x);
-        travellerDot.setAttribute("cy", pt.y);
-      }
-
-      $$(".road-stop-marker").forEach((m, idx) => {
-        if (idx === index) {
-          m.classList.add("active");
-        } else {
-          m.classList.remove("active");
-        }
-      });
-    }
-
-    setStop(0);
-
-    function startAutoPlay() {
-      if (timer) clearInterval(timer);
-      timer = setInterval(() => {
-        if (isPlaying) {
-          const next = (currentStop + 1) % STOPS.length;
-          setStop(next);
-        }
-      }, 6000);
-    }
-
-    startAutoPlay();
-
-    const playPauseBtn = $("#btnRoadPlayPause");
-    if (playPauseBtn) {
-      playPauseBtn.addEventListener("click", () => {
-        isPlaying = !isPlaying;
-        playPauseBtn.textContent = isPlaying ? "⏸ Pause" : "▶ Play";
-      });
-    }
-
-    const prevBtn = $("#btnRoadPrev");
-    if (prevBtn) {
-      prevBtn.addEventListener("click", () => {
-        const next = (currentStop - 1 + STOPS.length) % STOPS.length;
-        setStop(next);
-      });
-    }
-
-    const nextBtn = $("#btnRoadNext");
-    if (nextBtn) {
-      nextBtn.addEventListener("click", () => {
-        const next = (currentStop + 1) % STOPS.length;
-        setStop(next);
-      });
-    }
-
-    $$(".road-stop-marker").forEach((m, idx) => {
-      m.addEventListener("click", () => {
-        setStop(idx);
-      });
-    });
-  }
-
-  /* -------------------------------------------------------------------
-     9. DOCTORS DIRECTORY (doctors.html)
-     ------------------------------------------------------------------- */
-  function initDoctorsDirectory() {
-    const docGrid = $("#docDirectoryGrid");
-    if (!docGrid) return;
-
-    let showAll = false;
-    let currentDept = "all";
-    let searchQuery = "";
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("dept")) currentDept = params.get("dept");
-    if (params.get("q")) searchQuery = params.get("q").toLowerCase();
-
-    const searchInput = $("#doctorSearchInput");
-    if (searchInput) {
-      searchInput.value = searchQuery;
-      searchInput.addEventListener("input", (e) => {
-        searchQuery = e.target.value.toLowerCase().trim();
-        renderDoctors();
-      });
-    }
-
-    const chips = $$(".dept-filter-chip");
-    chips.forEach((chip) => {
-      if (chip.getAttribute("data-dept") === currentDept) {
-        chip.classList.add("active");
-      } else {
-        chip.classList.remove("active");
-      }
-
-      chip.addEventListener("click", () => {
-        chips.forEach((c) => c.classList.remove("active"));
-        chip.classList.add("active");
-        currentDept = chip.getAttribute("data-dept");
-        renderDoctors();
-      });
-    });
-
-    const toggleBtn = $("#btnToggleAllDoctors");
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => {
-        showAll = !showAll;
-        toggleBtn.textContent = showAll ? "Show Less" : "Show All 16 Specialists";
-        renderDoctors();
-      });
-    }
-
-    function renderDoctors() {
-      let filtered = DOCTORS.filter((d) => {
-        const matchesDept = currentDept === "all" || d.dept === currentDept;
-        const matchesSearch =
-          !searchQuery ||
-          d.name.toLowerCase().includes(searchQuery) ||
-          d.deptName.toLowerCase().includes(searchQuery) ||
-          d.conditions.some((c) => c.toLowerCase().includes(searchQuery));
-        return matchesDept && matchesSearch;
-      });
-
-      const displayList = showAll ? filtered : filtered.slice(0, 8);
-
-      if (!displayList.length) {
-        docGrid.innerHTML = `
-          <div style="grid-column:1/-1;text-align:center;padding:50px 20px;">
-            <h3>No doctors found matching "${searchQuery}"</h3>
-            <p style="color:var(--muted);">Try another symptom or department, or view all doctors.</p>
-          </div>
-        `;
-        return;
-      }
-
-      docGrid.innerHTML = displayList
-        .map(
-          (doc) => `
-        <div class="doctor-card">
-          <div class="doc-photo-wrap">
-            <img src="${doc.photo}" alt="${doc.name}" loading="lazy">
-            <div class="doc-slot-pill">
-              <span class="status-dot-green"></span>
-              <span>${doc.nextSlot}</span>
-            </div>
-          </div>
-          <div class="doc-info-body">
-            <div class="doc-speciality-label">${doc.deptName} · ${doc.rating} ★</div>
-            <h3 class="doc-name">${doc.name}</h3>
-            <div class="doc-degrees">${doc.degrees} · ${doc.exp} yrs exp</div>
-            <div class="doc-meta-tags">
-              <span>🗣 ${doc.languages.slice(0, 2).join(", ")}</span>
-              <span>📅 ${doc.hours}</span>
-            </div>
-            <div class="doc-fee-bar">
-              <div class="doc-fee-val">₹${doc.fee.toLocaleString("en-IN")}</div>
-              <a href="book.html?doc=${doc.id}" class="btn btn-primary btn-sm">Book</a>
-            </div>
-          </div>
-        </div>
-      `
-        )
-        .join("");
-    }
-
-    renderDoctors();
-  }
-
-  /* -------------------------------------------------------------------
-     10. CHECKUPS PACKAGES TOGGLE (checkups.html)
-     ------------------------------------------------------------------- */
-  function initPackagesToggle() {
-    const pkgGrid = $("#packagesGrid");
-    if (!pkgGrid) return;
-
-    let isCouple = false;
-    const coupleToggle = $("#coupleCheckupToggle");
-
-    const PACKAGES = [
-      {
-        id: "p1",
-        name: "Essential Health Check",
-        singlePrice: 2499,
-        mrp: 4999,
-        testsCount: "42 Tests",
-        featured: false,
-        inclusions: [
-          "Complete Blood Count (CBC) with ESR",
-          "Fasting Blood Sugar & HbA1c",
-          "Lipid Profile (Cholesterol & Triglycerides)",
-          "Kidney Function Test (Creatinine, Urea)",
-          "Liver Function Test (SGPT, SGOT, Bilirubin)",
-          "General Physician Consultation",
-        ],
-      },
-      {
-        id: "p2",
-        name: "Executive Comprehensive",
-        singlePrice: 6999,
-        mrp: 12999,
-        testsCount: "78 Tests",
-        featured: true,
-        inclusions: [
-          "All Essential Health Inclusions",
-          "Cardiology: 2D Echocardiogram & TMT",
-          "Thyroid Profile (T3, T4, TSH)",
-          "High-Resolution Chest X-Ray PA View",
-          "Whole Abdomen & Pelvis Ultrasound",
-          "Senior Consultant Physician & Diet Review",
-        ],
-      },
-      {
-        id: "p3",
-        name: "Heart Check Advanced",
-        singlePrice: 8999,
-        mrp: 16999,
-        testsCount: "64 Tests",
-        featured: false,
-        inclusions: [
-          "Digital Coronary Calcium Scoring Scan",
-          "2D Colour Doppler Echocardiogram",
-          "Treadmill Stress Test (TMT)",
-          "Cardiac Enzymes (hs-CRP, Troponin-I)",
-          "Apolipoprotein A1 & B Ratios",
-          "Consultation with Chief Cardiologist",
-        ],
-      },
-      {
-        id: "p4",
-        name: "Women’s Wellness Check",
-        singlePrice: 4999,
-        mrp: 9499,
-        testsCount: "58 Tests",
-        featured: false,
-        inclusions: [
-          "Pelvis & Uterus Ultrasound Screening",
-          "Pap Smear & Cervical Cytology",
-          "Thyroid & PCOS Hormone Panel",
-          "Vitamin D3 & B12 Quantitative",
-          "Bone Mineral Densitometry (DEXA)",
-          "Consultation with Senior Gynaecologist",
-        ],
-      },
-    ];
-
-    function renderPackages() {
-      pkgGrid.innerHTML = PACKAGES.map((pkg) => {
-        const multiplier = isCouple ? 1.8 : 1.0;
-        const currentPrice = Math.round((pkg.singlePrice * multiplier) / 10) * 10;
-        const currentMrp = Math.round((pkg.mrp * multiplier) / 10) * 10;
-
-        return `
-          <div class="package-card ${pkg.featured ? "featured-dark" : ""}">
-            ${pkg.featured ? '<div class="package-badge-popular">Most Popular</div>' : ""}
-            <span class="badge ${pkg.featured ? "badge-mint" : "badge-teal"}" style="width:fit-content;margin-bottom:12px;">${pkg.testsCount}</span>
-            <h3 style="font-size:22px;margin-bottom:4px;">${pkg.name}</h3>
-            <div style="font-size:13px;opacity:0.85;">${isCouple ? "Comprehensive Couple / 2 Person Package" : "Individual Comprehensive Screening"}</div>
-            
-            <div class="package-pricing">
-              <span class="package-price-val">₹${currentPrice.toLocaleString("en-IN")}</span>
-              <span class="package-mrp">₹${currentMrp.toLocaleString("en-IN")}</span>
-            </div>
-            
-            <ul class="package-inclusions">
-              ${pkg.inclusions.map((inc) => `<li><span style="color:var(--teal2);">✓</span> <span>${inc}</span></li>`).join("")}
-            </ul>
-
-            <button class="btn ${pkg.featured ? "btn-primary" : "btn-secondary"}" style="margin-top:auto;" onclick="window.AUR.toast('Checkup ${pkg.name} added. Please choose preferred appointment date in Booking.');setTimeout(()=>window.location.href='book.html', 1200);">
-              Book this check
-            </button>
-          </div>
-        `;
-      }).join("");
-    }
-
-    if (coupleToggle) {
-      coupleToggle.addEventListener("change", (e) => {
-        isCouple = e.target.checked;
-        renderPackages();
-      });
-    }
-
-    renderPackages();
-  }
-
-  /* -------------------------------------------------------------------
-     11. FAQ ACCORDION (patients.html)
-     ------------------------------------------------------------------- */
-  function initFaqAccordion() {
-    const faqItems = $$(".faq-item");
-    faqItems.forEach((item) => {
-      const btn = item.querySelector(".faq-question-btn");
-      if (btn) {
-        btn.addEventListener("click", () => {
-          const isOpen = item.classList.contains("open");
-          faqItems.forEach((i) => i.classList.remove("open"));
-          if (!isOpen) item.classList.add("open");
-        });
-      }
-    });
-  }
-
-  /* -------------------------------------------------------------------
-     INITIALIZATION DISPATCHER
-     ------------------------------------------------------------------- */
-  function initFeatures() {
-    initHero3D();
-    initLiveStatusTicker();
-    initJourneyStory();
-    initStoriesCarousel();
-    initBookingFlow();
-    initDietPlanner();
-    initSymptomGuide();
-    initVisitRoad();
-    initDoctorsDirectory();
-    initPackagesToggle();
-    initFaqAccordion();
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initFeatures);
-  } else {
-    initFeatures();
-  }
+  const req = () => { if (!ticking) { ticking = true; requestAnimationFrame(render); } };
+  measure();
+  addEventListener("scroll", req, { passive: true });
+  addEventListener("resize", measure);
+  addEventListener("load", measure);
+  document.fonts?.ready.then(measure);
+}
+A.observeAll && A.observeAll();
+requestAnimationFrame(A.placeThumbs);
 })();

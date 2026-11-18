@@ -1,625 +1,217 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Centres of Excellence & Specialities | Aurelia CARE</title>
-  <meta name="description" content="Explore 8 quaternary Centres of Excellence, including Cardiac Sciences, Neurosciences, Robotic Orthopaedics, and Organ Transplants.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/site.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Specialities | Aurelia Hospital</title>
+<meta name="description" content="Aurelia Hospital & Research: a fictional premium hospital website built for education.">
+<meta name="theme-color" content="#0a2533">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230a2533'/%3E%3Cpath d='M32 16v32M16 32h32' stroke='%23d9b874' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
 </head>
-<body>
-  
-    <!-- Top Bar -->
-    <div class="top-bar">
-      <div class="container">
-        <div class="top-bar-left">
-          <a href="tel:18000000000" class="emergency-link">
-            <span class="emergency-dot"></span>
-            <span>24×7 Emergency: 1800-000-0000</span>
-          </a>
-          <button class="top-link-btn" data-action="open-sos">Ambulance: Request now</button>
-        </div>
-        <div class="top-bar-right">
-          <span>OPD: Mon–Sat, 8 AM – 8 PM</span>
-          <span id="istClock" class="ist-clock">12:00:00 PM IST</span>
-        </div>
-      </div>
+<body class="page-specialities">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/><path d="M3.5 12h4l2-3 3 6 2-3h6"/></symbol>
+    <symbol id="i-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3A2.5 2.5 0 0 0 7 5.5v.2A3 3 0 0 0 4.5 9a3 3 0 0 0 .6 4.6A3 3 0 0 0 8 18a2.5 2.5 0 0 0 4 1.5V4.5A2.5 2.5 0 0 0 9.5 3z"/><path d="M14.5 3A2.5 2.5 0 0 1 17 5.5v.2A3 3 0 0 1 19.5 9a3 3 0 0 1-.6 4.6A3 3 0 0 1 16 18a2.5 2.5 0 0 1-4 1.5"/></symbol>
+    <symbol id="i-bone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 10c.7-.7 1.7-.6 2.6-.4a2.5 2.5 0 1 0-3.2-3.2c.2.9.3 1.9-.4 2.6l-6.6 6.6c-.7.7-1.7.6-2.6.4a2.5 2.5 0 1 0 3.2 3.2c-.2-.9-.3-1.9.4-2.6z"/></symbol>
+    <symbol id="i-ribbon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c2.3 0 4 1.9 4 4.3 0 3-2.7 6.2-4 7.7-1.3-1.5-4-4.7-4-7.7 0-2.4 1.7-4.3 4-4.3z"/><path d="M10 12.4 6 21.5l3-1 1.5 2.5L12 18M14 12.4l4 9.1-3-1-1.5 2.5L12 18"/></symbol>
+    <symbol id="i-baby" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 0 0 5 0M12 3c0 2 1 3 3 3"/></symbol>
+    <symbol id="i-kidney" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3C5 3 3 6.5 3 11s2 10 6 10c2.5 0 3-2 3-4 0-1.5-1.5-2-1.5-4S12 10 12 8.5C12 5 11 3 8.5 3z"/><path d="M15.5 3C19 3 21 6.5 21 11s-2 10-6 10"/><path d="M12 13h3"/></symbol>
+    <symbol id="i-lungs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9M12 12l-3-2M12 12l3-2"/><path d="M8.5 7C6 7 3 11 3 16c0 2.5 1 4 3 4 2.5 0 3.5-1.5 3.5-4V9"/><path d="M15.5 7C18 7 21 11 21 16c0 2.5-1 4-3 4-2.5 0-3.5-1.5-3.5-4V9"/></symbol>
+    <symbol id="i-stomach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v4c0 2-2 3-2 6 0 5 4 9 9 9 3 0 5-2 5-5 0-4-4-5-7-5-1.5 0-2-1-2-2V2"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-female" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M12 15v7M9 19h6"/></symbol>
+    <symbol id="i-tooth" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3c-2.5 0-4 2-4 4.5 0 3 1.5 4.5 2 7S6 21 8 21c1.5 0 1.5-5 4-5s2.5 5 4 5c2 0 2.5-4 3-6.5s2-4 2-7C21 5 19.5 3 17 3c-2 0-3 1-5 1S9 3 7 3z"/></symbol>
+    <symbol id="i-skin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7S5 10 5 14.5a7 7 0 0 0 14 0C19 10 12 2.7 12 2.7z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M8 14h2M14 14h2M8 17h2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol>
+    <symbol id="i-amb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17V7a1 1 0 0 1 1-1h11v11"/><path d="M14 10h4l4 4v3h-2"/><circle cx="7" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/><path d="M9 17h6M8 9v4M6 11h4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2.5"/><path d="m16 10 6-3.5v11L16 14"/></symbol>
+    <symbol id="i-pill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a5 5 0 0 0-7-7l-10 10a5 5 0 0 0 7 7z"/><path d="m8.5 8.5 7 7"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-4-.9L3 20.5l1.5-4.5a8.4 8.4 0 0 1-.9-4A8.5 8.5 0 0 1 12 3.5a8.4 8.4 0 0 1 9 8z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2M12 20.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1.5 12h2M20.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6 9-6"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></symbol>
+    <symbol id="i-hosp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-5h6v5M12 8v5M9.5 10.5h5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+    <symbol id="i-sil" viewBox="0 0 100 100" fill="#fff"><circle cx="50" cy="34" r="20"/><path d="M10 100c0-24 18-40 40-40s40 16 40 40z"/></symbol>
+  </defs>
+</svg>
+
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="tb-left">
+      <span><span class="pulse-dot"></span>24×7 Emergency <a href="contact.html#emergency">1800-000-0000</a></span>
+      <span class="hide-sm">Ambulance <a href="#" data-open="ambModal">Request now</a></span>
+      <span class="hide-sm">OPD: Mon–Sat, 8 AM – 8 PM</span>
     </div>
-
-    <!-- Sticky Main Navigation -->
-    <header class="site-header">
-      <nav class="main-nav">
-        <div class="container">
-          <!-- Logo -->
-          <a href="index.html" class="brand-logo" aria-label="Aurelia CARE Homepage">
-            <div class="logo-icon">
-              <svg viewBox="0 0 24 24"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
-            </div>
-            <div class="brand-text">
-              <span class="brand-name">Aurelia CARE</span>
-              <span class="brand-tagline">HOSPITAL & RESEARCH</span>
-            </div>
-          </a>
-
-          <!-- Desktop Navigation -->
-          <ul class="nav-links">
-            <li class="nav-item active"><a href="specialities.html">Specialities</a></li><li class="nav-item "><a href="doctors.html">Doctors</a></li><li class="nav-item "><a href="symptoms.html">Symptoms</a></li><li class="nav-item "><a href="diet.html">Diet planner</a></li><li class="nav-item "><a href="checkups.html">Checkups</a></li><li class="nav-item "><a href="visit.html">Your visit</a></li><li class="nav-item "><a href="patients.html">Patients</a></li><li class="nav-item "><a href="contact.html">Contact</a></li>
-          </ul>
-
-          <!-- Nav Actions -->
-          <div class="nav-actions">
-            <!-- Theme Toggle -->
-            <button class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle theme">
-              <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-            </button>
-
-            <!-- Book Pill Button -->
-            <a href="book.html" class="btn btn-primary btn-sm">Book appointment</a>
-
-            <!-- Mobile Hamburger -->
-            <button id="burgerBtn" class="burger-btn" aria-label="Open mobile navigation menu">
-              <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="6" x2="21" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
-          </div>
-        </div>
-      </nav>
-    </header>
-
-    <!-- Mobile Navigation Overlay -->
-    <div id="mobileNavOverlay" class="mobile-nav-overlay" aria-hidden="true">
-      <div class="mobile-nav-panel">
-        <div class="mobile-nav-header">
-          <div class="brand-logo">
-            <div class="logo-icon" style="width:36px;height:36px;">
-              <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
-            </div>
-            <div class="brand-text">
-              <span class="brand-name" style="font-size:17px;">Aurelia CARE</span>
-              <span class="brand-tagline">HOSPITAL</span>
-            </div>
-          </div>
-          <button id="closeMobileNavBtn" class="modal-close-btn" aria-label="Close menu">&times;</button>
-        </div>
-
-        <ul class="mobile-nav-links">
-          <li class="active"><a href="specialities.html">Specialities</a></li><li class=""><a href="doctors.html">Doctors</a></li><li class=""><a href="symptoms.html">Symptoms</a></li><li class=""><a href="diet.html">Diet planner</a></li><li class=""><a href="checkups.html">Checkups</a></li><li class=""><a href="visit.html">Your visit</a></li><li class=""><a href="patients.html">Patients</a></li><li class=""><a href="contact.html">Contact</a></li>
-        </ul>
-
-        <div style="margin-top:auto;padding-top:20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px;">
-          <a href="book.html" class="btn btn-primary" style="width:100%;">Book appointment</a>
-          <button class="btn btn-danger btn-sm" data-action="open-sos" style="width:100%;">Request Ambulance (24×7)</button>
-        </div>
-      </div>
-    </div>
-    
-
-  <main>
-    <section class="page-banner">
-  <div class="container">
-    <div>
-      <div class="banner-breadcrumb">
-        <a href="index.html">Home</a> <span>/</span> <span>Specialities</span>
-      </div>
-      <div class="banner-eyebrow">CENTRES OF EXCELLENCE</div>
-      <h1 class="banner-title">
-        Quaternary Medicine, <br>
-        <span class="text-teal">Centered On You.</span>
-      </h1>
-      <p class="banner-lead">
-        From robotic joint replacement and biplane neurovascular navigation to comprehensive organ transplants, our 8 Centres of Excellence unite world-renowned faculty with digital precision.
-      </p>
-      <div style="display:flex;gap:14px;flex-wrap:wrap;">
-        <a href="book.html" class="btn btn-primary">Book Consultation</a>
-        <a href="doctors.html" class="btn btn-secondary">Meet Department Faculty →</a>
-      </div>
-    </div>
-
-    <div class="banner-card-wrap">
-      <div class="floating-photo-card">
-        <img src="assets/img/banner-specialities.jpg" alt="Advanced robotic surgical suite" loading="lazy">
-        <div class="glass-bubble glass-bubble-1">
-          <span class="status-dot-green"></span>
-          <span>48 Modular OTs Active</span>
-        </div>
-        <div class="glass-bubble glass-bubble-2">
-          <span>🛡️ 99.8% Sterile Assurance</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="banner-ecg-line">
-    <svg viewBox="0 0 1000 28" preserveAspectRatio="none"><path d="M0 14 L200 14 L210 3 L220 25 L230 7 L240 21 L250 14 L450 14 L460 3 L470 25 L480 7 L490 21 L500 14 L700 14 L710 3 L720 25 L730 7 L740 21 L750 14 L950 14 L960 3 L970 25 L980 7 L990 21 L1000 14" stroke="#2a9b95" stroke-width="2" fill="none"/></svg>
-  </div>
-</section>
-
-<!-- 8 Centre Cards with Photo Reveal on Hover -->
-<section style="padding:60px 0;">
-  <div class="container">
-    <div style="text-align:center;max-width:680px;margin:0 auto 20px;">
-      <div class="banner-eyebrow">SPECIALISED DIVISIONS</div>
-      <h2 style="font-size:clamp(1.8rem, 3.2vw, 2.5rem);">Explore our 8 Core Institutes</h2>
-      <p style="color:var(--muted);">Hover over any institute to view clinical facilities and faculty focus.</p>
-    </div>
-
-    <div class="centres-grid">
-      <!-- 1 -->
-      <div class="centre-card">
-        <img class="centre-card-bg-photo" src="assets/img/heart-model.jpg" alt="Cardiology Institute">
-        <div class="centre-card-content">
-          <div class="centre-card-icon-slot">🫀</div>
-          <div>
-            <h3 class="centre-card-title">Cardiac Sciences</h3>
-            <p class="centre-card-desc">Digital Cath Labs, complex TAVI/TAVR, bypass grafting and heart failure clinics.</p>
-            <a href="doctors.html?dept=card" class="btn btn-secondary btn-sm" style="width:100%;">View Cardiologists →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2 -->
-      <div class="centre-card">
-        <img class="centre-card-bg-photo" src="assets/img/brain-model.jpg" alt="Neurosciences Institute">
-        <div class="centre-card-content">
-          <div class="centre-card-icon-slot">🧠</div>
-          <div>
-            <h3 class="centre-card-title">Neurosciences</h3>
-            <p class="centre-card-desc">24×7 Code Stroke, neuro-navigation, epilepsy telemetry and deep brain stimulation.</p>
-            <a href="doctors.html?dept=neuro" class="btn btn-secondary btn-sm" style="width:100%;">View Neurologists →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3 -->
-      <div class="centre-card">
-        <img class="centre-card-bg-photo" src="assets/img/xray.jpg" alt="Orthopaedics Institute">
-        <div class="centre-card-content">
-          <div class="centre-card-icon-slot">🦴</div>
-          <div>
-            <h3 class="centre-card-title">Orthopaedics & Joint</h3>
-            <p class="centre-card-desc">Sub-millimetre robotic joint replacement, complex spinal fusion and sports arthroscopy.</p>
-            <a href="doctors.html?dept=ortho" class="btn btn-secondary btn-sm" style="width:100%;">View Orthopaedic Surgeons →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4 -->
-      <div class="centre-card">
-        <img class="centre-card-bg-photo" src="assets/img/lab.jpg" alt="Comprehensive Cancer Institute">
-        <div class="centre-card-content">
-          <div class="centre-card-icon-slot">🎗️</div>
-          <div>
-            <h3 class="centre-card-title">Comprehensive Oncology</h3>
-            <p class="centre-card-desc">Tumor board evaluation, targeted immunotherapy, surgical oncology and PET-CT.</p>
-            <a href="doctors.html?dept=onco" class="btn btn-secondary btn-sm" style="width:100%;">View Oncologists →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5 -->
-      <div class="centre-card">
-        <img class="centre-card-bg-photo" src="assets/img/baby-feet.jpg" alt="Paediatric Institute">
-        <div class="centre-card-content">
-          <div class="centre-card-icon-slot">🧸</div>
-          <div>
-            <h3 class="centre-card-title">Paediatrics & NICU</h3>
-            <p class="centre-card-desc">Level 3 neonatal intensive care, paediatric cardiology and developmental paediatrics.</p>
-            <a href="doctors.html?dept=paed" class="btn btn-secondary btn-sm" style="width:100%;">View Paediatricians →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 6 -->
-      <div class="centre-card">
-        <img class="centre-card-bg-photo" src="assets/img/ward.jpg" alt="Nephrology & Urology">
-        <div class="centre-card-content">
-          <div class="centre-card-icon-slot">🫘</div>
-          <div>
-            <h3 class="centre-card-title">Nephrology & Urology</h3>
-            <p class="centre-card-desc">Transplant institute, continuous renal replacement therapy and laser lithotripsy.</p>
-            <a href="doctors.html?dept=nephro" class="btn btn-secondary btn-sm" style="width:100%;">View Nephrologists →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 7 -->
-      <div class="centre-card">
-        <img class="centre-card-bg-photo" src="assets/img/surgery.jpg" alt="Gastroenterology Institute">
-        <div class="centre-card-content">
-          <div class="centre-card-icon-slot">🍏</div>
-          <div>
-            <h3 class="centre-card-title">Gastroenterology</h3>
-            <p class="centre-card-desc">High-definition therapeutic endoscopy, liver disease clinic and colorectal surgery.</p>
-            <a href="doctors.html?dept=gastro" class="btn btn-secondary btn-sm" style="width:100%;">View Gastroenterologists →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- 8 -->
-      <div class="centre-card">
-        <img class="centre-card-bg-photo" src="assets/img/care-consult.jpg" alt="Women's Health Institute">
-        <div class="centre-card-content">
-          <div class="centre-card-icon-slot">🌸</div>
-          <div>
-            <h3 class="centre-card-title">Women’s Health</h3>
-            <p class="centre-card-desc">High-risk obstetrics, fetal medicine, advanced laparoscopy and fertility care.</p>
-            <a href="doctors.html?dept=women" class="btn btn-secondary btn-sm" style="width:100%;">View Gynaecologists →</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Marquee of Capabilities -->
-<div class="marquee-section">
-  <div class="marquee-track">
-    <div class="marquee-item"><span class="marquee-dot"></span> 24×7 Digital Cath Labs</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> Biplane Neuro-Intervention</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> Mako Robotic Arthroplasty</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> 3-Tesla Wide-Bore Silent MRI</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> Level 3 Neonatal ICU</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> CRRT & Renal Transplant Unit</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> 48 Modular Laminar Airflow Theatres</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> TrueBeam Radiation Therapy</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> 24×7 Digital Cath Labs</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> Biplane Neuro-Intervention</div>
-    <div class="marquee-item"><span class="marquee-dot"></span> Mako Robotic Arthroplasty</div>
+    <div class="hide-sm" id="clock" aria-live="off"></div>
   </div>
 </div>
 
-<!-- Dark Technology Band (6 items) -->
-<section class="technology-band">
-  <div class="container">
-    <div style="text-align:center;max-width:680px;margin:0 auto 20px;">
-      <div class="banner-eyebrow" style="color:var(--teal2);">INFRASTRUCTURE FOR PRECISION</div>
-      <h2 style="color:#fff;font-size:clamp(1.8rem, 3.2vw, 2.5rem);">Diagnostic & Surgical Infrastructure</h2>
-      <p style="color:#b3d7d4;">Equipped with cutting-edge medical hardware to minimise invasiveness and hospital stay.</p>
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="index.html" class="logo" aria-label="Aurelia Hospital home">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#7fd8cf" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/><circle cx="12" cy="12" r="9.5" stroke-width="1.2" opacity=".6"/></svg></span>
+      <span class="logo-text"><b>Aurelia</b><small>Hospital &amp; Research</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="specialities.html" class="active">Specialities</a>
+      <a href="doctors.html">Doctors</a>
+      <a href="symptoms.html">Symptoms</a>
+      <a href="diet.html">Diet planner</a>
+      <a href="checkups.html">Checkups</a>
+      <a href="visit.html">Your visit</a>
+      <a href="patients.html">Patients</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-cta">
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode"><svg><use href="#i-moon"/></svg></button>
+      <a href="book.html" class="btn btn-primary btn-sm">Book appointment</a>
+      <button class="icon-btn burger" id="burger" aria-label="Open menu"><svg><use href="#i-menu"/></svg></button>
     </div>
+  </div>
+</header>
 
-    <div class="technology-grid">
-      <div class="technology-card">
-        <h4>1. Biplane Neuro Angiography</h4>
-        <p>Simultaneous dual-plane 3D imaging for instant coiling of cerebral aneurysms and mechanical thrombectomy.</p>
+<div class="mobile-menu" id="mobileMenu">
+  <button class="icon-btn close" id="menuClose" aria-label="Close menu">✕</button>
+  <a href="index.html">Home</a><a href="book.html">Book OP</a><a href="specialities.html" class="active">Specialities</a><a href="doctors.html">Doctors</a><a href="symptoms.html">Symptoms</a><a href="diet.html">Diet planner</a><a href="checkups.html">Checkups</a><a href="visit.html">Your visit</a><a href="patients.html">Patients</a><a href="contact.html">Contact</a>
+</div>
+
+<main>
+<section class="page-hero">
+  <svg class="ph-ecg" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70h260l14-20 14 20h40l12 10 16-70 18 120 16-60h60l14-14 14 14h260l14-20 14 20h40l12 10 16-70 18 120 16-60h60l14-14 14 14h300"/></svg>
+  <figure class="ph-card"><img src="assets/img/surgery.jpg" alt=""></figure><span class="ph-bub a" aria-hidden="true"></span><span class="ph-bub b" aria-hidden="true"></span>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><b>Specialities</b></nav>
+    <span class="eyebrow">Centres of excellence</span>
+    <h1>Deep expertise, <em>under one roof.</em></h1>
+    <p class="lead">Each centre runs as its own institute, with dedicated surgeons, nurses, rehab teams and research faculty working around the patient.</p>
+    
+  </div>
+</section>
+<section id="centres">
+  <div class="wrap">
+    <div class="centres" id="centreGrid"></div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="mtrack" id="marq"></div></div>
+
+
+<section>
+  <div class="wrap">
+    <div class="dark-band rv">
+      <div class="sec-head" style="margin-bottom:0">
+        <div><span class="eyebrow">Technology</span><h2 style="margin-top:14px">Tomorrow’s medicine, <em>in use today.</em></h2></div>
+        <p class="lead">An investment of ₹480 crore over five years in precision diagnostics, robotic surgery and AI-assisted care pathways.</p>
       </div>
-      <div class="technology-card">
-        <h4>2. Mako & Da Vinci Robotic Platforms</h4>
-        <p>Sub-millimetre surgical accuracy with 3D high-magnification vision, preserving healthy tissue.</p>
-      </div>
-      <div class="technology-card">
-        <h4>3. 3-Tesla Silent MRI</h4>
-        <p>Acoustic reduction technology with wide 70cm bore, delivering neuro and musculoskeletal scans in serene comfort.</p>
-      </div>
-      <div class="technology-card">
-        <h4>4. Molecular Pathology & NGS</h4>
-        <p>On-site next-generation sequencing for targeted cancer chemotherapy and pharmacogenomic drug safety.</p>
-      </div>
-      <div class="technology-card">
-        <h4>5. Hybrid Cardiac Operating Suite</h4>
-        <p>Combines surgical sterility with digital fluoroscopy for seamless conversion during transcatheter procedures.</p>
-      </div>
-      <div class="technology-card">
-        <h4>6. Automated Pneumatic Transport</h4>
-        <p>Hospital-wide vacuum tube network transferring blood samples and urgent drugs between floors in under 30 seconds.</p>
+      <div class="tech-grid">
+        <div class="tech"><span class="num">01</span><h3>Robotic surgery suite</h3><p>Four robotic theatres for urology, gynaecology, oncology and joint replacement: smaller incisions, faster recovery.</p></div>
+        <div class="tech"><span class="num">02</span><h3>3 Tesla MRI &amp; PET-CT</h3><p>High-resolution imaging with same-day reporting, plus low-dose protocols for children.</p></div>
+        <div class="tech"><span class="num">03</span><h3>Hybrid cath lab</h3><p>Combines open surgery and catheter procedures in one room, so complex heart cases need no transfer.</p></div>
+        <div class="tech"><span class="num">04</span><h3>Tele-ICU command centre</h3><p>Intensivists watch every critical bed around the clock, with early-warning scores refreshed every minute.</p></div>
+        <div class="tech"><span class="num">05</span><h3>Genomics lab</h3><p>Tumour profiling and hereditary risk panels help choose the right therapy the first time.</p></div>
+        <div class="tech"><span class="num">06</span><h3>Paperless records</h3><p>One digital health record follows you across the OPD, wards, pharmacy and your phone.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA Band -->
-<section class="cta-band">
-  <div class="container">
-    <div>
-      <h2>Start with the right doctor, first time.</h2>
-      <p>Whether you require a specialist second opinion or a routine diagnostic check, our care navigators ensure a seamless journey.</p>
-    </div>
-    <div class="cta-band-actions">
-      <a href="book.html" class="btn btn-primary btn-lg">Book an OP visit</a>
-      <a href="symptoms.html" class="btn btn-secondary btn-lg">Try the symptom guide</a>
+<section class="cta-wrap">
+  <div class="wrap">
+    <div class="cta-band rv">
+      <div><span class="eyebrow">Need help choosing?</span><h2>Start with the right doctor, <em>first time.</em></h2></div>
+      <div class="hero-actions" style="margin:0"><a href="book.html" class="btn btn-gold">Book an OP visit</a><a href="symptoms.html" class="btn btn-ghost">Try the symptom guide</a></div>
     </div>
   </div>
 </section>
-  </main>
+</main>
 
-  
-    <!-- Shared Site Footer -->
-    <footer class="site-footer">
-      <div class="container">
-        <!-- Big Hero Line -->
-        <div class="footer-hero-quote">
-          “Healing is a team sport. You’re the captain.”
-        </div>
-
-        <!-- Newsletter Subscription Box -->
-        <div class="footer-newsletter-wrap">
-          <div class="footer-newsletter-text">
-            <h4>Aurelia Health Digest</h4>
-            <p>Evidence-based longevity protocols, preventative cardiology tips, and clinic updates directly to your inbox.</p>
-          </div>
-          <form id="newsletterForm" class="newsletter-form">
-            <input type="email" placeholder="Enter your email address" required aria-label="Email for health digest">
-            <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
-          </form>
-        </div>
-
-        <!-- 3 Columns Links Grid -->
-        <div class="footer-grid">
-          <div>
-            <div class="brand-logo" style="margin-bottom:14px;">
-              <div class="logo-icon">
-                <svg viewBox="0 0 24 24"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
-              </div>
-              <div class="brand-text">
-                <span class="brand-name" style="color:#ffffff;">Aurelia CARE</span>
-                <span class="brand-tagline" style="color:var(--teal2);">HOSPITAL & RESEARCH</span>
-              </div>
-            </div>
-            <p class="footer-brand-bio">
-              Quaternary medical institute located in Bengaluru, India. Dedicated to clinical rigor, advanced translational research, and authentic patient compassion.
-            </p>
-          </div>
-
-          <div class="footer-col">
-            <h5>Clinical Institutes</h5>
-            <ul>
-              <li><a href="specialities.html">Cardiac Sciences</a></li>
-              <li><a href="specialities.html">Neurosciences & Stroke</a></li>
-              <li><a href="specialities.html">Robotic Orthopaedics</a></li>
-              <li><a href="specialities.html">Comprehensive Oncology</a></li>
-              <li><a href="specialities.html">Neonatal & Paediatrics</a></li>
-              <li><a href="specialities.html">Nephrology & Transplant</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-col">
-            <h5>Patients & Visitors</h5>
-            <ul>
-              <li><a href="book.html">Book Outpatient Visit</a></li>
-              <li><a href="doctors.html">Find a Specialist</a></li>
-              <li><a href="symptoms.html">Body Symptom Guide</a></li>
-              <li><a href="diet.html">Metabolic Diet Planner</a></li>
-              <li><a href="checkups.html">Health Check Packages</a></li>
-              <li><a href="visit.html">The 47-Minute OP Road</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-col">
-            <h5>Hospital Campus</h5>
-            <ul>
-              <li><a href="contact.html">Campus Map & Parking</a></li>
-              <li><a href="tel:18000000000">24×7 Trauma Line</a></li>
-              <li><a href="patients.html#pharmacy">Home Pharmacy Delivery</a></li>
-              <li><a href="patients.html">Cashless TPA Desk</a></li>
-              <li><a href="contact.html">Request Call-Back</a></li>
-              <li><a href="#" data-action="open-portal">Patient Portal Login</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Footer Bottom Bar -->
-        <div class="footer-bottom">
-          <div>
-            © 2026 Aurelia CARE — Hospital & Research. All rights reserved. Bengaluru, India.
-          </div>
-          <div class="footer-disclaimer-note">
-            Educational Demo Notice: Aurelia CARE is a fictional hospital created for educational use. All medical indicators, doctor profiles, and clinical calculations are illustrative.
-          </div>
-          <div>
-            Free Unsplash images curated locally in <code>assets/img/</code>.
-          </div>
-        </div>
+<footer>
+  <div class="wrap">
+    <p class="big">Healing is a team sport. <em>You’re the captain.</em></p>
+    <div class="foot-grid">
+      <div>
+        <div class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#7fd8cf" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></span><span class="logo-text"><b>Aurelia</b><small style="color:#7d979d">Hospital &amp; Research</small></span></div>
+        <p style="font-size:14px;margin-top:18px;max-width:320px">Get monthly health tips from our doctors and dietitians.</p>
+        <form class="news" id="newsForm"><input type="email" placeholder="Your email" aria-label="Email" required><button class="btn btn-gold btn-sm">Subscribe</button></form>
       </div>
-    </footer>
-    
-  
-    <!-- FLOATING ACTION BUTTONS -->
-    <div class="floating-actions">
-      <!-- Back to Top Button -->
-      <button id="backToTop" class="float-btn float-top-btn" aria-label="Back to top" title="Back to top">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M18 15l-6-6-6 6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-
-      <!-- Aria Chat Assistant -->
-      <button id="chatBubbleBtn" class="float-btn float-chat-btn" aria-label="Open Aria Chat Assistant" title="Chat with Aria">
-        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-        <span class="chat-badge-ping"></span>
-      </button>
-
-      <!-- Ambulance SOS Floating Button -->
-      <button id="sosFloatBtn" class="float-btn float-sos-btn" data-action="open-sos" aria-label="Request Emergency Ambulance" title="24×7 Ambulance SOS">
-        <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z"/></svg>
-      </button>
+      <div><h5>Care</h5><a href="specialities.html">Specialities</a><a href="doctors.html">Find a doctor</a><a href="book.html">Book appointment</a><a href="checkups.html">Health checks</a><a href="contact.html#emergency">Emergency</a></div>
+      <div><h5>Patients</h5><a href="#" data-open="reportModal">Online reports</a><a href="symptoms.html">Symptom guide</a><a href="visit.html">Your visit</a><a href="diet.html">Diet planner</a><a href="patients.html">Insurance</a><a href="patients.html">International</a><a href="patients.html#faq">FAQ</a></div>
+      <div><h5>Hospital</h5><a href="index.html">About us</a><a href="index.html">Research</a><a href="index.html">Careers</a><a href="index.html">Nursing college</a><a href="contact.html">Contact</a></div>
     </div>
+    <div class="foot-bottom"><span>© <span id="yr"></span> Aurelia Hospital. A fictional hospital built for educational purposes. Photos from Unsplash.</span><span>Privacy · Terms · Patient rights</span></div>
+  </div>
+</footer>
 
-    <!-- ARIA CHAT DRAWER -->
-    <div id="ariaChatDrawer" style="position:fixed;bottom:90px;right:24px;width:360px;height:520px;background:var(--paper);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);border:1px solid var(--border-light);z-index:2500;display:flex;flex-direction:column;overflow:hidden;opacity:0;visibility:hidden;transform:translateY(20px) scale(0.95);transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
-      <!-- Header -->
-      <div style="background:linear-gradient(135deg, #155358, #0e373a);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:50%;background:#2a9b95;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;">A</div>
-          <div>
-            <div style="font-weight:700;font-size:15px;line-height:1.2;">Aria Care Assistant</div>
-            <div style="font-size:11.5px;color:#8fe3d9;">● Online · Aurelia CARE</div>
-          </div>
-        </div>
-        <button id="closeAriaChatBtn" style="background:none;border:none;color:#fff;cursor:pointer;font-size:20px;">&times;</button>
-      </div>
+<div class="fab-stack">
+  <button class="to-top" id="toTop" aria-label="Back to top"><svg><use href="#i-up"/></svg></button>
+  <button class="fab chat" id="chatBtn" aria-label="Open care assistant"><svg><use href="#i-chat"/></svg></button>
+  <button class="fab sos" data-open="ambModal" aria-label="Emergency"><svg><use href="#i-amb"/></svg></button>
+</div>
 
-      <!-- Messages Body -->
-      <div id="ariaChatMessages" style="flex:1;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;background:var(--paper2);">
-        <div class="aria-msg aria-msg-bot" style="background:#ffffff;padding:12px 16px;border-radius:14px;box-shadow:var(--shadow-sm);font-size:14px;color:var(--ink);max-width:85%;">
-          Hello! I'm Aria, your Aurelia CARE navigator. How can I assist you with appointments, diet planning, or emergency guidance today?
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
-          <button class="aria-quick-chip" style="background:#ffffff;border:1px solid var(--teal);color:var(--teal);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">Book an appointment</button>
-          <button class="aria-quick-chip" style="background:#ffffff;border:1px solid var(--teal);color:var(--teal);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">Condition diet plan</button>
-          <button class="aria-quick-chip" style="background:#ffffff;border:1px solid var(--teal);color:var(--teal);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">Symptom check</button>
-          <button class="aria-quick-chip" style="background:#ffffff;border:1px solid var(--teal);color:var(--teal);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">Emergency ambulance</button>
-        </div>
-      </div>
+<div class="panel chatbox" id="chatbox" role="dialog" aria-label="Care assistant">
+  <div class="chat-h"><span class="av">A</span><div><b>Aria · Care assistant</b><small>● Online · replies instantly</small></div><button id="chatClose" aria-label="Close">×</button></div>
+  <div class="chat-b" id="chatBody"></div>
+  <div class="chat-q" id="chatQ"></div>
+  <form class="chat-f" id="chatForm"><input id="chatIn" placeholder="Ask about timings, booking, insurance…" autocomplete="off"><button aria-label="Send"><svg><use href="#i-send"/></svg></button></form>
+</div>
 
-      <!-- Input Footer -->
-      <div style="padding:12px 16px;background:var(--paper);border-top:1px solid var(--border);display:flex;gap:8px;">
-        <input type="text" id="ariaChatInput" placeholder="Ask a question..." style="flex:1;padding:10px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--paper2);font-size:14px;color:var(--ink);outline:none;">
-        <button id="ariaChatSendBtn" class="btn btn-primary btn-sm" style="padding:0 16px;">Send</button>
+<div class="modal" id="ambModal">
+  <div class="panel box">
+    <button class="x" data-close>×</button>
+    <div id="ambForm">
+      <h3>Request an ambulance</h3><p class="sub">In a real emergency, always call your local emergency number first. This is a demo.</p>
+      <div class="form-grid">
+        <div class="field full"><label for="aLoc">Pickup location</label><input id="aLoc" placeholder="Area / landmark"><span class="msg">Enter a location</span></div>
+        <div class="field"><label for="aPhone">Mobile</label><input id="aPhone" inputmode="numeric" maxlength="10" placeholder="10-digit"><span class="msg">Valid mobile needed</span></div>
+        <div class="field"><label for="aType">Emergency type</label><select id="aType"><option>Chest pain</option><option>Breathing difficulty</option><option>Accident / injury</option><option>Stroke symptoms</option><option>Pregnancy</option><option>Other</option></select></div>
       </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:22px;background:#c9302c" id="ambGo">Dispatch ambulance</button>
     </div>
-
-    <style>
-      #ariaChatDrawer.open {
-        opacity: 1 !important;
-        visibility: visible !important;
-        transform: translateY(0) scale(1) !important;
-      }
-      .aria-msg-user {
-        background: var(--teal) !important;
-        color: #ffffff !important;
-        align-self: flex-end;
-        border-radius: 14px;
-        padding: 10px 14px;
-        font-size: 14px;
-        max-width: 85%;
-      }
-      .aria-typing span {
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        background: var(--muted);
-        border-radius: 50%;
-        margin-right: 4px;
-        animation: typing 1.4s infinite both;
-      }
-      .aria-typing span:nth-child(2) { animation-delay: 0.2s; }
-      .aria-typing span:nth-child(3) { animation-delay: 0.4s; }
-      @keyframes typing {
-        0%, 80%, 100% { transform: scale(0); }
-        40% { transform: scale(1); }
-      }
-    </style>
-
-    <!-- PATIENT PORTAL MODAL -->
-    <div id="portalModal" class="modal-backdrop" aria-hidden="true">
-      <div class="modal-window">
-        <div class="modal-header">
-          <h3 class="modal-title">Aurelia Patient Digital Portal</h3>
-          <button class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form id="portalLoginForm">
-            <p style="font-size:14px;color:var(--muted);margin-bottom:18px;">
-              Access your electronic medical records, laboratory values, radiology imaging, and e-prescriptions.
-            </p>
-            <div class="form-group">
-              <label class="form-label" for="portalUhid">Hospital UHID / Registered Mobile</label>
-              <input type="text" id="portalUhid" class="form-control" value="AUR-904128" placeholder="e.g. AUR-904128 or 9845012345" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="portalOtp">Enter Demo OTP (Use: <strong>1234</strong>)</label>
-              <input type="password" id="portalOtp" class="form-control" value="1234" maxlength="4" placeholder="1234" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;">Verify & View Records</button>
-          </form>
-
-          <div id="portalReportsView" style="display:none;">
-            <div style="background:var(--paper2);padding:14px 18px;border-radius:var(--radius-md);margin-bottom:20px;">
-              <div style="font-weight:700;font-size:15px;color:var(--navy);">Dorothy Patel · Female · 71 yrs</div>
-              <div style="font-size:12px;color:var(--muted);">UHID: AUR-904128 · Primary Consultant: Dr. Elena Marquez</div>
-            </div>
-
-            <h4 style="font-size:16px;margin-bottom:12px;">Recent Laboratory & Diagnostic Reports</h4>
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#ffffff;border:1px solid var(--border);border-radius:8px;">
-                <div>
-                  <div style="font-weight:600;font-size:14px;">Complete Blood Count (CBC) with ESR</div>
-                  <div style="font-size:12px;color:var(--teal);">Verified Normal · Reported 16 Nov 2026</div>
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="window.AUR.toast('Downloading PDF: CBC_AUR904128.pdf')">PDF</button>
-              </div>
-
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#ffffff;border:1px solid var(--border);border-radius:8px;">
-                <div>
-                  <div style="font-weight:600;font-size:14px;">Comprehensive Lipid Panel</div>
-                  <div style="font-size:12px;color:#f59e0b;">Borderline (Total: 204 mg/dL) · Reported 16 Nov 2026</div>
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="window.AUR.toast('Downloading PDF: Lipid_AUR904128.pdf')">PDF</button>
-              </div>
-
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#ffffff;border:1px solid var(--border);border-radius:8px;">
-                <div>
-                  <div style="font-weight:600;font-size:14px;">2D Colour Doppler Echocardiogram</div>
-                  <div style="font-size:12px;color:var(--teal);">LVEF 62% Normal LV Systolic · Reported 15 Nov 2026</div>
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="window.AUR.toast('Downloading PDF: Echo_AUR904128.pdf')">PDF</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div id="ambTrack" style="display:none">
+      <h3>Ambulance dispatched</h3><p class="sub" id="ambInfo">Vehicle KA-01-AU-2231 · Paramedic on board</p>
+      <div class="eta"><small style="color:var(--muted)">Estimated arrival</small><b id="ambEta">12:00</b></div>
+      <div class="amb-track"><i id="ambBar" style="width:0"></i><span id="ambIcon" style="left:0">🚑</span></div>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:16px">Stay on the line. Our ER team has been alerted.</p>
     </div>
+  </div>
+</div>
 
-    <!-- AMBULANCE SOS MODAL -->
-    <div id="ambulanceModal" class="modal-backdrop" aria-hidden="true">
-      <div class="modal-window">
-        <div class="modal-header" style="background:#fee2e2;border-bottom:2px solid #ef4444;">
-          <h3 class="modal-title" style="color:#991b1b;display:flex;align-items:center;gap:8px;">
-            <span>🚨</span> 24×7 GPS Ambulance Dispatch
-          </h3>
-          <button class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form id="ambulanceForm">
-            <p style="font-size:14px;color:var(--ink2);margin-bottom:18px;">
-              Immediate telemetry ambulance with trained paramedics dispatched from nearest hub in Bengaluru.
-            </p>
-            <div class="form-group">
-              <label class="form-label" for="ambAddress">Current Pickup Location in Bengaluru *</label>
-              <input type="text" id="ambAddress" class="form-control" placeholder="e.g. 14th Cross, HSR Layout Sector 2, Bengaluru" required>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-              <div class="form-group">
-                <label class="form-label" for="ambType">Emergency Category</label>
-                <select id="ambType" class="form-control">
-                  <option value="cardiac">Cardiac / Chest Pain</option>
-                  <option value="stroke">Suspected Stroke (FAST)</option>
-                  <option value="trauma">Trauma / Accident</option>
-                  <option value="respiratory">Severe Breathing Difficulty</option>
-                  <option value="other">Other Medical Acute Emergency</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="ambPhone">Contact Phone *</label>
-                <input type="tel" id="ambPhone" class="form-control" placeholder="9845012345" maxlength="10" required>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-danger btn-lg" style="width:100%;">Dispatch Emergency Ambulance Now</button>
-          </form>
-
-          <div id="ambulanceTrackingView" style="display:none;text-align:center;">
-            <div style="font-size:48px;margin-bottom:8px;">🚑</div>
-            <h3 style="color:#991b1b;font-size:22px;margin-bottom:4px;">Ambulance Dispatched!</h3>
-            <div style="font-size:14px;color:var(--muted);margin-bottom:16px;">Unit KA-01-EA-9911 is en route with mobile ACLS defibrillator and telemetry.</div>
-            
-            <div style="background:var(--paper2);padding:18px;border-radius:var(--radius-md);margin-bottom:20px;">
-              <div style="font-size:12px;color:var(--muted);">ESTIMATED TIME OF ARRIVAL</div>
-              <div id="ambEtaDisplay" style="font-size:36px;font-weight:700;color:#dc2626;margin:4px 0 10px;">8m 45s</div>
-              <div class="live-progress-bar-bg" style="height:10px;">
-                <div id="ambLiveFill" class="live-progress-bar-fill" style="background:#dc2626;width:25%;"></div>
-              </div>
-            </div>
-
-            <div style="font-size:13.5px;text-align:left;background:#ffffff;border:1px solid var(--border);padding:14px;border-radius:8px;">
-              <div><strong>Driver:</strong> Suresh (+91 98450 12345)</div>
-              <div><strong>Lead Paramedic:</strong> Rajesh Kumar, EMT-P</div>
-              <div><strong>Hospital Hotline:</strong> 1800-000-0000</div>
-            </div>
-          </div>
-        </div>
-      </div>
+<div class="modal" id="reportModal">
+  <div class="panel box">
+    <button class="x" data-close>×</button>
+    <h3>Patient portal</h3><p class="sub">Sign in with your UHID and the OTP sent to your registered mobile. This is a demo: any UHID works, and the OTP is 1234.</p>
+    <div id="rpStep1" class="form-grid">
+      <div class="field full"><label for="rUhid">UHID</label><input id="rUhid" placeholder="e.g. AUR-102938"><span class="msg">Enter your UHID</span></div>
+      <div class="field full"><button class="btn btn-primary" id="rpOtp">Send OTP</button></div>
     </div>
-    
+    <div id="rpStep2" class="form-grid" style="display:none">
+      <div class="field full"><label for="rOtp">OTP</label><input id="rOtp" inputmode="numeric" maxlength="4" placeholder="4-digit OTP"><span class="msg">Incorrect OTP (hint: 1234)</span></div>
+      <div class="field full"><button class="btn btn-primary" id="rpLogin">Verify &amp; sign in</button></div>
+    </div>
+    <div id="rpStep3" style="display:none"></div>
+  </div>
+</div>
 
-  <script src="assets/site.js"></script>
+<div class="toast" id="toast"></div>
+
+<script src="assets/site.js"></script>
 </body>
 </html>

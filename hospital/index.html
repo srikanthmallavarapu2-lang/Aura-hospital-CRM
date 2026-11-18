@@ -1,1076 +1,370 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aurelia CARE — Hospital & Research | Bengaluru, India</title>
-  <meta name="description" content="Quaternary medical center in Bengaluru, India. 25 surgical specialties, 48 advanced operating suites, and compassionate patient-centered healthcare.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/site.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aurelia Hospital & Research</title>
+<meta name="description" content="Aurelia Hospital & Research: a fictional premium hospital website built for education.">
+<meta name="theme-color" content="#0a2533">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230a2533'/%3E%3Cpath d='M32 16v32M16 32h32' stroke='%23d9b874' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
 </head>
-<body>
-  
-    <!-- Top Bar -->
-    <div class="top-bar">
-      <div class="container">
-        <div class="top-bar-left">
-          <a href="tel:18000000000" class="emergency-link">
-            <span class="emergency-dot"></span>
-            <span>24×7 Emergency: 1800-000-0000</span>
-          </a>
-          <button class="top-link-btn" data-action="open-sos">Ambulance: Request now</button>
-        </div>
-        <div class="top-bar-right">
-          <span>OPD: Mon–Sat, 8 AM – 8 PM</span>
-          <span id="istClock" class="ist-clock">12:00:00 PM IST</span>
-        </div>
-      </div>
+<body class="page-index">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21.2l8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/><path d="M3.5 12h4l2-3 3 6 2-3h6"/></symbol>
+    <symbol id="i-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3A2.5 2.5 0 0 0 7 5.5v.2A3 3 0 0 0 4.5 9a3 3 0 0 0 .6 4.6A3 3 0 0 0 8 18a2.5 2.5 0 0 0 4 1.5V4.5A2.5 2.5 0 0 0 9.5 3z"/><path d="M14.5 3A2.5 2.5 0 0 1 17 5.5v.2A3 3 0 0 1 19.5 9a3 3 0 0 1-.6 4.6A3 3 0 0 1 16 18a2.5 2.5 0 0 1-4 1.5"/></symbol>
+    <symbol id="i-bone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 10c.7-.7 1.7-.6 2.6-.4a2.5 2.5 0 1 0-3.2-3.2c.2.9.3 1.9-.4 2.6l-6.6 6.6c-.7.7-1.7.6-2.6.4a2.5 2.5 0 1 0 3.2 3.2c-.2-.9-.3-1.9.4-2.6z"/></symbol>
+    <symbol id="i-ribbon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c2.3 0 4 1.9 4 4.3 0 3-2.7 6.2-4 7.7-1.3-1.5-4-4.7-4-7.7 0-2.4 1.7-4.3 4-4.3z"/><path d="M10 12.4 6 21.5l3-1 1.5 2.5L12 18M14 12.4l4 9.1-3-1-1.5 2.5L12 18"/></symbol>
+    <symbol id="i-baby" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 0 0 5 0M12 3c0 2 1 3 3 3"/></symbol>
+    <symbol id="i-kidney" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3C5 3 3 6.5 3 11s2 10 6 10c2.5 0 3-2 3-4 0-1.5-1.5-2-1.5-4S12 10 12 8.5C12 5 11 3 8.5 3z"/><path d="M15.5 3C19 3 21 6.5 21 11s-2 10-6 10"/><path d="M12 13h3"/></symbol>
+    <symbol id="i-lungs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9M12 12l-3-2M12 12l3-2"/><path d="M8.5 7C6 7 3 11 3 16c0 2.5 1 4 3 4 2.5 0 3.5-1.5 3.5-4V9"/><path d="M15.5 7C18 7 21 11 21 16c0 2.5-1 4-3 4-2.5 0-3.5-1.5-3.5-4V9"/></symbol>
+    <symbol id="i-stomach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v4c0 2-2 3-2 6 0 5 4 9 9 9 3 0 5-2 5-5 0-4-4-5-7-5-1.5 0-2-1-2-2V2"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-female" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M12 15v7M9 19h6"/></symbol>
+    <symbol id="i-tooth" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3c-2.5 0-4 2-4 4.5 0 3 1.5 4.5 2 7S6 21 8 21c1.5 0 1.5-5 4-5s2.5 5 4 5c2 0 2.5-4 3-6.5s2-4 2-7C21 5 19.5 3 17 3c-2 0-3 1-5 1S9 3 7 3z"/></symbol>
+    <symbol id="i-skin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7S5 10 5 14.5a7 7 0 0 0 14 0C19 10 12 2.7 12 2.7z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M8 14h2M14 14h2M8 17h2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol>
+    <symbol id="i-amb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17V7a1 1 0 0 1 1-1h11v11"/><path d="M14 10h4l4 4v3h-2"/><circle cx="7" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/><path d="M9 17h6M8 9v4M6 11h4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2.5"/><path d="m16 10 6-3.5v11L16 14"/></symbol>
+    <symbol id="i-pill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a5 5 0 0 0-7-7l-10 10a5 5 0 0 0 7 7z"/><path d="m8.5 8.5 7 7"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-4-.9L3 20.5l1.5-4.5a8.4 8.4 0 0 1-.9-4A8.5 8.5 0 0 1 12 3.5a8.4 8.4 0 0 1 9 8z"/><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2M12 20.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1.5 12h2M20.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3 7 9 6 9-6"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></symbol>
+    <symbol id="i-hosp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-5h6v5M12 8v5M9.5 10.5h5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+    <symbol id="i-sil" viewBox="0 0 100 100" fill="#fff"><circle cx="50" cy="34" r="20"/><path d="M10 100c0-24 18-40 40-40s40 16 40 40z"/></symbol>
+  </defs>
+</svg>
+
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="tb-left">
+      <span><span class="pulse-dot"></span>24×7 Emergency <a href="contact.html#emergency">1800-000-0000</a></span>
+      <span class="hide-sm">Ambulance <a href="#" data-open="ambModal">Request now</a></span>
+      <span class="hide-sm">OPD: Mon–Sat, 8 AM – 8 PM</span>
     </div>
+    <div class="hide-sm" id="clock" aria-live="off"></div>
+  </div>
+</div>
 
-    <!-- Sticky Main Navigation -->
-    <header class="site-header">
-      <nav class="main-nav">
-        <div class="container">
-          <!-- Logo -->
-          <a href="index.html" class="brand-logo" aria-label="Aurelia CARE Homepage">
-            <div class="logo-icon">
-              <svg viewBox="0 0 24 24"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
-            </div>
-            <div class="brand-text">
-              <span class="brand-name">Aurelia CARE</span>
-              <span class="brand-tagline">HOSPITAL & RESEARCH</span>
-            </div>
-          </a>
-
-          <!-- Desktop Navigation -->
-          <ul class="nav-links">
-            <li class="nav-item "><a href="specialities.html">Specialities</a></li><li class="nav-item "><a href="doctors.html">Doctors</a></li><li class="nav-item "><a href="symptoms.html">Symptoms</a></li><li class="nav-item "><a href="diet.html">Diet planner</a></li><li class="nav-item "><a href="checkups.html">Checkups</a></li><li class="nav-item "><a href="visit.html">Your visit</a></li><li class="nav-item "><a href="patients.html">Patients</a></li><li class="nav-item "><a href="contact.html">Contact</a></li>
-          </ul>
-
-          <!-- Nav Actions -->
-          <div class="nav-actions">
-            <!-- Theme Toggle -->
-            <button class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle theme">
-              <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
-            </button>
-
-            <!-- Book Pill Button -->
-            <a href="book.html" class="btn btn-primary btn-sm">Book appointment</a>
-
-            <!-- Mobile Hamburger -->
-            <button id="burgerBtn" class="burger-btn" aria-label="Open mobile navigation menu">
-              <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="6" x2="21" y2="6" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="12" x2="21" y2="12" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="18" x2="21" y2="18" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
-          </div>
-        </div>
-      </nav>
-    </header>
-
-    <!-- Mobile Navigation Overlay -->
-    <div id="mobileNavOverlay" class="mobile-nav-overlay" aria-hidden="true">
-      <div class="mobile-nav-panel">
-        <div class="mobile-nav-header">
-          <div class="brand-logo">
-            <div class="logo-icon" style="width:36px;height:36px;">
-              <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
-            </div>
-            <div class="brand-text">
-              <span class="brand-name" style="font-size:17px;">Aurelia CARE</span>
-              <span class="brand-tagline">HOSPITAL</span>
-            </div>
-          </div>
-          <button id="closeMobileNavBtn" class="modal-close-btn" aria-label="Close menu">&times;</button>
-        </div>
-
-        <ul class="mobile-nav-links">
-          <li class=""><a href="specialities.html">Specialities</a></li><li class=""><a href="doctors.html">Doctors</a></li><li class=""><a href="symptoms.html">Symptoms</a></li><li class=""><a href="diet.html">Diet planner</a></li><li class=""><a href="checkups.html">Checkups</a></li><li class=""><a href="visit.html">Your visit</a></li><li class=""><a href="patients.html">Patients</a></li><li class=""><a href="contact.html">Contact</a></li>
-        </ul>
-
-        <div style="margin-top:auto;padding-top:20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px;">
-          <a href="book.html" class="btn btn-primary" style="width:100%;">Book appointment</a>
-          <button class="btn btn-danger btn-sm" data-action="open-sos" style="width:100%;">Request Ambulance (24×7)</button>
-        </div>
-      </div>
-    </div>
-    
-
-  <main>
-    <section id="heroSection" class="hero">
-  <div class="container">
-    <div class="hero-grid">
-      <div class="hero-content">
-        <div class="hero-eyebrow">
-          <span class="emergency-dot" style="background:var(--teal);"></span>
-          <span>QUATERNARY CARE · EST. 1998</span>
-        </div>
-        <h1 class="hero-title">
-          Medicine at its <br>
-          <span class="text-teal">most human.</span>
-        </h1>
-        <p class="hero-lead">
-          Quaternary clinical excellence delivered with unhurried warmth. 25 surgical specialties, 48 advanced operating suites, and a multidisciplinary care team that listens first.
-        </p>
-        <div class="hero-actions">
-          <a href="book.html" class="btn btn-primary btn-lg">Book an OP visit</a>
-          <a href="diet.html" class="btn btn-secondary btn-lg">Try the diet planner →</a>
-        </div>
-        <div class="hero-stats-row">
-          <div class="hero-stat-item">
-            <span class="hero-stat-val" data-count-target="25">25</span>
-            <span class="hero-stat-lbl">Years of healing</span>
-          </div>
-          <div class="hero-stat-item">
-            <span class="hero-stat-val" data-count-target="600" data-count-suffix="+">600+</span>
-            <span class="hero-stat-lbl">Super-specialists</span>
-          </div>
-          <div class="hero-stat-item">
-            <span class="hero-stat-val" data-count-target="2.4" data-count-suffix="M">2.4M</span>
-            <span class="hero-stat-lbl">Patients a year</span>
-          </div>
-          <div class="hero-stat-item">
-            <span class="hero-stat-val" data-count-target="98.6" data-count-suffix="%">98.6%</span>
-            <span class="hero-stat-lbl">Would recommend us</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero-stage-col">
-        <div id="hero3DStage" class="hero-stage">
-          <!-- Floating HUD cards -->
-          <div class="hero-hud-card hero-hud-top">
-            <span class="status-dot-green"></span>
-            <span>Heart rate 72 bpm · SpO₂ 98% · BP 118/76</span>
-          </div>
-          <div class="hero-hud-card hero-hud-bottom">
-            <span class="status-dot-green"></span>
-            <span>Dr. Elena Marquez · Cardiology · next slot 11:30 AM · ● Available</span>
-          </div>
-
-          <!-- Glass tray pedestal -->
-          <div class="hero-stage-tray"></div>
-
-          <!-- Glow flash burst -->
-          <div id="shieldGlowBurst" class="shield-glow-burst"></div>
-
-          <!-- Hand-built Hero 3D Object: Teal Shield with White Heart -->
-          <div id="heroShield" class="hero-shield-obj">
-            <svg viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="shieldGrad" x1="20" y1="10" x2="120" y2="130" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#45b7af" />
-                  <stop offset="50%" stop-color="#2a9b95" />
-                  <stop offset="100%" stop-color="#155358" />
-                </linearGradient>
-                <linearGradient id="heartGrad" x1="50" y1="40" x2="90" y2="90" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#ffffff" />
-                  <stop offset="100%" stop-color="#e0f5f3" />
-                </linearGradient>
-                <filter id="shadow3D" x="-10" y="-10" width="160" height="160" filterUnits="userSpaceOnUse">
-                  <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#155358" flood-opacity="0.35" />
-                </filter>
-              </defs>
-              <g filter="url(#shadow3D)">
-                <path d="M70 12 C95 12 118 24 122 48 C122 84 94 112 70 126 C46 112 18 84 18 48 C22 24 45 12 70 12 Z" fill="url(#shieldGrad)" stroke="#ffffff" stroke-width="3" />
-                <path d="M70 18 C92 18 112 28 116 48 C116 80 90 106 70 118 C50 106 24 80 24 48 C28 28 48 18 70 18 Z" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
-                <!-- 3D Heart -->
-                <path d="M70 54 C66 42 52 40 44 48 C34 58 38 72 50 84 L70 102 L90 84 C102 72 106 58 96 48 C88 40 74 42 70 54 Z" fill="url(#heartGrad)" stroke="#ffffff" stroke-width="2" />
-                <path d="M50 48 C46 50 44 54 44 58" stroke="rgba(42,155,149,0.3)" stroke-width="2" stroke-linecap="round" />
-              </g>
-            </svg>
-          </div>
-
-          <!-- 6 Flying 3D Objects that shoot out of heart and fly into service tiles -->
-          <div class="hero-flying-objects">
-            <!-- 1. Calendar (flies to Book Appointment) -->
-            <div id="flyObj1" class="flying-obj" data-target="0">
-              <svg viewBox="0 0 64 64" fill="none">
-                <rect x="8" y="14" width="48" height="42" rx="10" fill="#ffffff" stroke="#2a9b95" stroke-width="2.5" />
-                <path d="M8 24 H56 V16 C56 12 52 10 48 10 H16 C12 10 8 12 8 16 V24 Z" fill="#f43f5e" />
-                <rect x="18" y="6" width="4" height="8" rx="2" fill="#ffffff" stroke="#e11d48" stroke-width="1.5" />
-                <rect x="42" y="6" width="4" height="8" rx="2" fill="#ffffff" stroke="#e11d48" stroke-width="1.5" />
-                <circle cx="22" cy="34" r="3" fill="#2a9b95" />
-                <circle cx="32" cy="34" r="3" fill="#2a9b95" />
-                <circle cx="42" cy="34" r="3" fill="#2a9b95" />
-                <circle cx="22" cy="44" r="3" fill="#2a9b95" />
-                <circle cx="32" cy="44" r="3" fill="#f43f5e" />
-                <circle cx="42" cy="44" r="3" fill="#2a9b95" />
-              </svg>
-            </div>
-
-            <!-- 2. Phone Bubble (flies to Online Consultation) -->
-            <div id="flyObj2" class="flying-obj" data-target="1">
-              <svg viewBox="0 0 64 64" fill="none">
-                <rect x="10" y="8" width="44" height="40" rx="14" fill="#2a9b95" stroke="#ffffff" stroke-width="2" />
-                <path d="M22 48 L16 56 L28 48 Z" fill="#2a9b95" />
-                <path d="M24 24 C24 21 27 18 32 18 C37 18 40 21 40 24 C40 28 35 30 35 32 M35 36 H35.02" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
-              </svg>
-            </div>
-
-            <!-- 3. DNA Helix (flies to Lab Reports) -->
-            <div id="flyObj3" class="flying-obj" data-target="2">
-              <svg viewBox="0 0 64 64" fill="none">
-                <path d="M20 12 C32 24 32 40 20 52 M44 12 C32 24 32 40 44 52" stroke="#2a9b95" stroke-width="3.5" stroke-linecap="round" />
-                <line x1="24" y1="18" x2="40" y2="18" stroke="#45b7af" stroke-width="2.5" stroke-linecap="round" />
-                <line x1="29" y1="28" x2="35" y2="28" stroke="#45b7af" stroke-width="2.5" stroke-linecap="round" />
-                <line x1="29" y1="36" x2="35" y2="36" stroke="#45b7af" stroke-width="2.5" stroke-linecap="round" />
-                <line x1="24" y1="46" x2="40" y2="46" stroke="#45b7af" stroke-width="2.5" stroke-linecap="round" />
-              </svg>
-            </div>
-
-            <!-- 4. Capsule (flies to Pharmacy Delivery) -->
-            <div id="flyObj4" class="flying-obj" data-target="3">
-              <svg viewBox="0 0 64 64" fill="none">
-                <g transform="rotate(-40 32 32)">
-                  <rect x="20" y="12" width="24" height="40" rx="12" fill="#ffffff" stroke="#2a9b95" stroke-width="2.5" />
-                  <path d="M20 12 H44 V32 H20 Z" fill="#2a9b95" />
-                  <line x1="20" y1="32" x2="44" y2="32" stroke="#155358" stroke-width="2" />
-                </g>
-              </svg>
-            </div>
-
-            <!-- 5. Stethoscope (flies to Symptom Guide) -->
-            <div id="flyObj5" class="flying-obj" data-target="4">
-              <svg viewBox="0 0 64 64" fill="none">
-                <path d="M20 12 V24 C20 32 26 38 34 38 C42 38 48 32 48 24 V12" stroke="#155358" stroke-width="3" stroke-linecap="round" />
-                <path d="M34 38 V46 C34 50 38 52 42 52 C46 52 48 50 48 46 V44" stroke="#155358" stroke-width="3" stroke-linecap="round" />
-                <circle cx="48" cy="42" r="5" fill="#45b7af" stroke="#ffffff" stroke-width="2" />
-                <circle cx="20" cy="12" r="3" fill="#2a9b95" />
-                <circle cx="48" cy="12" r="3" fill="#2a9b95" />
-              </svg>
-            </div>
-
-            <!-- 6. 3D Cross (flies to 24x7 Emergency) -->
-            <div id="flyObj6" class="flying-obj" data-target="5">
-              <svg viewBox="0 0 64 64" fill="none">
-                <path d="M26 10 H38 V26 H54 V38 H38 V54 H26 V38 H10 V26 H26 Z" fill="#dc2626" stroke="#ffffff" stroke-width="2.5" />
-                <path d="M26 10 H38 V14 H30 V26 H10 V26 Z" fill="rgba(255,255,255,0.4)" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="index.html" class="logo" aria-label="Aurelia Hospital home">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#7fd8cf" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/><circle cx="12" cy="12" r="9.5" stroke-width="1.2" opacity=".6"/></svg></span>
+      <span class="logo-text"><b>Aurelia</b><small>Hospital &amp; Research</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="specialities.html">Specialities</a>
+      <a href="doctors.html">Doctors</a>
+      <a href="symptoms.html">Symptoms</a>
+      <a href="diet.html">Diet planner</a>
+      <a href="checkups.html">Checkups</a>
+      <a href="visit.html">Your visit</a>
+      <a href="patients.html">Patients</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-cta">
+      <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode"><svg><use href="#i-moon"/></svg></button>
+      <a href="book.html" class="btn btn-primary btn-sm">Book appointment</a>
+      <button class="icon-btn burger" id="burger" aria-label="Open menu"><svg><use href="#i-menu"/></svg></button>
     </div>
   </div>
-</section>
+</header>
 
-<!-- SERVICE TILES & LIVE STATUS STRIP -->
-<section class="service-tiles-section">
-  <div class="container">
-    <div class="service-tiles-grid">
-      <!-- 1. Book Appointment -->
-      <a href="book.html" class="service-tile-card" id="tileSlot0">
-        <div class="service-tile-icon-slot">
-          <svg viewBox="0 0 64 64" fill="none"><rect x="8" y="14" width="48" height="42" rx="10" fill="#fff" stroke="#2a9b95" stroke-width="2.5"/><path d="M8 24 H56 V16 C56 12 52 10 48 10 H16 C12 10 8 12 8 16 V24 Z" fill="#f43f5e"/><circle cx="22" cy="34" r="3" fill="#2a9b95"/><circle cx="32" cy="34" r="3" fill="#2a9b95"/><circle cx="42" cy="34" r="3" fill="#2a9b95"/><circle cx="32" cy="44" r="3" fill="#f43f5e"/></svg>
-          <div class="tile-badge-status badge-check">✓</div>
-        </div>
-        <div class="service-tile-title">Book Outpatient<br>Appointment</div>
-        <p class="service-tile-sub">Select from 16 specialists across 13 clinical departments.</p>
-      </a>
+<div class="mobile-menu" id="mobileMenu">
+  <button class="icon-btn close" id="menuClose" aria-label="Close menu">✕</button>
+  <a href="index.html" class="active">Home</a><a href="book.html">Book OP</a><a href="specialities.html">Specialities</a><a href="doctors.html">Doctors</a><a href="symptoms.html">Symptoms</a><a href="diet.html">Diet planner</a><a href="checkups.html">Checkups</a><a href="visit.html">Your visit</a><a href="patients.html">Patients</a><a href="contact.html">Contact</a>
+</div>
 
-      <!-- 2. Online Consultation -->
-      <a href="book.html?mode=video" class="service-tile-card" id="tileSlot1">
-        <div class="service-tile-icon-slot">
-          <svg viewBox="0 0 64 64" fill="none"><rect x="10" y="8" width="44" height="40" rx="14" fill="#2a9b95" stroke="#fff" stroke-width="2"/><path d="M22 48 L16 56 L28 48 Z" fill="#2a9b95"/><circle cx="32" cy="28" r="8" fill="#fff"/><circle cx="32" cy="28" r="4" fill="#2a9b95"/></svg>
-          <div class="tile-badge-status badge-check">✓</div>
-        </div>
-        <div class="service-tile-title">Online Video<br>Consultation</div>
-        <p class="service-tile-sub">High-definition telehealth with digital prescription delivery.</p>
-      </a>
-
-      <!-- 3. Lab Reports -->
-      <div class="service-tile-card" id="tileSlot2" data-action="open-portal">
-        <div class="service-tile-icon-slot">
-          <svg viewBox="0 0 64 64" fill="none"><path d="M20 12 C32 24 32 40 20 52 M44 12 C32 24 32 40 44 52" stroke="#2a9b95" stroke-width="3.5" stroke-linecap="round"/><line x1="24" y1="18" x2="40" y2="18" stroke="#45b7af" stroke-width="2.5"/><line x1="24" y1="46" x2="40" y2="46" stroke="#45b7af" stroke-width="2.5"/></svg>
-          <div class="tile-badge-status badge-check">✓</div>
-        </div>
-        <div class="service-tile-title">Download Lab<br>& Scan Reports</div>
-        <p class="service-tile-sub">Instant biometric access to pathology and radiology results.</p>
+<main>
+<div class="hero-pin">
+<div class="hero-stick">
+<section class="hero" id="home">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow rv">Quaternary care · Est. 1998</span>
+      <h1 class="rv d1">Medicine at its <em>most human.</em></h1>
+      <p class="lead rv d2">Aurelia brings 600 specialists, 42 centres of excellence and a 1,200-bed campus together around one idea: every patient deserves to be treated like the only one.</p>
+      <div class="hero-actions rv d3">
+        <a href="book.html" class="btn btn-primary"><svg><use href="#i-cal"/></svg>Book an OP visit</a>
+        <a href="diet.html" class="btn btn-ghost">Try the diet planner <svg><use href="#i-arrow"/></svg></a>
       </div>
-
-      <!-- 4. Pharmacy Delivery -->
-      <a href="patients.html#pharmacy" class="service-tile-card" id="tileSlot3">
-        <div class="service-tile-icon-slot">
-          <svg viewBox="0 0 64 64" fill="none"><g transform="rotate(-40 32 32)"><rect x="20" y="12" width="24" height="40" rx="12" fill="#fff" stroke="#2a9b95" stroke-width="2.5"/><path d="M20 12 H44 V32 H20 Z" fill="#2a9b95"/></g></svg>
-          <div class="tile-badge-status badge-check">✓</div>
-        </div>
-        <div class="service-tile-title">Home Pharmacy<br>Express Delivery</div>
-        <p class="service-tile-sub">Verified cold-chain medications at your doorstep across Bengaluru.</p>
-      </a>
-
-      <!-- 5. Symptom Guide -->
-      <a href="symptoms.html" class="service-tile-card" id="tileSlot4">
-        <div class="service-tile-icon-slot">
-          <svg viewBox="0 0 64 64" fill="none"><path d="M20 12 V24 C20 32 26 38 34 38 C42 38 48 32 48 24 V12" stroke="#155358" stroke-width="3" stroke-linecap="round"/><path d="M34 38 V48 H44" stroke="#155358" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="48" r="5" fill="#45b7af"/></svg>
-          <div class="tile-badge-status badge-check">✓</div>
-        </div>
-        <div class="service-tile-title">Interactive Body<br>Symptom Guide</div>
-        <p class="service-tile-sub">Pinpoint your discomfort on our 3D map for intelligent triage.</p>
-      </a>
-
-      <!-- 6. 24x7 Emergency -->
-      <div class="service-tile-card" id="tileSlot5" data-action="open-sos">
-        <div class="service-tile-icon-slot">
-          <svg viewBox="0 0 64 64" fill="none"><path d="M26 10 H38 V26 H54 V38 H38 V54 H26 V38 H10 V26 H26 Z" fill="#dc2626" stroke="#fff" stroke-width="2.5"/></svg>
-          <div class="tile-badge-status badge-emergency">!</div>
-        </div>
-        <div class="service-tile-title">24×7 Trauma &<br>Emergency Care</div>
-        <p class="service-tile-sub">Level-1 emergency unit, code stroke response, and immediate ambulance.</p>
+      <div class="hero-trust rv d3">
+        <div><b data-count="25">0</b><span>years of care</span></div>
+        <div><b data-count="600" data-suffix="+">0</b><span>specialists</span></div>
+        <div><b data-count="2.4" data-dec="1" data-suffix="M">0</b><span>patients a year</span></div>
+        <div><b data-count="98.6" data-dec="1" data-suffix="%">0</b><span>would recommend us</span></div>
       </div>
     </div>
-
-    <!-- Animated teal ECG line -->
-    <div class="tiles-ecg-canvas-wrap">
-      <svg viewBox="0 0 1000 40" preserveAspectRatio="none">
-        <path d="M0 20 L200 20 L210 5 L220 35 L230 10 L240 28 L250 20 L450 20 L460 5 L470 35 L480 10 L490 28 L500 20 L700 20 L710 5 L720 35 L730 10 L740 28 L750 20 L950 20 L960 5 L970 35 L980 10 L990 28 L1000 20" stroke="#2a9b95" stroke-width="2.5" fill="none"/>
+    <div class="hero3d" aria-hidden="true">
+      <div class="h3-bg">
+      <span class="b3 b3a"></span><span class="b3 b3b"></span><span class="b3 b3c"></span><span class="b3 b3d"></span><span class="b3 b3e"></span>
+      <svg class="tray" viewBox="0 0 320 120"><defs>
+        <linearGradient id="trRim" x1="0" x2="1"><stop offset="0" stop-color="#8ad8d0"/><stop offset=".5" stop-color="#3aa9a2"/><stop offset="1" stop-color="#7fd2ca"/></linearGradient>
+        <radialGradient id="trTop" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" stop-color="#d4f1ee" stop-opacity=".75"/></radialGradient>
+        <radialGradient id="trGlow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#5ff0dc" stop-opacity=".8"/><stop offset="1" stop-color="#5ff0dc" stop-opacity="0"/></radialGradient></defs>
+        <ellipse cx="160" cy="92" rx="150" ry="22" fill="#2b9c96" opacity=".18"/>
+        <ellipse cx="160" cy="66" rx="146" ry="38" fill="url(#trRim)"/>
+        <ellipse cx="160" cy="54" rx="146" ry="38" fill="url(#trTop)" stroke="#fff" stroke-width="2"/>
+        <ellipse cx="160" cy="54" rx="108" ry="24" fill="none" stroke="#9fe0d8" stroke-width="1.5" opacity=".7"/>
+        <ellipse class="tray-glow" cx="160" cy="52" rx="120" ry="30" fill="url(#trGlow)"/>
       </svg>
+      </div>
+      <div class="o3 shield" style="--x:50;--y:40;--w:40%"><div class="sh-cycle"><div class="o3-bob">
+        <svg viewBox="0 0 200 220"><defs>
+          <linearGradient id="shRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9fbf8"/><stop offset=".55" stop-color="#9adcd4"/><stop offset="1" stop-color="#4fb3ab"/></linearGradient>
+          <linearGradient id="shFace" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9ebe5"/><stop offset=".6" stop-color="#5fc0b8"/><stop offset="1" stop-color="#2f9c95"/></linearGradient>
+          <radialGradient id="shHeart" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#eef7f7"/><stop offset="1" stop-color="#bcd8d8"/></radialGradient></defs>
+          <path d="M100 6 L182 38 C182 124 152 178 100 214 C48 178 18 124 18 38 Z" fill="url(#shRim)"/>
+          <path d="M100 22 L166 48 C166 120 140 164 100 194 C60 164 34 120 34 48 Z" fill="url(#shFace)"/>
+          <path d="M100 22 L166 48 C160 50 150 52 138 50 L100 34 L48 54 C42 92 50 124 66 148 C48 124 34 92 34 48 Z" fill="#fff" opacity=".35"/>
+          <path d="M100 156 C58 128 50 104 62 86 C74 68 94 72 100 88 C106 72 126 68 138 86 C150 104 142 128 100 156 Z" fill="url(#shHeart)"/>
+          <ellipse cx="80" cy="92" rx="11" ry="7" fill="#fff" opacity=".9" transform="rotate(-30 80 92)"/>
+        </svg></div></div></div>
+      <div class="o3" data-t="4" style="--x:31;--y:33;--w:23%;--d:0s"><div class="o3-cycle"><div class="o3-bob">
+        <svg viewBox="0 0 120 130"><defs><radialGradient id="stC" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#c9d6da"/><stop offset="1" stop-color="#7d9097"/></radialGradient></defs>
+          <path d="M28 12 C24 52 36 74 60 74 C84 74 96 52 92 12" stroke="#34444d" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <path d="M60 74 C60 100 74 108 90 104" stroke="#34444d" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <circle cx="28" cy="10" r="6" fill="#c7d3d6"/><circle cx="92" cy="10" r="6" fill="#c7d3d6"/>
+          <circle cx="98" cy="104" r="15" fill="url(#stC)"/><circle cx="98" cy="104" r="8" fill="#e6eef0" stroke="#9aaeb4" stroke-width="2"/>
+        </svg></div></div></div>
+      <div class="o3" data-t="5" style="--x:50;--y:17;--w:17%;--d:.04s"><div class="o3-cycle"><div class="o3-bob">
+        <svg viewBox="0 0 100 100"><defs><linearGradient id="plG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fe3db"/><stop offset=".55" stop-color="#3fb0a8"/><stop offset="1" stop-color="#23847f"/></linearGradient></defs>
+          <rect x="34" y="6" width="32" height="88" rx="10" fill="url(#plG)"/><rect x="6" y="34" width="88" height="32" rx="10" fill="url(#plG)"/>
+          <rect x="38" y="10" width="10" height="34" rx="5" fill="#fff" opacity=".45"/><rect x="10" y="38" width="30" height="8" rx="4" fill="#fff" opacity=".4"/>
+        </svg></div></div></div>
+      <div class="o3" data-t="0" style="--x:70;--y:16;--w:19%;--d:.08s"><div class="o3-cycle"><div class="o3-bob">
+        <svg viewBox="0 0 120 110"><rect x="8" y="14" width="104" height="90" rx="16" fill="#fff"/><path d="M8 30a16 16 0 0 1 16-16h72a16 16 0 0 1 16 16v10H8z" fill="#f6c4cb"/>
+          <rect x="32" y="4" width="8" height="20" rx="4" fill="#2b6d72"/><rect x="80" y="4" width="8" height="20" rx="4" fill="#2b6d72"/>
+          <g fill="#ffd3d9"><rect x="22" y="52" width="16" height="12" rx="3"/><rect x="44" y="52" width="16" height="12" rx="3"/><rect x="66" y="52" width="16" height="12" rx="3" fill="#ff9fb0"/><rect x="88" y="52" width="12" height="12" rx="3"/></g>
+          <g fill="#e3eef0"><rect x="22" y="70" width="16" height="12" rx="3"/><rect x="44" y="70" width="16" height="12" rx="3"/><rect x="66" y="70" width="16" height="12" rx="3"/><rect x="88" y="70" width="12" height="12" rx="3"/><rect x="22" y="88" width="16" height="8" rx="3"/><rect x="44" y="88" width="16" height="8" rx="3"/></g>
+        </svg></div></div></div>
+      <div class="o3" data-t="2" style="--x:82;--y:40;--w:15%;--d:.12s"><div class="o3-cycle"><div class="o3-bob">
+        <svg viewBox="0 0 80 140"><g stroke-linecap="round" fill="none">
+          <path d="M18 6 C70 30 70 44 18 70 C-34 96 70 110 62 134" stroke="#2b9c96" stroke-width="7"/>
+          <path d="M62 6 C10 30 10 44 62 70 C114 96 10 110 18 134" stroke="#8fe0d6" stroke-width="7"/>
+          <path d="M26 18 H54 M30 34 H50 M30 58 H50 M26 82 H54 M30 100 H50 M30 120 H50" stroke="#cdeeea" stroke-width="4"/></g>
+        </svg></div></div></div>
+      <div class="o3" data-t="3" style="--x:76;--y:62;--w:17%;--d:.16s"><div class="o3-cycle"><div class="o3-bob">
+        <svg viewBox="0 0 140 70"><g transform="rotate(-32 70 35)"><rect x="14" y="18" width="112" height="36" rx="18" fill="#2b9c96"/><path d="M32 18h38v36H32a18 18 0 0 1 0-36z" fill="#fff"/>
+          <rect x="24" y="24" width="60" height="7" rx="3.5" fill="#fff" opacity=".7"/></g></svg></div></div></div>
+      <div class="o3" data-t="1" style="--x:24;--y:56;--w:14%;--d:.2s"><div class="o3-cycle"><div class="o3-bob">
+        <svg viewBox="0 0 100 100"><defs><radialGradient id="phG" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#8fe6dc"/><stop offset=".55" stop-color="#36aaa2"/><stop offset="1" stop-color="#1c7a75"/></radialGradient></defs><path d="M50 6a44 44 0 1 1-30 76L8 92l6-16A44 44 0 0 1 50 6z" fill="url(#phG)"/><ellipse cx="34" cy="26" rx="14" ry="8" fill="#fff" opacity=".45" transform="rotate(-30 34 26)"/><path d="M38 30c3-3 7-3 9 0l5 7c2 3 1 6-1 8l-3 3c3 6 8 11 14 14l3-3c2-2 5-3 8-1l7 5c3 2 3 6 0 9l-4 4c-5 5-24-2-34-12S29 39 34 34z" fill="#fff"/></svg>
+      </div></div></div>
+      <div class="hv-card c2"><small>Heart rate</small><b><span id="bpm">72</span> bpm</b><div class="vitals"><small>SpO₂ <i>98%</i></small><small>BP <i>118/76</i></small></div></div>
+      <div class="hv-card c3"><span class="av" style="background:url(assets/img/doc-d1.jpg) center 22%/cover;color:transparent">EM</span><div class="grow"><b>Dr. Elena Marquez</b><small>Cardiology · next slot 11:30 AM</small></div><span class="live">● Available</span></div>
     </div>
+  </div>
+</section>
 
-    <!-- 5-Card Live Status Strip -->
-    <div id="liveStatusStrip" class="live-status-strip">
-      <div class="live-status-card">
-        <div class="live-status-header">
-          <span class="live-status-lbl">ER Wait Time</span>
-          <span class="status-dot-green"></span>
-        </div>
-        <div class="live-status-val" id="statusErWait">11 mins</div>
-        <div class="live-progress-bar-bg"><div class="live-progress-bar-fill" id="barErWait" style="width:36%;"></div></div>
+<div class="stick-tiles">
+  <div class="wrap">
+    <div class="tiles">
+      <a href="book.html" class="tile"><span class="ti"><svg><use href="#i-cal"/></svg><i>✓</i></span><b>Book<br>Appointment</b><small>Pick a doctor &amp; slot in 60 s</small></a>
+      <a href="book.html" class="tile"><span class="ti"><svg><use href="#i-video"/></svg><i>✓</i></span><b>Online<br>Consultation</b><small>See a specialist from home</small></a>
+      <a href="#" class="tile" data-open="reportModal"><span class="ti"><svg><use href="#i-file"/></svg><i>✓</i></span><b>Lab<br>Reports</b><small>Results on your phone</small></a>
+      <a href="patients.html" class="tile"><span class="ti"><svg><use href="#i-pill"/></svg><i>✓</i></span><b>Pharmacy<br>Delivery</b><small>Medicines in 4 hours</small></a>
+      <a href="symptoms.html" class="tile"><span class="ti"><svg><use href="#i-search"/></svg><i>✓</i></span><b>Symptom<br>Guide</b><small>Not sure who to see?</small></a>
+      <a href="contact.html#emergency" class="tile tile-er"><span class="ti"><svg><use href="#i-amb"/></svg><i>!</i></span><b>24×7<br>Emergency</b><small>Trauma bay always ready</small></a>
+    </div>
+    <svg class="tiles-ecg" viewBox="0 0 1200 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50h300l14-18 14 18h40l12 10 16-56 18 90 16-46h60l14-12 14 12h300l14-18 14 18h40l12 10 16-56 18 90 16-46h60l14-12 14 12h200"/></svg>
+  </div>
+</div>
+<div class="scroll-cue" aria-hidden="true"><i></i>Scroll to explore</div>
+</div>
+</div>
+<div class="quick">
+  <div class="wrap">
+    <div class="live-strip rv" id="liveStrip">
+      <div class="ls"><small><span class="pulse-dot" style="background:#1f9d6b"></span>ER wait time</small><b id="lsEr">6 min</b><div class="bar"><i style="width:20%"></i></div></div>
+      <div class="ls"><small>General beds free</small><b id="lsBeds">142</b><div class="bar"><i style="width:62%"></i></div></div>
+      <div class="ls"><small>ICU beds free</small><b id="lsIcu">18</b><div class="bar"><i style="width:30%"></i></div></div>
+      <div class="ls"><small>Doctors on duty</small><b id="lsDocs">214</b><div class="bar"><i style="width:80%"></i></div></div>
+      <div class="ls"><small>Blood bank (O−)</small><b id="lsBlood">36 units</b><div class="bar"><i style="width:45%"></i></div></div>
+    </div>
+  </div>
+</div>
+
+
+<section class="story" id="journey">
+  <div class="story-sticky">
+    <div class="wrap story-grid">
+      <div class="story-text">
+        <div class="story-big" id="storyBig" aria-hidden="true">01</div>
+        <span class="eyebrow">A journey through you</span>
+        <div class="story-chapters" id="storyCh"></div>
+        <div class="story-rail" id="storyRail"></div>
       </div>
+      <div class="story-stage" id="storyStage"><span class="orbit o1"></span><span class="orbit o2"></span><svg id="storySvg" viewBox="0 0 300 620" aria-hidden="true"></svg></div>
+    </div>
+    <div class="story-hint" id="storyHint"><i></i>Scroll to travel</div>
+  </div>
+</section>
 
-      <div class="live-status-card">
-        <div class="live-status-header">
-          <span class="live-status-lbl">General Beds</span>
-          <span class="status-dot-green"></span>
-        </div>
-        <div class="live-status-val" id="statusGenBeds">42 / 120</div>
-        <div class="live-progress-bar-bg"><div class="live-progress-bar-fill" id="barGenBeds" style="width:35%;"></div></div>
+
+<section id="human">
+  <div class="wrap human-grid">
+    <div class="human-photos">
+      <figure class="hp hp1 rv"><img src="assets/img/care-vaccine.jpg" alt="A doctor gently giving an elderly woman a vaccination" loading="lazy"></figure>
+      <figure class="hp hp2 rv d1"><img src="assets/img/care-bedside.jpg" alt="A doctor talking with a patient at her bedside" loading="lazy"></figure>
+      <figure class="hp hp3 rv d2"><img src="assets/img/care-hands.jpg" alt="Two people holding hands in comfort" loading="lazy"></figure>
+      <div class="hp-quote glass rv d3"><b>“They remembered my name, my fears and my grandson’s cricket match.”</b><span>Dorothy, 71 · cardiac rehab</span></div>
+    </div>
+    <div class="human-text">
+      <span class="eyebrow rv">Care with a human face</span>
+      <h2 class="rv d1">Technology helps us heal. <em>People help you feel better.</em></h2>
+      <p class="lead rv d2">Every patient at Aurelia has a named care coordinator, nurses who stay with the same ward, and doctors who make time to sit down and explain. It’s the part of medicine no machine can do.</p>
+      <div class="human-stats rv d3">
+        <div><b data-count="1" data-suffix=":4">0</b><span>nurse-to-patient ratio on wards</span></div>
+        <div><b data-count="92" data-suffix="%">0</b><span>patients who know their care team by name</span></div>
+        <div><b data-count="14">0</b><span>languages spoken by our staff</span></div>
       </div>
+      <div class="hero-actions rv d3"><a href="doctors.html" class="btn btn-primary">Meet our doctors</a><a href="book.html" class="btn btn-ghost">Book a visit</a></div>
+    </div>
+  </div>
+</section>
 
-      <div class="live-status-card">
-        <div class="live-status-header">
-          <span class="live-status-lbl">ICU Beds Free</span>
-          <span class="status-dot-green"></span>
-        </div>
-        <div class="live-status-val" id="statusIcuBeds">7 / 24</div>
-        <div class="live-progress-bar-bg"><div class="live-progress-bar-fill" id="barIcuBeds" style="width:29%;"></div></div>
+
+<section id="explore">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow rv">Start here</span><h2 class="rv d1">Everything you need, <em>one tap away.</em></h2></div>
+      <p class="lead rv d2">Book a visit, find the right specialist, plan your diet or prepare for your day at the hospital.</p>
+    </div>
+    <div class="centres">
+      <a href="book.html" class="centre rv d0"><span class="ci"><svg><use href="#i-cal"/></svg></span><span class="arrow"><svg><use href="#i-arrow"/></svg></span><h3>Book an OP visit</h3><p>Live slots, an instant token number and a reminder for your calendar.</p></a>
+      <a href="symptoms.html" class="centre rv d1"><span class="ci"><svg><use href="#i-search"/></svg></span><span class="arrow"><svg><use href="#i-arrow"/></svg></span><h3>Symptom guide</h3><p>Tap where it hurts and we’ll suggest the right speciality and doctor.</p></a>
+      <a href="doctors.html" class="centre rv d2"><span class="ci"><svg><use href="#i-heart"/></svg></span><span class="arrow"><svg><use href="#i-arrow"/></svg></span><h3>Find a doctor</h3><p>Search 600+ specialists by name, speciality or condition.</p></a>
+      <a href="diet.html" class="centre rv d3"><span class="ci"><svg><use href="#i-pill"/></svg></span><span class="arrow"><svg><use href="#i-arrow"/></svg></span><h3>Diet planner</h3><p>Calories, macros and an Indian meal plan for 8 common conditions.</p></a>
+      <a href="checkups.html" class="centre rv d0"><span class="ci"><svg><use href="#i-shield"/></svg></span><span class="arrow"><svg><use href="#i-arrow"/></svg></span><h3>Health checkups</h3><p>Preventive packages with same-day reports and a doctor consult.</p></a>
+      <a href="specialities.html" class="centre rv d1"><span class="ci"><svg><use href="#i-hosp"/></svg></span><span class="arrow"><svg><use href="#i-arrow"/></svg></span><h3>Specialities</h3><p>42 centres of excellence and the technology behind them.</p></a>
+      <a href="patients.html" class="centre rv d2"><span class="ci"><svg><use href="#i-file"/></svg></span><span class="arrow"><svg><use href="#i-arrow"/></svg></span><h3>Patient services</h3><p>Reports, video consults, pharmacy delivery, insurance and FAQs.</p></a>
+      <a href="visit.html" class="centre rv d3"><span class="ci"><svg><use href="#i-clock"/></svg></span><span class="arrow"><svg><use href="#i-arrow"/></svg></span><h3>Your visit, step by step</h3><p>From parking to heading home: exactly what happens, with live wait times.</p></a>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:20px">
+  <div class="wrap">
+    <span class="eyebrow rv">Patient stories</span>
+    <h2 class="rv d1" style="margin:14px 0 40px">Words from <em>our families.</em></h2>
+    <div class="testi rv" style="overflow:hidden">
+      <div class="t-track" id="tTrack"></div>
+    </div>
+    <div class="t-ctrl"><div class="t-dots" id="tDots"></div><button class="icon-btn" id="tPrev" aria-label="Previous" style="transform:scaleX(-1)"><svg><use href="#i-arrow"/></svg></button><button class="icon-btn" id="tNext" aria-label="Next"><svg><use href="#i-arrow"/></svg></button></div>
+  </div>
+</section>
+
+
+<section id="emergency" style="padding-top:20px">
+  <div class="wrap">
+    <div class="er rv">
+      <div class="er-l">
+        <span class="eyebrow">Emergency &amp; trauma</span>
+        <h2 style="margin-top:14px">Every second counts. <em>So do we.</em></h2>
+        <p>Level-1 trauma centre with a dedicated stroke and heart-attack response team. A 40-vehicle ambulance fleet with GPS tracking and paramedics trained in advanced life support.</p>
+        <div class="er-num"><span class="ring"><svg><use href="#i-phone"/></svg></span>1800-000-0000</div>
+        <div class="hero-actions"><button class="btn btn-white" data-open="ambModal"><svg><use href="#i-amb"/></svg>Request ambulance</button></div>
       </div>
-
-      <div class="live-status-card">
-        <div class="live-status-header">
-          <span class="live-status-lbl">Doctors On Duty</span>
-          <span class="status-dot-green"></span>
-        </div>
-        <div class="live-status-val" id="statusDocsDuty">38 Active</div>
-        <div class="live-progress-bar-bg"><div class="live-progress-bar-fill" style="width:80%;"></div></div>
-      </div>
-
-      <div class="live-status-card">
-        <div class="live-status-header">
-          <span class="live-status-lbl">Blood Bank (O−)</span>
-          <span class="status-dot-green"></span>
-        </div>
-        <div class="live-status-val" id="statusBloodO">18 Units</div>
-        <div class="live-progress-bar-bg"><div class="live-progress-bar-fill" style="width:65%;"></div></div>
+      <div class="er-r">
+        <div class="er-stat"><span>Door-to-doctor time</span><b>&lt; 4 min</b></div>
+        <div class="er-stat"><span>Door-to-balloon (heart attack)</span><b>58 min</b></div>
+        <div class="er-stat"><span>Stroke code activation</span><b>&lt; 10 min</b></div>
+        <div class="er-stat"><span>Ambulances on the road now</span><b id="ambLive">23</b></div>
+        <div class="er-stat" style="border:0"><span>Average city response</span><b>14 min</b></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- "A JOURNEY THROUGH YOU" — ILLUSTRATED BODY SCROLL STORY -->
-<section id="journeySection" class="journey-section">
-  <div class="container">
-    <div class="journey-sticky-viewport">
-      <!-- Left text side -->
-      <div class="journey-left-content">
-        <div id="journeyChapterNumeral" class="journey-numeral-outline">01</div>
-        <div id="journeyChapterEyebrow" class="journey-step-chip">01 / 08 · CARDIOLOGY</div>
-        <h2 id="journeyChapterTitle" class="journey-heading">It starts with a <span class="text-teal">heartbeat.</span></h2>
-        <p id="journeyChapterDesc" class="journey-desc">
-          From door to balloon in under 58 minutes. Our digital catheterisation suites operate around the clock with zero transfer delay.
-        </p>
-        <div class="journey-stat-chip">
-          <div id="journeyChapterStatNum" class="journey-stat-num">58 min</div>
-          <div id="journeyChapterStatText" class="journey-stat-text">Door-to-balloon time<br>(Global standard &lt; 90m)</div>
-        </div>
-        <div>
-          <a id="journeyChapterLink" href="doctors.html?dept=card" class="btn btn-primary">Meet the Cardiology team →</a>
-        </div>
-        <!-- 8-segment progress rail -->
-        <div class="journey-progress-rail">
-          <div class="progress-segment active" title="01 Heart"></div>
-          <div class="progress-segment" title="02 Full Body"></div>
-          <div class="progress-segment" title="03 Brain"></div>
-          <div class="progress-segment" title="04 Lungs"></div>
-          <div class="progress-segment" title="05 Gut"></div>
-          <div class="progress-segment" title="06 Kidneys"></div>
-          <div class="progress-segment" title="07 Knees"></div>
-          <div class="progress-segment" title="08 Ready"></div>
-        </div>
-      </div>
+</main>
 
-      <!-- Right stage: SVG figure & camera pan/zoom -->
-      <div class="journey-stage-wrap">
-        <div class="journey-orbit-ring orbit-1"></div>
-        <div class="journey-orbit-ring orbit-2"></div>
-        <div class="journey-scan-line"></div>
-
-        <div id="journeyFigureContainer" class="journey-figure-container">
-          <svg class="human-figure-svg" viewBox="0 0 320 540" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="bodySkin" x1="160" y1="20" x2="160" y2="520" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="rgba(245, 218, 204, 0.45)" />
-                <stop offset="100%" stop-color="rgba(215, 185, 170, 0.3)" />
-              </linearGradient>
-              <linearGradient id="arteryGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ef4444" />
-                <stop offset="100%" stop-color="#b91c1c" />
-              </linearGradient>
-              <linearGradient id="veinGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" />
-                <stop offset="100%" stop-color="#1d4ed8" />
-              </linearGradient>
-            </defs>
-
-            <!-- Floor shadow -->
-            <ellipse cx="160" cy="528" rx="80" ry="10" fill="rgba(22, 90, 95, 0.15)" />
-
-            <!-- Translucent body silhouette -->
-            <path d="M160 25 C146 25 140 38 140 52 C140 68 148 78 150 85 C132 94 110 108 100 135 C88 170 82 240 82 280 C82 295 90 300 95 285 C100 230 108 160 120 145 C120 180 122 230 122 290 C122 330 115 380 112 430 C110 460 115 500 125 515 C130 522 138 522 142 515 C150 495 152 440 154 380 C156 340 158 320 160 320 C162 320 164 340 166 380 C168 440 170 495 178 515 C182 522 190 522 195 515 C205 500 210 460 208 430 C205 380 198 330 198 290 C198 230 200 180 200 145 C212 160 220 230 225 285 C230 300 238 295 238 280 C238 240 232 170 220 135 C210 108 188 94 170 85 C172 78 180 68 180 52 C180 38 174 25 160 25 Z" fill="url(#bodySkin)" stroke="rgba(42, 155, 149, 0.4)" stroke-width="1.5" />
-
-            <!-- Skeleton: Ribcage, Clavicles, Spine, Pelvis, Knees -->
-            <g id="figSkeleton" opacity="0.75">
-              <path d="M136 94 Q160 100 184 94 M148 94 V180" stroke="#f1efe7" stroke-width="2.5" />
-              <!-- Ribs -->
-              <path d="M148 108 Q124 112 134 124 Q148 122 148 116 M148 108 Q172 112 162 124 Q148 122 148 116" stroke="#f1efe7" stroke-width="2" fill="none" />
-              <path d="M148 120 Q120 126 132 138 Q148 134 148 128 M148 120 Q176 126 164 138 Q148 134 148 128" stroke="#f1efe7" stroke-width="2" fill="none" />
-              <path d="M148 132 Q118 140 130 152 Q148 146 148 140 M148 132 Q178 140 166 152 Q148 146 148 140" stroke="#f1efe7" stroke-width="2" fill="none" />
-              <path d="M148 144 Q122 152 132 164 Q148 158 148 152 M148 144 Q174 152 164 164 Q148 158 148 152" stroke="#f1efe7" stroke-width="2" fill="none" />
-              <!-- Pelvis -->
-              <path d="M134 260 Q160 280 186 260 Q176 295 160 295 Q144 295 134 260 Z" fill="#e8e5db" stroke="#f1efe7" stroke-width="1.5" />
-            </g>
-
-            <!-- Major Blood Vessels (Arteries Red, Veins Blue) -->
-            <g id="figVessels" opacity="0.85">
-              <!-- Aorta & Arteries -->
-              <path d="M158 148 Q156 120 160 90 M158 148 Q158 240 150 280 L138 380 L134 500" stroke="url(#arteryGrad)" stroke-width="2.5" fill="none" />
-              <path d="M150 280 L168 380 L172 500" stroke="url(#arteryGrad)" stroke-width="2" fill="none" />
-              <path d="M160 115 Q130 118 108 200 M160 115 Q190 118 212 200" stroke="url(#arteryGrad)" stroke-width="2" fill="none" />
-              <!-- Vena Cava & Veins -->
-              <path d="M164 148 Q166 120 162 90 M164 148 Q164 240 156 280 L144 380 L140 500" stroke="url(#veinGrad)" stroke-width="2.5" fill="none" />
-              <path d="M156 280 L174 380 L178 500" stroke="url(#veinGrad)" stroke-width="2" fill="none" />
-              <path d="M162 118 Q132 121 112 200 M162 118 Q192 121 216 200" stroke="url(#veinGrad)" stroke-width="2" fill="none" />
-            </g>
-
-            <!-- 1. Brain & Sparks -->
-            <g class="organ-group" data-organ="brain">
-              <path d="M150 40 C144 42 142 48 144 54 C140 58 142 66 150 68 C154 68 158 64 160 62 C162 64 166 68 170 68 C178 66 180 58 176 54 C178 48 176 42 170 40 C166 38 162 40 160 42 C158 40 154 38 150 40 Z" fill="#f472b6" stroke="#db2777" stroke-width="1.5" />
-              <circle cx="152" cy="48" r="1.5" fill="#ffffff" />
-              <circle cx="168" cy="52" r="1.5" fill="#ffffff" />
-            </g>
-
-            <!-- 2. Lungs (Breathe) -->
-            <g class="organ-group" data-organ="lungs">
-              <!-- Left lung -->
-              <path d="M136 120 C130 130 126 150 130 166 C136 172 144 170 146 160 C148 145 146 130 144 122 Z" fill="#c084fc" stroke="#9333ea" stroke-width="1.5" opacity="0.9" />
-              <!-- Right lung -->
-              <path d="M184 120 C190 130 194 150 190 166 C184 172 176 170 174 160 C172 145 174 130 176 122 Z" fill="#c084fc" stroke="#9333ea" stroke-width="1.5" opacity="0.9" />
-            </g>
-
-            <!-- 3. Heart (Beats) -->
-            <g class="organ-group" data-organ="heart">
-              <path d="M160 142 C156 134 146 134 142 140 C136 148 140 158 148 166 L160 176 L172 166 C180 158 184 148 178 140 C174 134 164 134 160 142 Z" fill="#e11d48" stroke="#ffffff" stroke-width="2" />
-              <path d="M152 148 Q158 154 164 150" stroke="#fecdd3" stroke-width="1.5" fill="none" />
-            </g>
-
-            <!-- 4. Liver & Gallbladder -->
-            <g class="organ-group" data-organ="gut">
-              <!-- Liver -->
-              <path d="M168 180 C182 180 192 188 190 200 C188 206 174 208 160 202 C156 195 160 182 168 180 Z" fill="#b45309" stroke="#78350f" stroke-width="1.5" />
-              <!-- Gallbladder -->
-              <ellipse cx="174" cy="204" rx="4" ry="6" fill="#16a34a" />
-              <!-- Stomach -->
-              <path d="M150 186 C138 186 132 196 136 210 C140 220 152 218 156 210 C158 200 156 190 150 186 Z" fill="#f43f5e" stroke="#be123c" stroke-width="1.5" />
-              <!-- Serpentine Small Intestine & Framed Large Intestine -->
-              <rect x="136" y="220" width="48" height="42" rx="10" fill="none" stroke="#d97706" stroke-width="4" stroke-dasharray="8 3" />
-              <path d="M142 232 Q160 236 178 232 Q160 240 142 244 Q160 248 178 244" stroke="#fb923c" stroke-width="3" stroke-linecap="round" fill="none" />
-            </g>
-
-            <!-- 5. Kidneys & Bladder -->
-            <g class="organ-group" data-organ="kidneys">
-              <!-- Left kidney -->
-              <path d="M136 196 C132 198 132 208 136 212 C140 210 140 200 136 196 Z" fill="#991b1b" stroke="#7f1d1d" stroke-width="1.5" />
-              <!-- Right kidney -->
-              <path d="M184 196 C188 198 188 208 184 212 C180 210 180 200 184 196 Z" fill="#991b1b" stroke="#7f1d1d" stroke-width="1.5" />
-              <!-- Ureters to bladder -->
-              <path d="M137 212 Q144 240 156 264 M183 212 Q176 240 164 264" stroke="#eab308" stroke-width="1" fill="none" />
-              <ellipse cx="160" cy="268" rx="8" ry="6" fill="#facc15" stroke="#ca8a04" stroke-width="1" />
-            </g>
-
-            <!-- 6. Knees & Joints -->
-            <g class="organ-group" data-organ="knees">
-              <circle cx="138" cy="382" r="7" fill="#ffffff" stroke="#2a9b95" stroke-width="2" />
-              <circle cx="170" cy="382" r="7" fill="#ffffff" stroke="#2a9b95" stroke-width="2" />
-              <!-- Joint space lines -->
-              <line x1="133" y1="382" x2="143" y2="382" stroke="#155358" stroke-width="1.5" />
-              <line x1="165" y1="382" x2="175" y2="382" stroke="#155358" stroke-width="1.5" />
-            </g>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- 8 Scroll Spacers to drive the sticky chapters smoothly -->
-    <div class="journey-scroll-spacer" data-step="0"></div>
-    <div class="journey-scroll-spacer" data-step="1"></div>
-    <div class="journey-scroll-spacer" data-step="2"></div>
-    <div class="journey-scroll-spacer" data-step="3"></div>
-    <div class="journey-scroll-spacer" data-step="4"></div>
-    <div class="journey-scroll-spacer" data-step="5"></div>
-    <div class="journey-scroll-spacer" data-step="6"></div>
-    <div class="journey-scroll-spacer" data-step="7"></div>
-  </div>
-</section>
-
-<!-- "CARE WITH A HUMAN FACE" — PHOTO COLLAGE & TESTIMONIAL STATS -->
-<section class="human-care-section">
-  <div class="container">
-    <div class="human-care-grid">
-      <div class="photo-collage-wrap">
-        <div class="collage-item collage-item-1">
-          <img src="assets/img/care-vaccine.jpg" alt="Doctor vaccinating an elderly patient gently">
-        </div>
-        <div class="collage-item">
-          <img src="assets/img/care-bedside.jpg" alt="Compassionate bedside clinical discussion">
-        </div>
-        <div class="collage-item">
-          <img src="assets/img/care-hands.jpg" alt="Reassuring held hands in recovery">
-        </div>
-        <div class="collage-quote-card">
-          <div class="quote-text">“They remembered my name, my fears and my grandson’s cricket match.”</div>
-          <div class="quote-author">— Dorothy, 71 · cardiac rehabilitation graduate</div>
-        </div>
-      </div>
-
-      <div class="human-care-copy">
-        <div class="banner-eyebrow">UNHURRIED CLINICAL MEDICINE</div>
-        <h2 style="font-size:clamp(2rem, 3.5vw, 2.8rem);margin-bottom:18px;">
-          Care with a <span class="text-teal">human face.</span>
-        </h2>
-        <p style="font-size:16px;line-height:1.7;color:var(--ink2);margin-bottom:24px;">
-          Behind our cutting-edge robotic theatres and high-resolution imaging suites is an unwavering belief: authentic healing happens when patients feel heard, respected, and safe.
-        </p>
-        <p style="font-size:15px;line-height:1.6;color:var(--ink2);">
-          Every patient at Aurelia CARE is paired with a primary nursing navigator, unhurried 15-minute consultations, and clear explanations without medical jargon.
-        </p>
-
-        <div class="human-stats-list">
-          <div class="human-stat">
-            <h4>1 : 4</h4>
-            <p>Nurse-to-patient ratio in acute step-down units</p>
-          </div>
-          <div class="human-stat">
-            <h4>92%</h4>
-            <p>Of patients know their care team members by name</p>
-          </div>
-          <div class="human-stat">
-            <h4>14</h4>
-            <p>Languages spoken fluently by our concierge staff</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- START HERE: 8-PAGE QUICK GRID -->
-<section style="padding:60px 0;">
-  <div class="container">
-    <div style="text-align:center;max-width:680px;margin:0 auto 30px;">
-      <div class="banner-eyebrow">EXPLORE AURELIA CARE</div>
-      <h2 style="font-size:clamp(1.8rem, 3vw, 2.5rem);">Start here: Everything you need</h2>
-      <p style="color:var(--muted);">Choose a department, explore verified doctor credentials, or plan your healthy lifestyle.</p>
-    </div>
-
-    <div class="start-here-grid">
-      <a href="specialities.html" class="start-link-card">
-        <div class="start-link-icon">
-          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1z"/></svg>
-        </div>
-        <div class="start-link-title">Specialities</div>
-        <p class="start-link-desc">Explore 8 centres of quaternary excellence and robotic suites.</p>
-      </a>
-
-      <a href="doctors.html" class="start-link-card">
-        <div class="start-link-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-        </div>
-        <div class="start-link-title">Find a Doctor</div>
-        <p class="start-link-desc">16 renowned specialists with transparent fees and slot times.</p>
-      </a>
-
-      <a href="symptoms.html" class="start-link-card">
-        <div class="start-link-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-        </div>
-        <div class="start-link-title">Symptom Guide</div>
-        <p class="start-link-desc">Visual interactive body map triage with red-flag detection.</p>
-      </a>
-
-      <a href="diet.html" class="start-link-card">
-        <div class="start-link-icon">
-          <svg viewBox="0 0 24 24"><path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.48L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V23h14v-1.01H1z"/></svg>
-        </div>
-        <div class="start-link-title">Diet Planner</div>
-        <p class="start-link-desc">Condition-based Mifflin-St Jeor calorie & Indian meal engine.</p>
-      </a>
-
-      <a href="checkups.html" class="start-link-card">
-        <div class="start-link-icon">
-          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-        </div>
-        <div class="start-link-title">Health Checkups</div>
-        <p class="start-link-desc">4 comprehensive preventative packages for individuals & couples.</p>
-      </a>
-
-      <a href="visit.html" class="start-link-card">
-        <div class="start-link-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 2c-4.42 0-8 3.58-8 8 0 5.25 8 13 8 13s8-7.75 8-13c0-4.42-3.58-8-8-8zm0 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
-        </div>
-        <div class="start-link-title">Your Visit (47m)</div>
-        <p class="start-link-desc">Interactive SVG road of your 7-step seamless hospital visit.</p>
-      </a>
-
-      <a href="patients.html" class="start-link-card">
-        <div class="start-link-icon">
-          <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
-        </div>
-        <div class="start-link-title">Patients & Library</div>
-        <p class="start-link-desc">Patient services, clinical articles, cashless insurance and FAQs.</p>
-      </a>
-
-      <a href="contact.html" class="start-link-card">
-        <div class="start-link-icon">
-          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        </div>
-        <div class="start-link-title">Campus & Contact</div>
-        <p class="start-link-desc">Location map on Sarjapur ORR, emergency desk and callback form.</p>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- PATIENT STORIES CAROUSEL -->
-<section style="padding:60px 0;background:var(--paper2);">
-  <div class="container">
-    <div style="text-align:center;max-width:620px;margin:0 auto 30px;">
-      <div class="banner-eyebrow">HEALING TOGETHER</div>
-      <h2 style="font-size:clamp(1.8rem, 3vw, 2.5rem);">Patient stories from the heart</h2>
-    </div>
-
-    <div id="storiesCarousel" class="stories-carousel-wrap">
-      <!-- Story 1 -->
-      <div class="story-card-slide">
-        <div class="story-portrait-wrap">
-          <img src="assets/img/patient-maria.jpg" alt="Maria L.">
-        </div>
-        <div>
-          <div class="story-quote-body">
-            “When my mother suffered an acute NSTEMI on a Sunday night, the catheterisation team at Aurelia had her stented within 45 minutes of ambulance arrival. Their calm clarity saved our family.”
-          </div>
-          <div class="story-patient-meta">
-            <div>
-              <div style="font-weight:700;font-size:16px;color:var(--navy);">Maria L.</div>
-              <div style="font-size:13px;color:var(--muted);">Daughter of cardiac patient · Whitefield, Bengaluru</div>
-            </div>
-            <span class="badge badge-mint" style="margin-left:auto;">Cardiac Sciences</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Story 2 -->
-      <div class="story-card-slide" style="display:none;">
-        <div class="story-portrait-wrap">
-          <img src="assets/img/patient-robert.jpg" alt="Robert T.">
-        </div>
-        <div>
-          <div class="story-quote-body">
-            “At 64, I thought my trekking days in the Western Ghats were over due to severe bilateral knee arthritis. Dr. Rahul Kapoor performed robotic joint replacement, and I walked comfortably the very next morning.”
-          </div>
-          <div class="story-patient-meta">
-            <div>
-              <div style="font-weight:700;font-size:16px;color:var(--navy);">Robert T., 64</div>
-              <div style="font-size:13px;color:var(--muted);">Robotic Bilateral Knee Arthroplasty · Indiranagar</div>
-            </div>
-            <span class="badge badge-mint" style="margin-left:auto;">Orthopaedics</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Story 3 -->
-      <div class="story-card-slide" style="display:none;">
-        <div class="story-portrait-wrap">
-          <img src="assets/img/baby-feet.jpg" alt="Aisha & Karan's twins">
-        </div>
-        <div>
-          <div class="story-quote-body">
-            “Our twin daughters arrived at 31 weeks. The Level-3 NICU team under Dr. Amara Okafor watched over them for 24 days with pure devotion. Today, they are healthy, laughing toddlers.”
-          </div>
-          <div class="story-patient-meta">
-            <div>
-              <div style="font-weight:700;font-size:16px;color:var(--navy);">Aisha & Karan S.</div>
-              <div style="font-size:13px;color:var(--muted);">Parents of preterm twins · Koramangala</div>
-            </div>
-            <span class="badge badge-mint" style="margin-left:auto;">Paediatrics & NICU</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Story 4 -->
-      <div class="story-card-slide" style="display:none;">
-        <div class="story-portrait-wrap">
-          <img src="assets/img/patient-marco.jpg" alt="Marco D.">
-        </div>
-        <div>
-          <div class="story-quote-body">
-            “My HbA1c had crept up to 8.9% and my energy was rock bottom. With the diabetes reversal clinic and Ms. Mitchell’s custom diet plan, my latest test clocked 6.4% without adding medications.”
-          </div>
-          <div class="story-patient-meta">
-            <div>
-              <div style="font-weight:700;font-size:16px;color:var(--navy);">Marco D., 52</div>
-              <div style="font-size:13px;color:var(--muted);">Metabolic Health Program (HbA1c 8.9 → 6.4) · HSR Layout</div>
-            </div>
-            <span class="badge badge-mint" style="margin-left:auto;">Clinical Nutrition</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Nav buttons -->
-      <div class="story-carousel-nav">
-        <button id="storyPrevBtn" class="story-nav-btn" aria-label="Previous story">←</button>
-        <button id="storyNextBtn" class="story-nav-btn" aria-label="Next story">→</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- EMERGENCY BAND -->
-<section class="emergency-band">
-  <div class="container">
-    <div class="emergency-band-content">
-      <div class="emergency-icon-wrap">
-        <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z"/></svg>
-      </div>
+<footer>
+  <div class="wrap">
+    <p class="big">Healing is a team sport. <em>You’re the captain.</em></p>
+    <div class="foot-grid">
       <div>
-        <h3>24×7 Trauma, Stroke & Cardiac Emergency</h3>
-        <p>Immediate ambulance dispatch across Bengaluru with GPS real-time tracking. Level 1 emergency trauma bay.</p>
+        <div class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#7fd8cf" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></span><span class="logo-text"><b>Aurelia</b><small style="color:#7d979d">Hospital &amp; Research</small></span></div>
+        <p style="font-size:14px;margin-top:18px;max-width:320px">Get monthly health tips from our doctors and dietitians.</p>
+        <form class="news" id="newsForm"><input type="email" placeholder="Your email" aria-label="Email" required><button class="btn btn-gold btn-sm">Subscribe</button></form>
       </div>
+      <div><h5>Care</h5><a href="specialities.html">Specialities</a><a href="doctors.html">Find a doctor</a><a href="book.html">Book appointment</a><a href="checkups.html">Health checks</a><a href="contact.html#emergency">Emergency</a></div>
+      <div><h5>Patients</h5><a href="#" data-open="reportModal">Online reports</a><a href="symptoms.html">Symptom guide</a><a href="visit.html">Your visit</a><a href="diet.html">Diet planner</a><a href="patients.html">Insurance</a><a href="patients.html">International</a><a href="patients.html#faq">FAQ</a></div>
+      <div><h5>Hospital</h5><a href="index.html">About us</a><a href="index.html">Research</a><a href="index.html">Careers</a><a href="index.html">Nursing college</a><a href="contact.html">Contact</a></div>
     </div>
-    <div class="emergency-band-actions">
-      <button class="btn btn-secondary" data-action="open-sos">Request Ambulance</button>
-      <a href="tel:18000000000" class="emergency-phone-btn">📞 1800-000-0000</a>
+    <div class="foot-bottom"><span>© <span id="yr"></span> Aurelia Hospital. A fictional hospital built for educational purposes. Photos from Unsplash.</span><span>Privacy · Terms · Patient rights</span></div>
+  </div>
+</footer>
+
+<div class="fab-stack">
+  <button class="to-top" id="toTop" aria-label="Back to top"><svg><use href="#i-up"/></svg></button>
+  <button class="fab chat" id="chatBtn" aria-label="Open care assistant"><svg><use href="#i-chat"/></svg></button>
+  <button class="fab sos" data-open="ambModal" aria-label="Emergency"><svg><use href="#i-amb"/></svg></button>
+</div>
+
+<div class="panel chatbox" id="chatbox" role="dialog" aria-label="Care assistant">
+  <div class="chat-h"><span class="av">A</span><div><b>Aria · Care assistant</b><small>● Online · replies instantly</small></div><button id="chatClose" aria-label="Close">×</button></div>
+  <div class="chat-b" id="chatBody"></div>
+  <div class="chat-q" id="chatQ"></div>
+  <form class="chat-f" id="chatForm"><input id="chatIn" placeholder="Ask about timings, booking, insurance…" autocomplete="off"><button aria-label="Send"><svg><use href="#i-send"/></svg></button></form>
+</div>
+
+<div class="modal" id="ambModal">
+  <div class="panel box">
+    <button class="x" data-close>×</button>
+    <div id="ambForm">
+      <h3>Request an ambulance</h3><p class="sub">In a real emergency, always call your local emergency number first. This is a demo.</p>
+      <div class="form-grid">
+        <div class="field full"><label for="aLoc">Pickup location</label><input id="aLoc" placeholder="Area / landmark"><span class="msg">Enter a location</span></div>
+        <div class="field"><label for="aPhone">Mobile</label><input id="aPhone" inputmode="numeric" maxlength="10" placeholder="10-digit"><span class="msg">Valid mobile needed</span></div>
+        <div class="field"><label for="aType">Emergency type</label><select id="aType"><option>Chest pain</option><option>Breathing difficulty</option><option>Accident / injury</option><option>Stroke symptoms</option><option>Pregnancy</option><option>Other</option></select></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:22px;background:#c9302c" id="ambGo">Dispatch ambulance</button>
+    </div>
+    <div id="ambTrack" style="display:none">
+      <h3>Ambulance dispatched</h3><p class="sub" id="ambInfo">Vehicle KA-01-AU-2231 · Paramedic on board</p>
+      <div class="eta"><small style="color:var(--muted)">Estimated arrival</small><b id="ambEta">12:00</b></div>
+      <div class="amb-track"><i id="ambBar" style="width:0"></i><span id="ambIcon" style="left:0">🚑</span></div>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:16px">Stay on the line. Our ER team has been alerted.</p>
     </div>
   </div>
-</section>
-  </main>
+</div>
 
-  
-    <!-- Shared Site Footer -->
-    <footer class="site-footer">
-      <div class="container">
-        <!-- Big Hero Line -->
-        <div class="footer-hero-quote">
-          “Healing is a team sport. You’re the captain.”
-        </div>
-
-        <!-- Newsletter Subscription Box -->
-        <div class="footer-newsletter-wrap">
-          <div class="footer-newsletter-text">
-            <h4>Aurelia Health Digest</h4>
-            <p>Evidence-based longevity protocols, preventative cardiology tips, and clinic updates directly to your inbox.</p>
-          </div>
-          <form id="newsletterForm" class="newsletter-form">
-            <input type="email" placeholder="Enter your email address" required aria-label="Email for health digest">
-            <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
-          </form>
-        </div>
-
-        <!-- 3 Columns Links Grid -->
-        <div class="footer-grid">
-          <div>
-            <div class="brand-logo" style="margin-bottom:14px;">
-              <div class="logo-icon">
-                <svg viewBox="0 0 24 24"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
-              </div>
-              <div class="brand-text">
-                <span class="brand-name" style="color:#ffffff;">Aurelia CARE</span>
-                <span class="brand-tagline" style="color:var(--teal2);">HOSPITAL & RESEARCH</span>
-              </div>
-            </div>
-            <p class="footer-brand-bio">
-              Quaternary medical institute located in Bengaluru, India. Dedicated to clinical rigor, advanced translational research, and authentic patient compassion.
-            </p>
-          </div>
-
-          <div class="footer-col">
-            <h5>Clinical Institutes</h5>
-            <ul>
-              <li><a href="specialities.html">Cardiac Sciences</a></li>
-              <li><a href="specialities.html">Neurosciences & Stroke</a></li>
-              <li><a href="specialities.html">Robotic Orthopaedics</a></li>
-              <li><a href="specialities.html">Comprehensive Oncology</a></li>
-              <li><a href="specialities.html">Neonatal & Paediatrics</a></li>
-              <li><a href="specialities.html">Nephrology & Transplant</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-col">
-            <h5>Patients & Visitors</h5>
-            <ul>
-              <li><a href="book.html">Book Outpatient Visit</a></li>
-              <li><a href="doctors.html">Find a Specialist</a></li>
-              <li><a href="symptoms.html">Body Symptom Guide</a></li>
-              <li><a href="diet.html">Metabolic Diet Planner</a></li>
-              <li><a href="checkups.html">Health Check Packages</a></li>
-              <li><a href="visit.html">The 47-Minute OP Road</a></li>
-            </ul>
-          </div>
-
-          <div class="footer-col">
-            <h5>Hospital Campus</h5>
-            <ul>
-              <li><a href="contact.html">Campus Map & Parking</a></li>
-              <li><a href="tel:18000000000">24×7 Trauma Line</a></li>
-              <li><a href="patients.html#pharmacy">Home Pharmacy Delivery</a></li>
-              <li><a href="patients.html">Cashless TPA Desk</a></li>
-              <li><a href="contact.html">Request Call-Back</a></li>
-              <li><a href="#" data-action="open-portal">Patient Portal Login</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Footer Bottom Bar -->
-        <div class="footer-bottom">
-          <div>
-            © 2026 Aurelia CARE — Hospital & Research. All rights reserved. Bengaluru, India.
-          </div>
-          <div class="footer-disclaimer-note">
-            Educational Demo Notice: Aurelia CARE is a fictional hospital created for educational use. All medical indicators, doctor profiles, and clinical calculations are illustrative.
-          </div>
-          <div>
-            Free Unsplash images curated locally in <code>assets/img/</code>.
-          </div>
-        </div>
-      </div>
-    </footer>
-    
-  
-    <!-- FLOATING ACTION BUTTONS -->
-    <div class="floating-actions">
-      <!-- Back to Top Button -->
-      <button id="backToTop" class="float-btn float-top-btn" aria-label="Back to top" title="Back to top">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M18 15l-6-6-6 6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-
-      <!-- Aria Chat Assistant -->
-      <button id="chatBubbleBtn" class="float-btn float-chat-btn" aria-label="Open Aria Chat Assistant" title="Chat with Aria">
-        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-        <span class="chat-badge-ping"></span>
-      </button>
-
-      <!-- Ambulance SOS Floating Button -->
-      <button id="sosFloatBtn" class="float-btn float-sos-btn" data-action="open-sos" aria-label="Request Emergency Ambulance" title="24×7 Ambulance SOS">
-        <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 14h-2v-2h2v2zm0-4h-2V8h2v4z"/></svg>
-      </button>
+<div class="modal" id="reportModal">
+  <div class="panel box">
+    <button class="x" data-close>×</button>
+    <h3>Patient portal</h3><p class="sub">Sign in with your UHID and the OTP sent to your registered mobile. This is a demo: any UHID works, and the OTP is 1234.</p>
+    <div id="rpStep1" class="form-grid">
+      <div class="field full"><label for="rUhid">UHID</label><input id="rUhid" placeholder="e.g. AUR-102938"><span class="msg">Enter your UHID</span></div>
+      <div class="field full"><button class="btn btn-primary" id="rpOtp">Send OTP</button></div>
     </div>
-
-    <!-- ARIA CHAT DRAWER -->
-    <div id="ariaChatDrawer" style="position:fixed;bottom:90px;right:24px;width:360px;height:520px;background:var(--paper);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);border:1px solid var(--border-light);z-index:2500;display:flex;flex-direction:column;overflow:hidden;opacity:0;visibility:hidden;transform:translateY(20px) scale(0.95);transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
-      <!-- Header -->
-      <div style="background:linear-gradient(135deg, #155358, #0e373a);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:36px;height:36px;border-radius:50%;background:#2a9b95;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;">A</div>
-          <div>
-            <div style="font-weight:700;font-size:15px;line-height:1.2;">Aria Care Assistant</div>
-            <div style="font-size:11.5px;color:#8fe3d9;">● Online · Aurelia CARE</div>
-          </div>
-        </div>
-        <button id="closeAriaChatBtn" style="background:none;border:none;color:#fff;cursor:pointer;font-size:20px;">&times;</button>
-      </div>
-
-      <!-- Messages Body -->
-      <div id="ariaChatMessages" style="flex:1;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;background:var(--paper2);">
-        <div class="aria-msg aria-msg-bot" style="background:#ffffff;padding:12px 16px;border-radius:14px;box-shadow:var(--shadow-sm);font-size:14px;color:var(--ink);max-width:85%;">
-          Hello! I'm Aria, your Aurelia CARE navigator. How can I assist you with appointments, diet planning, or emergency guidance today?
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
-          <button class="aria-quick-chip" style="background:#ffffff;border:1px solid var(--teal);color:var(--teal);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">Book an appointment</button>
-          <button class="aria-quick-chip" style="background:#ffffff;border:1px solid var(--teal);color:var(--teal);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">Condition diet plan</button>
-          <button class="aria-quick-chip" style="background:#ffffff;border:1px solid var(--teal);color:var(--teal);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">Symptom check</button>
-          <button class="aria-quick-chip" style="background:#ffffff;border:1px solid var(--teal);color:var(--teal);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer;">Emergency ambulance</button>
-        </div>
-      </div>
-
-      <!-- Input Footer -->
-      <div style="padding:12px 16px;background:var(--paper);border-top:1px solid var(--border);display:flex;gap:8px;">
-        <input type="text" id="ariaChatInput" placeholder="Ask a question..." style="flex:1;padding:10px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--paper2);font-size:14px;color:var(--ink);outline:none;">
-        <button id="ariaChatSendBtn" class="btn btn-primary btn-sm" style="padding:0 16px;">Send</button>
-      </div>
+    <div id="rpStep2" class="form-grid" style="display:none">
+      <div class="field full"><label for="rOtp">OTP</label><input id="rOtp" inputmode="numeric" maxlength="4" placeholder="4-digit OTP"><span class="msg">Incorrect OTP (hint: 1234)</span></div>
+      <div class="field full"><button class="btn btn-primary" id="rpLogin">Verify &amp; sign in</button></div>
     </div>
+    <div id="rpStep3" style="display:none"></div>
+  </div>
+</div>
 
-    <style>
-      #ariaChatDrawer.open {
-        opacity: 1 !important;
-        visibility: visible !important;
-        transform: translateY(0) scale(1) !important;
-      }
-      .aria-msg-user {
-        background: var(--teal) !important;
-        color: #ffffff !important;
-        align-self: flex-end;
-        border-radius: 14px;
-        padding: 10px 14px;
-        font-size: 14px;
-        max-width: 85%;
-      }
-      .aria-typing span {
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        background: var(--muted);
-        border-radius: 50%;
-        margin-right: 4px;
-        animation: typing 1.4s infinite both;
-      }
-      .aria-typing span:nth-child(2) { animation-delay: 0.2s; }
-      .aria-typing span:nth-child(3) { animation-delay: 0.4s; }
-      @keyframes typing {
-        0%, 80%, 100% { transform: scale(0); }
-        40% { transform: scale(1); }
-      }
-    </style>
+<div class="toast" id="toast"></div>
 
-    <!-- PATIENT PORTAL MODAL -->
-    <div id="portalModal" class="modal-backdrop" aria-hidden="true">
-      <div class="modal-window">
-        <div class="modal-header">
-          <h3 class="modal-title">Aurelia Patient Digital Portal</h3>
-          <button class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form id="portalLoginForm">
-            <p style="font-size:14px;color:var(--muted);margin-bottom:18px;">
-              Access your electronic medical records, laboratory values, radiology imaging, and e-prescriptions.
-            </p>
-            <div class="form-group">
-              <label class="form-label" for="portalUhid">Hospital UHID / Registered Mobile</label>
-              <input type="text" id="portalUhid" class="form-control" value="AUR-904128" placeholder="e.g. AUR-904128 or 9845012345" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="portalOtp">Enter Demo OTP (Use: <strong>1234</strong>)</label>
-              <input type="password" id="portalOtp" class="form-control" value="1234" maxlength="4" placeholder="1234" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;">Verify & View Records</button>
-          </form>
-
-          <div id="portalReportsView" style="display:none;">
-            <div style="background:var(--paper2);padding:14px 18px;border-radius:var(--radius-md);margin-bottom:20px;">
-              <div style="font-weight:700;font-size:15px;color:var(--navy);">Dorothy Patel · Female · 71 yrs</div>
-              <div style="font-size:12px;color:var(--muted);">UHID: AUR-904128 · Primary Consultant: Dr. Elena Marquez</div>
-            </div>
-
-            <h4 style="font-size:16px;margin-bottom:12px;">Recent Laboratory & Diagnostic Reports</h4>
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#ffffff;border:1px solid var(--border);border-radius:8px;">
-                <div>
-                  <div style="font-weight:600;font-size:14px;">Complete Blood Count (CBC) with ESR</div>
-                  <div style="font-size:12px;color:var(--teal);">Verified Normal · Reported 16 Nov 2026</div>
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="window.AUR.toast('Downloading PDF: CBC_AUR904128.pdf')">PDF</button>
-              </div>
-
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#ffffff;border:1px solid var(--border);border-radius:8px;">
-                <div>
-                  <div style="font-weight:600;font-size:14px;">Comprehensive Lipid Panel</div>
-                  <div style="font-size:12px;color:#f59e0b;">Borderline (Total: 204 mg/dL) · Reported 16 Nov 2026</div>
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="window.AUR.toast('Downloading PDF: Lipid_AUR904128.pdf')">PDF</button>
-              </div>
-
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#ffffff;border:1px solid var(--border);border-radius:8px;">
-                <div>
-                  <div style="font-weight:600;font-size:14px;">2D Colour Doppler Echocardiogram</div>
-                  <div style="font-size:12px;color:var(--teal);">LVEF 62% Normal LV Systolic · Reported 15 Nov 2026</div>
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="window.AUR.toast('Downloading PDF: Echo_AUR904128.pdf')">PDF</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- AMBULANCE SOS MODAL -->
-    <div id="ambulanceModal" class="modal-backdrop" aria-hidden="true">
-      <div class="modal-window">
-        <div class="modal-header" style="background:#fee2e2;border-bottom:2px solid #ef4444;">
-          <h3 class="modal-title" style="color:#991b1b;display:flex;align-items:center;gap:8px;">
-            <span>🚨</span> 24×7 GPS Ambulance Dispatch
-          </h3>
-          <button class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form id="ambulanceForm">
-            <p style="font-size:14px;color:var(--ink2);margin-bottom:18px;">
-              Immediate telemetry ambulance with trained paramedics dispatched from nearest hub in Bengaluru.
-            </p>
-            <div class="form-group">
-              <label class="form-label" for="ambAddress">Current Pickup Location in Bengaluru *</label>
-              <input type="text" id="ambAddress" class="form-control" placeholder="e.g. 14th Cross, HSR Layout Sector 2, Bengaluru" required>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-              <div class="form-group">
-                <label class="form-label" for="ambType">Emergency Category</label>
-                <select id="ambType" class="form-control">
-                  <option value="cardiac">Cardiac / Chest Pain</option>
-                  <option value="stroke">Suspected Stroke (FAST)</option>
-                  <option value="trauma">Trauma / Accident</option>
-                  <option value="respiratory">Severe Breathing Difficulty</option>
-                  <option value="other">Other Medical Acute Emergency</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="ambPhone">Contact Phone *</label>
-                <input type="tel" id="ambPhone" class="form-control" placeholder="9845012345" maxlength="10" required>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-danger btn-lg" style="width:100%;">Dispatch Emergency Ambulance Now</button>
-          </form>
-
-          <div id="ambulanceTrackingView" style="display:none;text-align:center;">
-            <div style="font-size:48px;margin-bottom:8px;">🚑</div>
-            <h3 style="color:#991b1b;font-size:22px;margin-bottom:4px;">Ambulance Dispatched!</h3>
-            <div style="font-size:14px;color:var(--muted);margin-bottom:16px;">Unit KA-01-EA-9911 is en route with mobile ACLS defibrillator and telemetry.</div>
-            
-            <div style="background:var(--paper2);padding:18px;border-radius:var(--radius-md);margin-bottom:20px;">
-              <div style="font-size:12px;color:var(--muted);">ESTIMATED TIME OF ARRIVAL</div>
-              <div id="ambEtaDisplay" style="font-size:36px;font-weight:700;color:#dc2626;margin:4px 0 10px;">8m 45s</div>
-              <div class="live-progress-bar-bg" style="height:10px;">
-                <div id="ambLiveFill" class="live-progress-bar-fill" style="background:#dc2626;width:25%;"></div>
-              </div>
-            </div>
-
-            <div style="font-size:13.5px;text-align:left;background:#ffffff;border:1px solid var(--border);padding:14px;border-radius:8px;">
-              <div><strong>Driver:</strong> Suresh (+91 98450 12345)</div>
-              <div><strong>Lead Paramedic:</strong> Rajesh Kumar, EMT-P</div>
-              <div><strong>Hospital Hotline:</strong> 1800-000-0000</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-
-  <script src="assets/site.js"></script>
+<script src="assets/site.js"></script>
 </body>
 </html>

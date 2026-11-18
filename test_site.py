@@ -137,67 +137,83 @@ def test_all():
         print("\n2. Testing End-to-end Booking Flow...")
         page.goto(f"{base_url}/book.html", wait_until="networkidle")
         
-        # Step 1: Select Cardiology department
-        page.click(".dept-card")
-        page.wait_for_timeout(300)
+        # 2. End-to-end Booking Flow
+        print("\n2. Testing End-to-end Booking Flow...")
+        page.goto(f"{base_url}/book.html", wait_until="networkidle")
         
-        # Step 2: Select first doctor
-        page.click(".booking-doc-card")
-        page.wait_for_timeout(300)
+        # Step 0: Select Cardiology department (transitions to step 1 automatically)
+        page.wait_for_selector("#deptGrid .opt[data-dept='card']")
+        page.click("#deptGrid .opt[data-dept='card']")
+        page.wait_for_timeout(400)
+        
+        # Step 1: Select doctor (transitions to step 2 automatically)
+        page.wait_for_selector("#docPick .opt")
+        page.click("#docPick .opt")
+        page.wait_for_timeout(400)
 
-        # Step 3: Select an available slot button
-        page.click(".slot-btn:not(:disabled)")
+        # Step 2: Select an available slot button, then click continue
+        page.wait_for_selector("#slotArea .slot:not(:disabled)")
+        page.click("#slotArea .slot:not(:disabled)")
         page.wait_for_timeout(200)
-        page.click("#btnStep3Next")
-        page.wait_for_timeout(300)
+        page.click("#nextBtn")
+        page.wait_for_timeout(400)
 
-        # Step 4: Fill patient details
-        page.fill("#patientName", "Devashish Sharma")
-        page.fill("#patientPhone", "9876543210")
-        page.fill("#patientAge", "34")
-        page.fill("#patientReason", "Routine cardiac health screening")
-        page.click("#btnStep4Next")
-        page.wait_for_timeout(300)
+        # Step 3: Fill patient details
+        page.fill("#pName", "Devashish Sharma")
+        page.fill("#pPhone", "9876543210")
+        page.fill("#pAge", "34")
+        page.select_option("#pGender", "Male")
+        page.fill("#pReason", "Routine cardiac health screening")
+        page.click("#nextBtn")
+        page.wait_for_timeout(400)
 
-        # Step 5: Review & Confirm
-        page.screenshot(path=f"{SCREENSHOT_DIR}/booking_step5_review.png")
-        page.click("button[type='submit']")
-        page.wait_for_timeout(500)
+        # Step 4: Review & Confirm
+        page.screenshot(path=f"{SCREENSHOT_DIR}/booking_step4_review.png")
+        page.click("#consent")
+        page.wait_for_timeout(200)
+        page.click("#nextBtn")
+        page.wait_for_timeout(600)
 
-        # Verify confirmation boarding pass is visible and has token
-        token_text = page.inner_text("#confToken")
-        print(f"✓ Booking completed successfully! Generated Token: {token_text}")
+        # Step 5: Verify confirmation ticket
+        token_el = page.wait_for_selector("#ticket")
+        ticket_text = token_el.inner_text()
+        print(f"✓ Booking completed successfully! Ticket details: {ticket_text[:60]}...")
         page.screenshot(path=f"{SCREENSHOT_DIR}/booking_confirmation_ticket.png")
 
         # 3. Diet Calculator
         print("\n3. Testing Diet Calculator...")
         page.goto(f"{base_url}/diet.html", wait_until="networkidle")
-        initial_cal = page.inner_text("#calTargetVal")
+        page.wait_for_selector("#rCal")
+        initial_cal = page.inner_text("#rCal")
         
-        # Click on Kidney Disease condition
-        page.click(".condition-chip[data-condition='ckd']")
-        page.wait_for_timeout(200)
-        ckd_cal = page.inner_text("#calTargetVal")
-        guideline = page.inner_text("#dietGuidelineText")
-        print(f"✓ Diet recalculated for CKD. Initial: {initial_cal} kcal -> CKD: {ckd_cal} kcal. Guideline: {guideline[:50]}...")
+        # Click on Chronic Kidney Disease condition in #condGrid
+        page.wait_for_selector("#condGrid .cond[data-c='ckd']")
+        page.click("#condGrid .cond[data-c='ckd']")
+        page.wait_for_timeout(300)
+        ckd_cal = page.inner_text("#rCal")
+        print(f"✓ Diet recalculated for CKD. Initial: {initial_cal} kcal -> CKD: {ckd_cal} kcal.")
         page.screenshot(path=f"{SCREENSHOT_DIR}/diet_ckd_results.png")
 
         # 4. Symptom Guide -> Doctor Booking Hand-off
         print("\n4. Testing Symptom Guide -> Booking hand-off...")
         page.goto(f"{base_url}/symptoms.html", wait_until="networkidle")
-        # Click head hotspot
-        page.click(".body-hotspot")
-        page.wait_for_timeout(200)
-        # Select first symptom checkbox
-        page.click("#symptomChecklist input[type='checkbox']")
+        page.wait_for_selector(".bm-spot")
+        page.click(".bm-spot")
+        page.wait_for_timeout(300)
+        
+        # Select first symptom
+        page.wait_for_selector(".sym-chips .sym")
+        page.click(".sym-chips .sym")
         page.wait_for_timeout(300)
         page.screenshot(path=f"{SCREENSHOT_DIR}/symptoms_selected.png")
 
-        # Click Book on recommended specialist
-        page.click("#symptomRecommendations a.btn-primary")
-        page.wait_for_timeout(500)
+        # Click Book button on recommended doctor
+        page.wait_for_selector("button[data-bmbook]")
+        page.click("button[data-bmbook]")
+        page.wait_for_timeout(600)
         current_url = page.url
         print(f"✓ Handoff navigated to: {current_url}")
+        assert "book.html?doc=" in current_url
         page.screenshot(path=f"{SCREENSHOT_DIR}/symptoms_handoff_booking.png")
 
         context.close()
