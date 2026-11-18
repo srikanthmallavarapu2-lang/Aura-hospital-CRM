@@ -1,0 +1,169 @@
+/* =====================================================================
+   AURELIA CARE — MINT THEME (Loaded last)
+   Palette Tokens, Frosted Glass Polish, Full Dark Mode, Accessibility
+   ===================================================================== */
+
+:root {
+  --theme-name: "aurelia-mint";
+}
+
+/* Glassmorphism utility classes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow);
+}
+
+.glass-panel-subtle {
+  background: rgba(243, 251, 250, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* =====================================================================
+   FULL DARK MODE
+   ===================================================================== */
+[data-theme="dark"] {
+  --bg: #091a1d;
+  --bg-gradient: linear-gradient(180deg, #071518 0%, #091a1d 100%);
+  --paper: #10262a;
+  --paper2: #142f34;
+  --ink: #eaf6f5;
+  --ink2: #b5deda;
+  --muted: #7aa7a4;
+  --navy: #1f6167;
+  --navy2: #2a8189;
+  --teal: #36b0aa;
+  --teal2: #5ad5cc;
+  --mint: #153c40;
+  --accent-light: #5ad5cc;
+  --accent-glow: rgba(54, 176, 170, 0.45);
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-light: rgba(255, 255, 255, 0.12);
+
+  --shadow-sm: 0 4px 16px -4px rgba(0, 0, 0, 0.5);
+  --shadow: 0 12px 32px -14px rgba(0, 0, 0, 0.65);
+  --shadow-lg: 0 30px 70px -30px rgba(0, 0, 0, 0.85);
+}
+
+[data-theme="dark"] body {
+  background: var(--bg-gradient);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .main-nav {
+  background: rgba(16, 38, 42, 0.88);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .page-banner {
+  background: linear-gradient(135deg, #0b1f22 0%, #102d32 100%);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .hero-stage,
+[data-theme="dark"] .journey-stage-wrap {
+  background: radial-gradient(circle at 50% 40%, #15353a 0%, #0c2024 100%);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .floating-photo-card {
+  border-color: #1a3d42;
+}
+
+[data-theme="dark"] .glass-bubble,
+[data-theme="dark"] .hero-hud-card {
+  background: rgba(16, 38, 42, 0.9);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #eaf6f5;
+}
+
+[data-theme="dark"] .service-tile-card,
+[data-theme="dark"] .live-status-card,
+[data-theme="dark"] .human-care-section,
+[data-theme="dark"] .start-link-card,
+[data-theme="dark"] .story-card-slide,
+[data-theme="dark"] .booking-main-card,
+[data-theme="dark"] .booking-summary-panel,
+[data-theme="dark"] .body-map-stage,
+[data-theme="dark"] .road-interactive-stage,
+[data-theme="dark"] .road-controls-bar,
+[data-theme="dark"] .doctor-card,
+[data-theme="dark"] .package-card:not(.featured-dark),
+[data-theme="dark"] .service-box,
+[data-theme="dark"] .article-card,
+[data-theme="dark"] .faq-item,
+[data-theme="dark"] .contact-card-info,
+[data-theme="dark"] .campus-map-card,
+[data-theme="dark"] .modal-window,
+[data-theme="dark"] .mobile-nav-panel,
+[data-theme="dark"] .toast {
+  background: var(--paper);
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .service-tile-icon-slot,
+[data-theme="dark"] .start-link-icon,
+[data-theme="dark"] .summary-fee-box,
+[data-theme="dark"] .meal-row,
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .search-input-wrap input {
+  background: var(--paper2);
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .theme-toggle-btn {
+  background: var(--paper2);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .marquee-section {
+  background: #0c2024;
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .marquee-item {
+  color: #b5deda;
+}
+
+[data-theme="dark"] .btn-secondary {
+  background: var(--paper2);
+  color: #ffffff;
+  border-color: var(--border-light);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background: #1d4348;
+  color: var(--teal2);
+}
+
+/* =====================================================================
+   PREFERS REDUCED MOTION
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .banner-ecg-line svg,
+  .tiles-ecg-canvas-wrap svg,
+  .marquee-track {
+    animation: none !important;
+  }
+
+  .floating-photo-card,
+  .hero-shield-obj,
+  .glass-bubble,
+  .hero-hud-card {
+    animation: none !important;
+  }
+}
