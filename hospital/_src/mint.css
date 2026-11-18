@@ -289,3 +289,150 @@ footer .big em,.cta-band h2 em,.dark-band h2 em{color:#8fe3d9}
 .story-stage .ribs{opacity:.75}
 .story-stage:not(.all) .ribs{opacity:.32}
 .story-stage:not(.all) .vessels.central{opacity:.55}
+
+/* =====================================================================
+   21st.dev MODERN UI ENHANCEMENTS: BUTTONS, SPOTLIGHT CARDS & ANIMATIONS
+   ===================================================================== */
+
+/* 1. Viewport Scroll Reading Progress Bar */
+.scroll-progress{
+  position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,var(--teal),#45b7af,#8fe3d9,#45b7af);
+  background-size:200% 100%;
+  animation:progressGlow 3s linear infinite;
+  box-shadow:0 0 10px rgba(42,155,149,.65);
+  z-index:9999;width:0%;pointer-events:none;
+  transition:width .1s ease-out;
+}
+@keyframes progressGlow{to{background-position:200% 0}}
+
+/* 2. 21st.dev Shimmer Buttons with Tactical Ripple */
+.btn{
+  position:relative;
+  overflow:hidden;
+  transition:transform .24s cubic-bezier(.16,1,.3,1),box-shadow .24s cubic-bezier(.16,1,.3,1),background .25s,border-color .25s;
+}
+.btn:active{
+  transform:translateY(1px) scale(.98)!important;
+}
+.btn-primary::after, .btn-gold::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.32) 50%,transparent 80%);
+  transform:translateX(-100%);
+  animation:btnShimmer 4.8s cubic-bezier(.4,0,.2,1) infinite;
+  pointer-events:none;
+}
+@keyframes btnShimmer{
+  0%,65%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+.btn-primary:hover{
+  box-shadow:0 14px 34px -8px rgba(35,133,127,.65),0 0 20px rgba(69,183,175,.35);
+  transform:translateY(-2px);
+}
+.btn-gold:hover{
+  box-shadow:0 12px 30px -8px rgba(127,216,207,.65);
+  transform:translateY(-2px);
+}
+.btn-ghost{
+  transition:border-color .22s,background .22s,transform .22s,box-shadow .22s;
+}
+.btn-ghost:hover{
+  background:rgba(255,255,255,.92);
+  box-shadow:0 8px 24px -6px rgba(22,90,95,.18);
+  transform:translateY(-2px);
+}
+:root[data-theme="dark"] .btn-ghost:hover{
+  background:rgba(20,55,59,.92);
+  box-shadow:0 8px 24px -6px rgba(0,0,0,.5);
+}
+
+/* Button Click Ripple Effect */
+.btn-ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(255,255,255,.45);
+  transform:scale(0);
+  animation:rippleAnim .55s ease-out;
+  pointer-events:none;
+}
+@keyframes rippleAnim{
+  to{transform:scale(2.5);opacity:0}
+}
+
+/* 3. 21st.dev Animated Gradient Accent Text */
+h1 em, h2 em, .page-hero h1 em, .sch h3 em{
+  background:linear-gradient(110deg,#1c7e78 0%,#2a9b95 25%,#62ddd1 50%,#2a9b95 75%,#1c7e78 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:textShine 8s linear infinite;
+  display:inline;
+}
+:root[data-theme="dark"] h1 em, :root[data-theme="dark"] h2 em{
+  background:linear-gradient(110deg,#34a89f 0%,#5fe0d4 25%,#affff7 50%,#5fe0d4 75%,#34a89f 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+@keyframes textShine{
+  to{background-position:200% center}
+}
+
+/* 4. 21st.dev Spotlight Cards (Radial Glow Follows Cursor) */
+.tile, .centre, .pkg, .cond, .doc-card, .res-card, .ccard{
+  position:relative;
+  transition:transform .32s cubic-bezier(.16,1,.3,1),box-shadow .32s cubic-bezier(.16,1,.3,1),border-color .25s;
+}
+.tile:hover, .centre:hover, .pkg:hover, .cond:hover, .doc-card:hover, .res-card:hover, .ccard:hover{
+  border-color:rgba(69,183,175,.45);
+}
+.tile::before, .centre::before, .pkg::before, .cond::before, .doc-card::before, .res-card::before, .ccard::before{
+  content:"";position:absolute;inset:0;
+  border-radius:inherit;
+  background:radial-gradient(420px circle at var(--mouse-x,-999px) var(--mouse-y,-999px),rgba(69,183,175,.12),transparent 60%);
+  pointer-events:none;z-index:1;opacity:0;
+  transition:opacity .3s ease;
+}
+.tile:hover::before, .centre:hover::before, .pkg:hover::before, .cond:hover::before, .doc-card:hover::before, .res-card:hover::before, .ccard:hover::before{
+  opacity:1;
+}
+:root[data-theme="dark"] .tile::before,
+:root[data-theme="dark"] .centre::before,
+:root[data-theme="dark"] .pkg::before,
+:root[data-theme="dark"] .cond::before,
+:root[data-theme="dark"] .doc-card::before,
+:root[data-theme="dark"] .res-card::before,
+:root[data-theme="dark"] .ccard::before{
+  background:radial-gradient(420px circle at var(--mouse-x,-999px) var(--mouse-y,-999px),rgba(79,214,198,.18),transparent 60%);
+}
+
+/* 5. 21st.dev Interactive Form Inputs (Soft Glow Focus) */
+input:focus, select:focus, textarea:focus{
+  outline:none;
+  border-color:var(--teal)!important;
+  box-shadow:0 0 0 4px rgba(42,155,149,.16),0 4px 14px -4px rgba(42,155,149,.2);
+}
+
+/* 6. Floating Action Buttons (Glow Ring & Elevate) */
+.fab-stack .fab{
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s ease;
+}
+.fab-stack .fab:hover{
+  transform:scale(1.08) translateY(-3px);
+}
+.fab-stack .fab.sos{
+  box-shadow:0 8px 24px -4px rgba(201,48,44,.55),0 0 0 0 rgba(201,48,44,.4);
+  animation:sosBeacon 2.4s infinite;
+}
+@keyframes sosBeacon{
+  0%{box-shadow:0 8px 24px -4px rgba(201,48,44,.55),0 0 0 0 rgba(201,48,44,.45)}
+  70%{box-shadow:0 8px 24px -4px rgba(201,48,44,.55),0 0 0 14px rgba(201,48,44,0)}
+  100%{box-shadow:0 8px 24px -4px rgba(201,48,44,.55),0 0 0 0 rgba(201,48,44,0)}
+}
+
+/* 7. Reduced Motion Friendly */
+@media (prefers-reduced-motion:reduce){
+  .btn-primary::after, .btn-gold::after{animation:none!important}
+  h1 em, h2 em{animation:none!important;background:none!important;-webkit-text-fill-color:var(--teal)!important}
+  .scroll-progress{display:none!important}
+}

@@ -9,11 +9,11 @@ from pathlib import Path
 
 here = Path(__file__).parent
 out = here.parent
-read = lambda *names: "\n".join((here / n).read_text() for n in names)
+read = lambda *names: "\n".join((here / n).read_text(encoding="utf-8") for n in names)
 
 (out / "assets").mkdir(exist_ok=True)
-(out / "assets" / "site.css").write_text(read("style.css", "features.css", "pages.css", "mint.css"))
-(out / "assets" / "site.js").write_text(read("app.js", "features.js"))
+(out / "assets" / "site.css").write_text(read("style.css", "features.css", "pages.css", "mint.css"), encoding="utf-8")
+(out / "assets" / "site.js").write_text(read("app.js", "features.js"), encoding="utf-8")
 
 body = read("body.html")
 prefix, rest = body.split("<main>", 1)
@@ -166,5 +166,5 @@ for file, label, chunks, strip, cta in PAGES:
 </body>
 </html>
 """
-    (out / file).write_text(page)
+    (out / file).write_text(page, encoding="utf-8")
     print(f"wrote {file:20s} {len(page):>7,} bytes")

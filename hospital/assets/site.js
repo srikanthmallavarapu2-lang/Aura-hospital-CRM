@@ -520,8 +520,40 @@ $("#newsForm").addEventListener("submit", e => { e.preventDefault(); e.target.re
 
 /* ---------------- CHROME: nav, theme, reveal, counters, live ---------------- */
 const nav = $("#nav");
-const onScroll = () => { nav.classList.toggle("scrolled", scrollY > 50); $("#toTop").classList.toggle("show", scrollY > 900); };
+const sp = $("#scrollProgress");
+const onScroll = () => {
+  nav.classList.toggle("scrolled", scrollY > 50);
+  $("#toTop").classList.toggle("show", scrollY > 900);
+  if (sp) {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    sp.style.width = max > 0 ? (Math.min(100, Math.max(0, (scrollY / max) * 100)) + "%") : "0%";
+  }
+};
 addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+/* 21st.dev Spotlight card tracking */
+document.addEventListener("pointermove", e => {
+  const c = e.target.closest(".tile, .centre, .pkg, .cond, .doc-card, .panel, .bstep, .ccard, .res-card");
+  if (!c) return;
+  const r = c.getBoundingClientRect();
+  c.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+  c.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+}, { passive: true });
+
+/* 21st.dev Button ripple micro-interaction */
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".btn, .opt, .slot, .chip, .cond");
+  if (!btn) return;
+  const r = btn.getBoundingClientRect();
+  const circle = document.createElement("span");
+  circle.className = "btn-ripple";
+  const d = Math.max(r.width, r.height);
+  circle.style.width = circle.style.height = `${d}px`;
+  circle.style.left = `${e.clientX - r.left - d / 2}px`;
+  circle.style.top = `${e.clientY - r.top - d / 2}px`;
+  btn.appendChild(circle);
+  setTimeout(() => circle.remove(), 600);
+});
 $("#toTop").onclick = () => scrollTo({ top: 0, behavior: "smooth" });
 $("#burger").onclick = () => $("#mobileMenu").classList.add("open");
 $("#menuClose").onclick = () => $("#mobileMenu").classList.remove("open");
